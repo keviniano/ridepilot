@@ -186,9 +186,10 @@ namespace :ridepilot do
     User.transaction do 
       User.unscoped.each do |user|
         next if user.username.present?
-        
-        user.update(username: user.email)
-        user.save
+
+        user.update_attribute(:username, user.email) # user email as default username
+        user.update_attribute(:first_name, user.email.split('@').first) # default first name
+        user.update_attribute(:last_name, 'User') # default last name
       end
     end
   end
