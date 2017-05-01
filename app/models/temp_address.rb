@@ -1,4 +1,6 @@
 class TempAddress < Address 
+  FORM_PARAMS = ['address', 'city', 'state', 'zip', 'notes']
+
   def self.parse_api_params(address_params)
     address_data = GooglePlaceParser.new(address_params[:address]).parse || {}
 
@@ -25,5 +27,9 @@ class TempAddress < Address
 
   def self.search_existing_address(criteria)
     where(criteria).first
+  end
+
+  def self.allowable_params
+    FORM_PARAMS
   end
 end

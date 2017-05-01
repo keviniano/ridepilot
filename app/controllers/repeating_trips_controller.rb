@@ -176,14 +176,14 @@ class RepeatingTripsController < ApplicationController
   def process_google_address
     if params[:repeating_trip][:pickup_address_id].blank? && !params[:trip_pickup_google_address].blank?
       addr_params = JSON(params[:trip_pickup_google_address])
-      new_temp_addr = TempAddress.new(addr_params.except("lat", "lon"))
+      new_temp_addr = TempAddress.new(addr_params.select{|x| TempAddress.allowable_params.include?(x) })
       new_temp_addr.the_geom = RGeo::Geographic.spherical_factory(srid: 4326).point(addr_params['lon'].to_f, addr_params['lat'].to_f)
       @trip.pickup_address = new_temp_addr
     end
 
     if params[:repeating_trip][:dropoff_address_id].blank? && !params[:trip_dropoff_google_address].blank?
       addr_params = JSON(params[:trip_dropoff_google_address])
-      new_temp_addr = TempAddress.new(addr_params.except("lat", "lon"))
+      new_temp_addr = TempAddress.new(addr_params.select{|x| TempAddress.allowable_params.include?(x)})
       new_temp_addr.the_geom = RGeo::Geographic.spherical_factory(srid: 4326).point(addr_params['lon'].to_f, addr_params['lat'].to_f)
       @trip.dropoff_address = new_temp_addr
     end
