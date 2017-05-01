@@ -4,7 +4,6 @@
       <td class="name">
         <%=  link_to_if can?(:edit, ProviderCommonAddress), address.name || '' , edit_provider_common_address_path(address) %>
       </td>
-      <td><%= address.building_name %></td>
       <td><%= address.address %></td>
       <td><%= address.city %></td>
       <td><%= address.state %></td>
