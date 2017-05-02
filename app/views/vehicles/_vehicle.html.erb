@@ -21,9 +21,6 @@
     <%= vehicle.garaged_location %>
   </td>
   <td>
-    <%= vehicle.default_driver.try(:name) || "Not set" %>
-  </td>
-  <td>
     <%= vehicle.active ? translate_helper("active") : translate_helper("inactive") %>
   </td>
   <td>
