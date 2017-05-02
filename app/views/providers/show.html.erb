@@ -127,7 +127,7 @@
       <ol class="section fourth">
         <li>
           <%= label_tag translate_helper("enabled") %>
-          <%= select_tag "cab", options_for_select( [["No", false], ["Yes", true]], @provider.try(:cab_enabled?) ), { :onchange => "form.submit();" } %>
+          <%= select_tag "cab_enabled", options_for_select( [["No", false], ["Yes", true]], @provider.try(:cab_enabled?) ), { :onchange => "form.submit();" } %>
         </li>
       </ol>
     </fieldset>
