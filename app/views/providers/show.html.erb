@@ -65,7 +65,7 @@
       <% end %>
     </tr>
 
-    <% for role in @provider.roles.joins(:user).reorder("lower(users.last_name)") %>
+    <% for role in @provider.roles.joins(:user).reorder("lower(users.last_name)", "lower(users.first_name)") %>
     <tr>
       <td> <%= role.user.name %> </td>
       <td class="<%= role.name.downcase %>">
