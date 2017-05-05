@@ -67,7 +67,12 @@
 
     <% for role in @provider.roles.joins(:user).reorder("lower(users.last_name)", "lower(users.first_name)") %>
     <tr>
-      <td> <%= role.user.name %> </td>
+      <td> 
+        <% if can? :show, role.user %>
+          <%= link_to role.user.name_with_username, user_path(role.user) %>
+        <% else %>
+          <%= role.user.name_with_username %> </td>
+        <% end %>
       <td class="<%= role.name.downcase %>">
         <%= role.user.email %>
         <% if can? :manage, role.user %>

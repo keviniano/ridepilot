@@ -101,7 +101,7 @@ class DriversController < ApplicationController
     
     @available_users = @driver.provider.users - User.drivers(@driver.provider)
     @available_users << @driver.user if @driver.user
-    @available_users = @available_users.sort_by(&:label_as_driver) 
+    @available_users = @available_users.sort_by(&:name_with_username) 
     
     @hours = @driver.hours_hash
 

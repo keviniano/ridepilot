@@ -82,7 +82,7 @@
           <div class="form-group">
             <%= f.label :user_id, translate_helper("driver_form_associated_user"), class: "col-md-2 control-label" %>
             <div class="col-md-10">
-              <%= f.collection_select :user_id, @available_users, :id, :label_as_driver, { include_blank: true }, { class: "form-control", disabled: @readonly } %>
+              <%= f.collection_select :user_id, @available_users, :id, :name_with_username, { include_blank: true }, { class: "form-control", disabled: @readonly } %>
             </div>
           </div>  
         </div><!-- END .panel-body -->
