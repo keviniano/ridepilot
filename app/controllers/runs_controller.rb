@@ -74,7 +74,7 @@ class RunsController < ApplicationController
     
     respond_to do |format|
       if @run.is_all_valid?(current_provider_id) && @run.save
-        format.html { redirect_to(runs_path(date_range(@run)), :notice => 'Run was successfully created.') }
+        format.html { redirect_to @run, :notice => 'Run was successfully created.' }
         format.xml  { render :xml => @run, :status => :created, :location => @run }
       else
         setup_run
@@ -101,7 +101,7 @@ class RunsController < ApplicationController
                 
     respond_to do |format|
       if @run.is_all_valid?(current_provider_id) && @run.update_attributes(run_params)
-        format.html { redirect_to(runs_path(date_range(@run)), :notice => 'Run was successfully updated.') }
+        format.html { redirect_to @run, :notice => 'Run was successfully updated.' }
         format.xml  { head :ok }
       else
         setup_run

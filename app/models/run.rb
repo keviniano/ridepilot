@@ -44,6 +44,13 @@ class Run < ActiveRecord::Base
   validate                  :driver_availability
   validate                  :vehicle_availability
   
+  scope :after,                  -> (date) { where('runs.date > ?', date) }
+  scope :after_today,            -> { where('runs.date > ?', Date.today) }
+  scope :prior_to,               -> (date) { where('runs.date < ?', date) }
+  scope :today_and_prior,        -> { where('runs.date <= ?', Date.today) }
+  scope :for_date,               -> (date) { where('runs.date = ?', date) }
+  scope :for_date_range,         -> (start_date, end_date) { where("runs.date >= ? and runs.date < ?", start_date, end_date) }
+  scope :overlapped,             -> (run) { where("date = ?", run.date).where.not("scheduled_end_time <= ? or scheduled_start_time >= ?", run.scheduled_start_time, run.scheduled_end_time) }
   scope :incomplete,             -> { where('complete is NULL or complete = ?', false) }
   scope :incomplete_on,          -> (date) { incomplete.for_date(date) }
   scope :with_odometer_readings, -> { where("start_odometer IS NOT NULL and end_odometer IS NOT NULL") }
@@ -79,6 +86,13 @@ class Run < ActiveRecord::Base
 
   def check_complete_status
     actual_end_time.present? && actual_end_time < Time.zone.now && trips.incomplete.empty? && check_provider_fields_required_for_run_completion
+  end
+
+  def self.other_overlapped_runs(run)
+    overlapped_runs = Run.overlapped(run)
+    overlapped_runs = overlapped_runs.where.not(id: run.id) unless run.new_record?
+
+    overlapped_runs
   end
 
   private
@@ -124,13 +138,13 @@ class Run < ActiveRecord::Base
     #if date && scheduled_start_time && driver && !driver.available?(date.wday, scheduled_start_time.strftime('%H:%M'))
       #errors.add(:driver_id, TranslationEngine.translate_text(:unavailable_at_run_time))
     #end
-    if self.driver && Run.overlapped(self).pluck(:driver_id).include?(self.driver.id)
+    if self.driver && Run.other_overlapped_runs(self).pluck(:driver_id).include?(self.driver.id)
       errors.add(:driver_id, TranslationEngine.translate_text(:assigned_to_other_overlapping_run))
     end
   end
 
   def vehicle_availability
-    if self.vehicle && Run.overlapped(self).pluck(:vehicle_id).include?(self.vehicle.id)
+    if self.vehicle && Run.other_overlapped_runs(self).pluck(:vehicle_id).include?(self.vehicle.id)
       errors.add(:vehicle_id, TranslationEngine.translate_text(:assigned_to_other_overlapping_run))
     end
   end

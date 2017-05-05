@@ -16,19 +16,13 @@ module RunCore
     validates_datetime        :scheduled_start_time, allow_blank: true
     validates_datetime        :scheduled_end_time, after: :scheduled_start_time, allow_blank: true
 
-    scope :after,                  -> (date) { where('runs.date > ?', date) }
-    scope :after_today,            -> { where('runs.date > ?', Date.today) }
-    scope :for_date,               -> (date) { where('runs.date = ?', date) }
-    scope :for_date_range,         -> (start_date, end_date) { where("runs.date >= ? and runs.date < ?", start_date, end_date) }
-    scope :overlapped,             -> (run) { where("date = ?", run.date).where.not("scheduled_end_time <= ? or scheduled_start_time >= ?", run.scheduled_start_time, run.scheduled_end_time) }
     scope :for_paid_driver,        -> { where(paid: true) }
     scope :for_volunteer_driver,   -> { where(paid: false) }
     scope :for_provider,           -> (provider_id) { where(provider_id: provider_id) }
     scope :for_vehicle,            -> (vehicle_id) { where(vehicle_id: vehicle_id) }
     scope :for_driver,             -> (driver_id) { where(driver_id: driver_id) }
     scope :has_scheduled_time,     -> { where.not(scheduled_start_time: nil).where.not(scheduled_end_time: nil) }
-    scope :prior_to,               -> (date) { where('runs.date < ?', date) }
-    scope :today_and_prior,        -> { where('runs.date <= ?', Date.today) }
+    
 
     delegate :name, to: :driver, prefix: :driver, allow_nil: true
   end
