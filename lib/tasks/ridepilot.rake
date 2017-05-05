@@ -159,7 +159,8 @@ namespace :ridepilot do
       application_cabs_link_text: 'Cabs',
       application_admin_link_text: "System Admin",
       current_provider_settings_link_text: "Provider Settings",
-      application_trips_runs_link_text: 'Dispatch'
+      application_trips_runs_link_text: 'Dispatch',
+      trips_runs: 'Dispatch'
     }
 
     en_locale = Locale.find_by_name 'en'

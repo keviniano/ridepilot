@@ -1132,7 +1132,7 @@ en:
   attendant_count_column: 'Attendant Count'
   # trips runs tab
   application_trips_runs_link_text: 'Dispatch'
-  trips_runs: 'Trips Runs'
+  trips_runs: 'Dispatch'
   trips_runs_filter: 'Filter'
   run_result: 'Result'
   run_trip_day: 'Date'
