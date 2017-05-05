@@ -58,7 +58,7 @@ RSpec.describe RunsController, type: :controller do
 
       it "redirects to the created run" do
         post :create, {:run => valid_attributes}
-        expect(response).to redirect_to(runs_path(date_range(Run.new(valid_attributes))))
+        expect(response).to redirect_to(run_path(assigns(:run)))
       end
     end
 
@@ -121,7 +121,7 @@ RSpec.describe RunsController, type: :controller do
       it "redirects to the run" do
         run = create(:run, :provider => @current_user.current_provider)
         put :update, {:id => run.to_param, :run => valid_attributes}
-        expect(response).to redirect_to(runs_path(date_range(run)))
+        expect(response).to redirect_to(run_path(run))
       end
     end
 
