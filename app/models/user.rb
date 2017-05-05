@@ -91,6 +91,10 @@ class User < ActiveRecord::Base
     name.blank? ? email : name
   end
 
+  def label_as_driver
+    "#{last_name}, #{first_name} (#{username})"
+  end
+
   private
 
   def valid_phone_number
