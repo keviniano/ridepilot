@@ -1,5 +1,8 @@
 %table#tripsTable
   %tr
+    -# first two columns are for select and view link
+    %th
+      %input{type: "checkbox"}
     %th
     %th= translate_helper("pickup_date_column")
     %th= translate_helper("customer_column")

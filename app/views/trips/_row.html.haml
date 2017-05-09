@@ -1,5 +1,7 @@
 %tr.trip{"data-trip-id" => trip.id }
   %td
+    %input{type: "checkbox"}
+  %td
     = link_to(translate_helper("view"), trip_path(trip))
   %td
     = format_time_for_listing_day trip.pickup_time
