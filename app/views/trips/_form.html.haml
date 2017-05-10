@@ -55,53 +55,46 @@
         });
       });
 
-  -# = form_for @trip,
-  -#   html: { class: "trip-check-double-booked-form"},
-  -#   url: trip_check_double_booked_path(@trip),
-  -#   method: :post, remote: true do |f|
-  -#   = f.input ""
-  
-= render partial: 'double_booked_trip_dialog'
-
 - if @is_repeating_trip
   = render 'shared/hide_invisible_form_fields_js', model_name: "repeatingtrip", table_name: 'repeating_trips', provider_id:  current_provider.try(:id)
 - else
   = render 'shared/hide_invisible_form_fields_js', model_name: "trip", table_name: 'trips', provider_id:  current_provider.try(:id)
 
+- unless @is_repeating_trip
+  = render partial: 'trips/double_booked_trip_dialog'
+  :javascript
+    $(document).ready(function(){
+      // makeDatePickers(); // DEPRECATED
 
-:javascript
-  $(document).ready(function(){
-    // makeDatePickers(); // DEPRECATED
+      var doubleBookedTripRowHtml = "#{escape_javascript(render partial: 'double_booked_trip_row')}"
+      var dbh = new DoubleBookedTripsHelper({
+        tableRowHtml: doubleBookedTripRowHtml,
+        url: "#{check_double_booked_trips_path}",
+        form: $('form.trip_form'),
+        modal: $('#doubleBookedTripDialog'),
+        table: $('#doubleBookedTripDialog #double-booked-trips-table')
+      })
 
-    var doubleBookedTripRowHtml = "#{escape_javascript(render partial: 'double_booked_trip_row')}"
-    var dbh = new DoubleBookedTripsHelper({
-      tableRowHtml: doubleBookedTripRowHtml,
-      url: "#{check_double_booked_trips_path}",
-      form: $('form.trip_form'),
-      modal: $('#doubleBookedTripDialog'),
-      table: $('#doubleBookedTripDialog #double-booked-trips-table')
-    })
+      // On form submit, check for potential double-booking before submitting form
+      dbh.form.submit(function(e) {
+        var form = this;
+        e.preventDefault();
+        var requestBody = dbh.requestBodyFromForm(#{@trip_id || 'null'});
 
-    // On form submit, check for potential double-booking before submitting form
-    dbh.form.submit(function(e) {
-      var form = this;
-      e.preventDefault();
-      var requestBody = dbh.requestBodyFromForm(#{@trip_id || 'null'});
-
-      dbh.checkDoubleBooked(requestBody, function(data) {
-        // If double booking exists, alert user and let them cancel or continue
-        if(data.trips.length > 0) {
-          dbh.populateTable(data.trips);
-          dbh.showModal();
-          // If modal submit button is clicked, submit form.
-          dbh.modal.find('.submit-double-book-modal').click(function() {
+        dbh.checkDoubleBooked(requestBody, function(data) {
+          // If double booking exists, alert user and let them cancel or continue
+          if(data.trips.length > 0) {
+            dbh.populateTable(data.trips);
+            dbh.showModal();
+            // If modal submit button is clicked, submit form.
+            dbh.modal.find('.submit-double-book-modal').click(function() {
+              form.submit();
+            });
+          // Else, submit form
+          } else {
             form.submit();
-          });
-        // Else, submit form
-        } else {
-          form.submit();
-        }
+          }
+        });
+        
       });
-      
     });
-  });
