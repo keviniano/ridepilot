@@ -19,9 +19,11 @@
         = translate_helper("hide_calendar")
   = render 'calendar', base_path: trips_path, resources: @day_resources, events: @trips_json
 
+  .cancel-selected-trips.btn.btn-primary{style: 'margin-bottom: 5px;'}
+    Cancel Selected Trips
   = render 'list'
 
-= render 'trip_result_reason_dialog'
+= render 'trips/trip_result_reason_dialog'
 
 :javascript
   $(function() {
@@ -51,21 +53,30 @@
       #{TripResult.cancel_codes.pluck(:id)}
     );
 
+    // One checkbox to rule them all
+    $('.master-select-checkbox').change(function() {
+      $('.trip-selected').prop('checked', $(this).prop('checked'));
+    });
+
+    // Change result of all selected trips to cancelled
+    $('.cancel-selected-trips').click(function() {
+      var checkBoxes = $('.trip-selected:checked');
+      var tripRows = checkBoxes.closest('tr.trip');
+      
+      // Set each row's result selector to "Cancelled" and submit its form
+      var resultInputs = tripRows.find('.trip_table_result_column select');
+      resultInputs.val(5);
+      
+      // Let user input a cancellation comment
+      trh.processChange(resultInputs);
+      
+      // Clear checkboxes
+      $('.master-select-checkbox').prop('checked', false).trigger('change');
+    });
+
     // Show trip result reason modal dialog on result change to a cancellation code
     $('.trip_table_result_column select').change(function() {
       trh.processChange($(this));
-
-      // If changed to a cancellation code, show a modal to allow optional
-      // entry of a result comment. On closing of modal, copy the comment
-      // into the form and submit.
-      if(trh.isCancelCodeSelected()) {
-        trh.showResultReasonModal();
-      } else {
-        // If not a cancellation code, make sure the result reason field is
-        // empty and submit the form.
-        trh.tripForm.input.val("");
-        trh.tripForm.form.submit();
-      }
     });
 
   });

@@ -10,11 +10,21 @@ function TripResultHelper(modalSelector, cancelCodes) {
 
 TripResultHelper.prototype = {
   // Sets up the helper to deal with a change on a particular trip
-  processChange: function(element) {
+  processChange: function(element, isCancelCallback, notCancelCallback) {
     this.tripForm = {
       form: element.closest('form'),
       input: element.closest('form').find('input#trip_result_reason'),
       resultCode: parseInt(element.val())
+    }
+
+    // If changed to a cancellation code, show a modal to allow optional
+    // entry of a result comment. On closing of modal, copy the comment
+    // into the form and submit.
+    if(this.isCancelCodeSelected()) {
+      this.showResultReasonModal();
+    } else {
+      this.tripForm.input.val("");
+      this.tripForm.form.submit();
     }
   },
 
