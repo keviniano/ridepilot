@@ -100,7 +100,7 @@ class Trip < ActiveRecord::Base
     return nil unless t
     return t unless d
     t = t.to_time
-    Time.new(d.year, d.month, d.day, t.hour, t.min, 0)
+    Time.zone.local(d.year, d.month, d.day, t.hour, t.min, 0) # parse as local time
   end
 
   def complete
