@@ -88,7 +88,8 @@ class Trip < ActiveRecord::Base
   # Special date attr_writer sets @date instance variable. Accepts a Date object or a date string
   # This date is used in setting pickup and appointment time attributes
   def date=(date)
-    @date = date.is_a?(String) ? Date.parse(date) : date
+    return false if date.blank?
+    @date = Date.parse(date.to_s)
     # Refresh pickup and appointment time with new date
     self.pickup_time = pickup_time #unless pickup_time.to_date == @date
     self.appointment_time = appointment_time #unless appointment_time.to_date == @date
