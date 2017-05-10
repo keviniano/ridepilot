@@ -569,6 +569,7 @@ en:
   change_email_heading: "Change Email"
   change_role: "Change role"
   delete_role_confirm: "Are you sure?"
+  delete_driver_user_role_confirm: "This user is associated with a driver account. Are you sure to delete it?"
   create_user_link_text: "Create User"
   restore_user_link_text: 'Restore User'
   user_details_heading: "Details"

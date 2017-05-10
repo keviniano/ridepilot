@@ -90,7 +90,7 @@
             <%= f.submit translate_helper("change_role") %>
           <% end %>
         </td>
-        <td><%= button_to translate_helper("delete"), provider_delete_role_path(@provider.id, :role_id=>role.id), data: {:confirm => translate_helper("delete_role_confirm")}, :class=>'delete' %></td>
+        <td><%= button_to translate_helper("delete"), provider_delete_role_path(@provider.id, :role_id=>role.id), data: {:confirm => translate_helper((role.user.driver.present? ? "delete_driver_user_role_confirm" : "delete_role_confirm"))}, :class=>'delete' %></td>
       <% end %>
     </tr>
     <% end %>
