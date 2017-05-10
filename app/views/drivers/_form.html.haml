@@ -43,8 +43,8 @@
             .form-group
               = f.label :email, translate_helper("driver_form_email"), class: "col-md-2 control-label"
               .col-md-10
-                = @driver.user.try(:email)
-                - if can?(:edit, @driver.user)
+                = @driver.user.try(:email) || @driver.email
+                - @driver.user.present? && if can?(:edit, @driver.user)
                   = link_to translate_helper("edit"), edit_user_path(@driver.user), class: "btn action-button"
           .form-group
             = f.label :active, translate_helper("driver_form_active"), class: "col-md-2 control-label"
