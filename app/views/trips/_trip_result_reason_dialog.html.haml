@@ -6,16 +6,20 @@
     .modal-content
       .modal-header
         .pull-right
-          .submit-result-reason.btn.btn-primary{ data: {dismiss: 'modal'} }
+          .confirm-result-reason.btn.btn-primary{ data: {dismiss: 'modal'} }
             =translate_helper(:submit)
-          .dismiss-result-reason.btn.btn-danger{ data: {dismiss: 'modal'} }
+          .skip-result-reason.btn.btn-warning.cancel-code{ data: {dismiss: 'modal'} }
             =translate_helper(:trip_result_modal_dismiss)
+          .cancel-result-reason.btn.btn-danger{ data: {dismiss: 'modal'} }
+            =translate_helper(:trip_result_modal_cancel)
         %h5.modal-title{:style => "text-align:left;"}
           %strong
             = translate_helper(:site_title)
-      .modal-body.row{:style => "text-align:left; margin: 0px;"}
+      .modal-body.row.cancel-code{:style => "text-align:left; margin: 0px;"}
         .col-sm-12{style: 'padding: 5px;'}
           %label.result-reason-label= translate_helper(:ask_for_trip_result_reason_message)
         .col-sm-12{style: 'padding: 5px;'}
           %textarea.result-reason-text.form-control{ style: 'width: 100%; height: 60px;'}
-
+      .modal-body.row.non-cancel-code{:style => "text-align:left; margin: 0px;"}
+        .col-sm-12{style: 'padding: 5px;'}
+          %label.result-reason-label= translate_helper(:trip_result_confirm_message)

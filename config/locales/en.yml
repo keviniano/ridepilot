@@ -995,6 +995,12 @@ en:
   trip_called_back_column: 'Called back?'
   trip_result_column: 'Result'
   trip_direction_column: 'Trip Direction'
+  change_selected_trips_result: 'Change Result of Selected Trips'
+  ask_for_trip_result_reason_message: "Would you like to enter a trip cancellation comment?"
+  trip_result_modal_dismiss: "No thanks"
+  trip_result_modal_cancel: "Cancel"
+  trip_result_confirm_message: "Are you sure you want to change the trip result?"
+  
   #users
   new_user_heading: "Create New User"
   user_form_error_message:
@@ -1011,8 +1017,7 @@ en:
   user_expires_at: "Inactivation Date"
   user_inactivation_reason: "Reasons"
   change_expiration_submit: "Update"
-  ask_for_trip_result_reason_message: "Would you like to enter a trip cancellation comment?"
-  trip_result_modal_dismiss: "No thanks"
+
 
   # Vehicle Maintenance Events
   vehicle_maintenance_event_form_error:

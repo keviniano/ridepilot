@@ -19,8 +19,17 @@
         = translate_helper("hide_calendar")
   = render 'calendar', base_path: trips_path, resources: @day_resources, events: @trips_json
 
-  .cancel-selected-trips.btn.btn-primary{style: 'margin-bottom: 5px;'}
-    Cancel Selected Trips
+  -# .cancel-selected-trips.btn.btn-primary{style: 'margin-bottom: 5px;'}
+  -#   Cancel Selected Trips
+  .cancel-selected-trips.dropdown{style: 'margin-bottom: 5px;'}
+    %button.btn.btn-primary.dropdown-toggle{type: 'button', data: {toggle: 'dropdown'}} 
+      =translate_helper(:change_selected_trips_result)
+      %span.caret
+    %ul.dropdown-menu
+      -@trip_results.each do |tr|
+        %li
+          %a{href: '#', 'data-trip-result-id' => tr[1] }
+            =tr[0]
   = render 'list'
 
 = render 'trips/trip_result_reason_dialog'
@@ -57,26 +66,89 @@
     $('.master-select-checkbox').change(function() {
       $('.trip-selected').prop('checked', $(this).prop('checked'));
     });
-
-    // Change result of all selected trips to cancelled
-    $('.cancel-selected-trips').click(function() {
-      var checkBoxes = $('.trip-selected:checked');
-      var tripRows = checkBoxes.closest('tr.trip');
-      
-      // Set each row's result selector to "Cancelled" and submit its form
-      var resultInputs = tripRows.find('.trip_table_result_column select');
-      resultInputs.val(5);
-      
-      // Let user input a cancellation comment
-      trh.processChange(resultInputs);
-      
-      // Clear checkboxes
+    
+    var clearCheckboxes = function() {
       $('.master-select-checkbox').prop('checked', false).trigger('change');
+    }
+
+    // Handler for changing an individual trip result
+    $('.trip_table_result_column select').change(function() {
+      var resultCode = $(this).val();
+      var form = $(this).closest('form');
+      var resultReasonInput = form.find('input#trip_result_reason');
+      if(trh.isCancelCode(resultCode)) { // If result is a cancel code...
+        console.log("IS CANCEL CODE");
+        trh.prepareModal(
+          resultReasonInput.val(), // Set result reason input to current value
+          true, // Show result reason input
+          {
+            confirm: function() { // update the result reason based on user input, and submit form
+              resultReasonInput.val(trh.modalInput.val());
+              form.submit();
+            },
+            skip: function() { // Just submit the form
+              form.submit();
+            }
+          }
+        );
+        trh.showModal();
+      } else { // If result is NOT a cancel code...
+        form.submit(); // ...just submit the form as-is.
+      }
+
     });
 
-    // Show trip result reason modal dialog on result change to a cancellation code
-    $('.trip_table_result_column select').change(function() {
-      trh.processChange($(this));
+    // Handler for changing multiple selected trip results
+    $('.cancel-selected-trips a').click(function() {
+      var checkedBoxes = $('.trip-selected:checked');
+      if(checkedBoxes.length === 0) { return; } // Return if no trips are selected
+
+      var tripRows = checkedBoxes.closest('tr.trip');
+      var resultCode = $(this).data('trip-result-id');
+      var resultSelectors = tripRows.find('.trip_table_result_column select');
+      var forms = resultSelectors.closest('form');
+      var resultReasonInputs = forms.find('input#trip_result_reason');
+
+      if(trh.isCancelCode(resultCode)) { // If result is a cancel code...
+        trh.prepareModal(
+          "", // Set result reason input to blank
+          true, // Show result reason input
+          { // Prepare modal responses:
+            confirm: function() { // update the results and result reason and submit form
+              resultSelectors.val(resultCode);
+              resultReasonInputs.val(trh.modalInput.val());
+              forms.submit();
+              clearCheckboxes();
+            },
+            skip: function() { // just update results and submit the form
+              resultSelectors.val(resultCode);
+              forms.submit();
+              clearCheckboxes();
+            },
+            cancel: function() { // don't update results or submit form
+              return;
+            }
+          }
+        )
+      } else { // If result is NOT a cancel code...
+        trh.prepareModal(
+          "", // Set result reason input to blank
+          false, // Don't show result reason input
+          { // Prepare modal responses:
+            confirm: function() {
+              resultSelectors.val(resultCode);
+              forms.submit();
+              clearCheckboxes();
+            },
+            cancel: function() {
+              return;
+            }
+          }
+        )
+      }
+
+      trh.showModal();
+      
     });
 
   });
