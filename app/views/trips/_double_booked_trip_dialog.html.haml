@@ -12,10 +12,10 @@
             =translate_helper(:double_booked_modal_dismiss)
         %h5.modal-title{:style => "text-align:left;"}
           %strong
-            = translate_helper(:site_title)
+            = translate_helper(:double_booked_modal_title)
       .modal-body.row{:style => "text-align:left; margin: 0px;"}
         .col-sm-12{style: 'padding: 5px;'}
-          %label.result-reason-label=translate_helper(:ask_about_trip_double_booked_message)
+          %label=translate_helper(:double_booked_modal_message)
           %table#double-booked-trips-table
             %tr.header-row
               %th=translate_helper(:pickup_time)

@@ -977,8 +977,9 @@ en:
   eligibility_and_accommodation: 'Eligibility and Accommodation'
   
   # Double booked trips
-  ask_about_trip_double_booked_message: 'This trip may be double booked with the following trips. Would you like to continue?'
-  double_booked_modal_submit: 'Continue'
+  double_booked_modal_title: 'Warning: Potential Duplication of Trips'
+  double_booked_modal_message: 'The customer already has one or more trips on the same day that could be duplicates. Do you want to save this trip as entered or go back to re-edit information about the trip?'
+  double_booked_modal_submit: 'Save'
   double_booked_modal_dismiss: 'Back'
   
   #trips table
