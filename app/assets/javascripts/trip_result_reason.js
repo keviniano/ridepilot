@@ -5,7 +5,6 @@ function TripResultHelper(modalSelector, cancelCodes) {
   this.modal = $(modalSelector);
   this.modalInput = this.modal.find('.result-reason-text');
   this.cancelCodes = cancelCodes;
-  this.tripForm = {};
 }
 
 TripResultHelper.prototype = {
