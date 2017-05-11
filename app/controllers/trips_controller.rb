@@ -24,7 +24,7 @@ class TripsController < ApplicationController
       @trip_results = TripResult.by_provider(current_provider).order(:name).pluck(:name, :id)
     end
 
-    @trips_json = @trips.has_scheduled_time.map(&:as_calendar_json).flatten.to_json # TODO: sql refactor to improve performance
+    @trips_json = @trips.has_scheduled_time.map(&:as_calendar_json).flatten.compact.to_json # TODO: sql refactor to improve performance
     @day_resources = []
 
     if @start_pickup_date > @end_pickup_date
