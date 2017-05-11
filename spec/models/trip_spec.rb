@@ -3,24 +3,6 @@ require "rails_helper"
 RSpec.describe Trip do
 
   describe "date and time" do
-    it "requires pickup_time to be a valid date" do
-      trip = build :trip, pickup_time: "13/13/13", appointment_time: "12/12/12"
-      expect(trip.valid?).to be_falsey
-      expect(trip.errors.keys).to include :pickup_time
-
-      trip.pickup_time = "12/12/12"
-      expect(trip.valid?).to be_truthy
-    end
-
-    it "requires appointment_time to be a valid date" do
-      trip = build :trip, appointment_time: "13/13/13"
-      expect(trip.valid?).to be_falsey
-      expect(trip.errors.keys).to include :appointment_time
-
-      trip.appointment_time = "12/12/12"
-      expect(trip.valid?).to be_truthy
-    end
-
     it "if pickup_time is assigned a string that ends in 'a', it automatically appends an 'm' before parsing" do
       trip = build :trip
       time = "01:00:00 a"

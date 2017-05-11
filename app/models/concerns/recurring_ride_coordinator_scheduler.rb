@@ -16,7 +16,9 @@ module RecurringRideCoordinatorScheduler
   module ClassMethods
     # Create occurrences from all schedulers. This method is idempotent.
     def generate!
-      for scheduler in self.active
+      schedulers = self.all 
+      schedulers = schedulers.active if schedulers.respond_to?(:active)
+      for scheduler in schedulers
         scheduler.instantiate!
       end
     end

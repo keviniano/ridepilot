@@ -23,12 +23,10 @@ module TripCore
     validates :dropoff_address, associated: true, presence: true
     validates :guest_count, numericality: {greater_than_or_equal_to: 0}
     validates :pickup_address, associated: true, presence: true
-    validates :pickup_time, presence: true
     validates :trip_purpose_id, presence: true
-    validates_datetime :appointment_time, presence: true
     validates_datetime :pickup_time, presence: true
+    validates_datetime :appointment_time, presence: true, on_or_after: :pickup_time, on_or_after_message: "should be no earlier than pickup time"
     validates :mobility_device_accommodations, numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_blank: true }
-    validate :dropff_time_later_than_pickup_time
 
     accepts_nested_attributes_for :customer
 
@@ -38,14 +36,6 @@ module TripCore
     scope :for_provider,       -> (provider_id) { where(provider_id: provider_id) }
     scope :individual,         -> { joins(:customer).where(customers: {group: false}) }
     scope :not_called_back,    -> { where('called_back_at IS NULL') }
-
-    private
-
-    def dropff_time_later_than_pickup_time
-      if appointment_time && pickup_time && appointment_time <= pickup_time
-        errors.add(:appointment_time, TranslationEngine.translate_text(:dropff_time_later_than_pickup_time))
-      end
-    end
   end
 
   def trip_size
