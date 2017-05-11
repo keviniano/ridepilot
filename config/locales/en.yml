@@ -523,8 +523,9 @@ en:
   vehicle_has_open_seating_capacity_validation_error: "There's not enough open capacity on this run to accommodate this trip"
   completable_until_trip_appointment_day_validation_error: "cannot be set as complete until the day of the trip appointment"
   vehicle_has_mobility_device_capacity_validation_error: "There's not enough mobility device capacity on this run to accommodate this trip"
-  outbound_trip_dropoff_time_no_later_than_return_trip_pickup_time: "Dropoff time should be no later than return trip's pickup time"
+  outbound_trip_dropoff_time_no_later_than_return_trip_pickup_time: "Appointment time should be no later than return trip's pickup time"
   return_trip_pickup_time_no_earlier_than_outbound_trip_dropoff_time: "Pickup time should be no earlier than outbound trip's appointment time"
+  dropff_time_later_than_pickup_time: "Appointment time should be later than pickup time"
   violate_provider_min_time_gap: 'The gap between drop off time and pick up time violates the minimum gap setting (%{min_gap} minutes) by the provider (%{provider_name})'
   #monthlies
   monthlies_start_date: "Month"
