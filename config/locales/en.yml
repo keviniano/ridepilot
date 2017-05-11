@@ -643,7 +643,7 @@ en:
   provider_not_available_for_trip: 'Provider is not available for the trip.'
   customer_trip_summary_for: "Trips for "
   view_customer_trip_summary: "Trip Summary"
-  customer_trip_summary_instructions: "Clone a new trip from each trip below by double clicking. Only up to 6 trips are listed."
+  customer_trip_summary_instructions: "Double clicking each trip below to clone a new trip"
   #reports
   service_performed: "Service Performed"
   odometer_reading: "Odometer Reading"

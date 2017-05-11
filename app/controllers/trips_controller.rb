@@ -66,6 +66,7 @@ class TripsController < ApplicationController
           t_end = utility.parse_date params[:end_date]
           @trips = @trips.where("pickup_time <= '#{t_end.end_of_day.utc.strftime "%Y-%m-%d %H:%M:%S"}'")
         end
+        @trips = @trips.order(pickup_time: :asc)
       else
         # last 10 trips by default
         @trips = @trips.order(pickup_time: :desc).prior_to(DateTime.now).limit(10)
