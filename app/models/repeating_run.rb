@@ -66,7 +66,7 @@ class RepeatingRun < ActiveRecord::Base
   def instantiate!
     return unless active? 
 
-    now = Date.today + 1.day
+    now = Date.today.in_time_zone + 1.day
     later = now.advance(days: (provider.try(:advance_day_scheduling) || Provider::DEFAULT_ADVANCE_DAY_SCHEDULING) - 1)
     RepeatingRun.transaction do
       for date in schedule.occurrences_between(now, later)
