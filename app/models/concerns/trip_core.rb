@@ -4,7 +4,7 @@ module TripCore
   extend ActiveSupport::Concern
 
   included do
-    belongs_to :customer, -> { with_deleted }
+    belongs_to :customer, -> { with_deleted }, validate: false
     belongs_to :dropoff_address,  -> { with_deleted }, class_name: "Address"
     belongs_to :funding_source, -> { with_deleted }
     belongs_to :mobility, -> { with_deleted }
