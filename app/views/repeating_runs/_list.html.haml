@@ -3,7 +3,6 @@
     %tr
       %th
       %th= translate_helper("run_name_column")
-      %th= translate_helper("run_date_column")
       %th= translate_helper("run_start_time_column")
       %th= translate_helper("run_end_time_column") 
       %th= translate_helper("run_vehicle_column") 
@@ -15,8 +14,6 @@
           = link_to(translate_helper("view"), repeating_run_path(run)) if can?(:show, run)
         %td
           = run.name
-        %td
-          = run.date.to_s(:long)
         %td
           = run.scheduled_start_time.try(:to_s,:time_only)
         %td
