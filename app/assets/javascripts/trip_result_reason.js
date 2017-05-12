@@ -1,17 +1,17 @@
 // JS for modal handling trip cancellation reason inputs
 // takes a jQuery selector identifying the trip result reason modal div,
-// and an array of codes (id #s) to consider "Cancellations"
-function TripResultHelper(modalSelector, cancelCodes) {
+// and an array of codes (id #s) to consider asking for reason
+function TripResultHelper(modalSelector, reasonNeededCodes) {
   this.modal = $(modalSelector);
   this.modalInput = this.modal.find('.result-reason-text');
-  this.cancelCodes = cancelCodes;
+  this.reasonNeededCodes = reasonNeededCodes;
 }
 
 TripResultHelper.prototype = {
 
   // returns true/false if integer corresponds to a cancellation code
-  isCancelCode: function(code) {
-    return this.cancelCodes.includes(parseInt(code));
+  isReasonNeeded: function(code) {
+    return this.reasonNeededCodes.includes(parseInt(code));
   },
 
   // Shows the modal

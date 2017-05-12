@@ -17,7 +17,7 @@
           = f.label :trip_result, translate_helper("trip_result")
         .col-sm-9
           = f.select :trip_result_id, @trip_results,  { :include_blank => true }, {class: 'form-control'}
-      .form-group.col-sm-12.result_reason{style: @trip.result_is_cancel_code? ? '' : 'display: none;'}
+      .form-group.col-sm-12.result_reason{style: @trip.result_need_reason? ? '' : 'display: none;'}
         .col-sm-3
           = f.label :result_reason, translate_helper("trip_result_reason")
         .col-sm-9
@@ -31,9 +31,9 @@
 
       :javascript
         $(document).ready(function() {
-          var cancelCodes = #{TripResult.cancel_codes.pluck(:id).map(&:to_s)};
+          var reasonNeededCodes = #{TripResult.reason_needed_result_ids.map(&:to_s)};
           $('#trip_trip_result_id').change(function() {
-            if (cancelCodes.indexOf($(this).val()) >= 0) {
+            if (reasonNeededCodes.indexOf($(this).val()) >= 0) {
               $('.result_reason').show();
             } else {
               $('.result_reason').hide();

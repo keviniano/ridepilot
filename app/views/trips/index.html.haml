@@ -59,7 +59,7 @@
     // Initialize a helper object with the trip result reason modal, and a list of cancellation codes.
     var trh = new TripResultHelper(
       "#tripResultReasonDialog",
-      #{TripResult.cancel_codes.pluck(:id)}
+      #{TripResult.reason_needed_result_ids}
     );
 
     // One checkbox to rule them all
@@ -76,8 +76,7 @@
       var resultCode = $(this).val();
       var form = $(this).closest('form');
       var resultReasonInput = form.find('input#trip_result_reason');
-      if(trh.isCancelCode(resultCode)) { // If result is a cancel code...
-        console.log("IS CANCEL CODE");
+      if(trh.isReasonNeeded(resultCode)) { // If result is a code that needs to ask for reason...
         trh.prepareModal(
           resultReasonInput.val(), // Set result reason input to current value
           true, // Show result reason input
@@ -109,7 +108,7 @@
       var forms = resultSelectors.closest('form');
       var resultReasonInputs = forms.find('input#trip_result_reason');
 
-      if(trh.isCancelCode(resultCode)) { // If result is a cancel code...
+      if(trh.isReasonNeeded(resultCode)) { // If result is a code that needs to ask for reason...
         trh.prepareModal(
           "", // Set result reason input to blank
           true, // Show result reason input

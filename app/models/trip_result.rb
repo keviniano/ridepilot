@@ -8,6 +8,7 @@ class TripResult < ActiveRecord::Base
   # Cancelled, Late Cancel, Same Day Cancel, Missed Trip, No Show
   CANCEL_CODES = ['CANC', 'LTCANC', 'SDCANC', 'MT', 'NS']
   NON_DISPATCHABLE_CODES = CANCEL_CODES + ['UNMET', 'TD']
+  CODES_NEED_REASON = CANCEL_CODES + ['TD']
 
   validates_presence_of :name, :code
   scope :cancel_codes, -> { where(code: CANCEL_CODES) }
@@ -21,6 +22,10 @@ class TripResult < ActiveRecord::Base
     description || name
   end
 
+  def self.is_reason_needed?(code)
+    CODES_NEED_REASON.include? code
+  end
+
   def self.is_cancel_code?(code)
     CANCEL_CODES.include? code
   end
@@ -31,5 +36,9 @@ class TripResult < ActiveRecord::Base
 
   def self.non_dispatchable_result_ids
     @non_dispatchable_result_ids ||= where(code: NON_DISPATCHABLE_CODES).pluck(:id)
+  end
+
+  def self.reason_needed_result_ids
+    @reason_needed_result_ids ||= where(code: CODES_NEED_REASON).pluck(:id)
   end
 end

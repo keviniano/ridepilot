@@ -212,8 +212,8 @@ class Trip < ActiveRecord::Base
   end
 
   # Is the trip result one of several "cancel-type" codes?
-  def result_is_cancel_code?
-    trip_result && trip_result.cancelled?
+  def result_need_reason?
+    trip_result && TripResult.is_reason_needed?(trip_result.code)
   end
 
   def clone_for_future!
