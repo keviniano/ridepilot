@@ -40,6 +40,7 @@ TripResultHelper.prototype = {
     modal.find('.btn').addClass('hidden');
     $.each(callbacks, function(label, callback) {
       modal.find('.' + label + '-result-reason.btn')
+      .off("click")
       .removeClass('hidden')
       .click(function() {
         callback();
