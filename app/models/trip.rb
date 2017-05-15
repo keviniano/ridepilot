@@ -222,6 +222,7 @@ class Trip < ActiveRecord::Base
     cloned_trip.pickup_time = nil
     cloned_trip.appointment_time = nil
     cloned_trip.trip_result = nil
+    cloned_trip.result_reason = nil
     cloned_trip.customer_informed = false
     cloned_trip.called_back_by = nil
     cloned_trip.donation = nil
@@ -251,6 +252,7 @@ class Trip < ActiveRecord::Base
     return_trip.repeating_trip = nil
     return_trip.drive_distance = nil
     return_trip.trip_result = nil
+    return_trip.result_reason = nil
     return_trip
   end
 
