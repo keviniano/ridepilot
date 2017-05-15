@@ -19,7 +19,8 @@
         = translate_helper("hide_calendar")
   = render 'calendar', base_path: trips_path, resources: @day_resources, events: @trips_json
 
-  .cancel-selected-trips{style: 'margin-bottom: 5px;'}
+  %br
+  .cancel-selected-trips.dropdown{style: 'margin-bottom: 5px;'}
     %button.btn.btn-primary.dropdown-toggle{type: 'button', data: {toggle: 'dropdown'}} 
       =translate_helper(:change_selected_trips_result)
       %span.caret
