@@ -13,8 +13,8 @@ FactoryGirl.define do
 
     trait :completed do
       scheduled
-      actual_start_time "10:00 AM"
-      actual_end_time "1:00 PM"
+      start_odometer 100
+      end_odometer 200
     end
 
     trait :last_week do
