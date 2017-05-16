@@ -74,6 +74,8 @@ en:
   #eligibilities
   eligible: 'Eligible'
   age_eligible: 'Age Eligible'
+  age_eligibility: 'Age Eligibility'
+  eligible_age: "Eligible Age"
   not_eligible: 'Not Eligible'
   ineligible_reason: 'Why not eligible?'
   #customers
