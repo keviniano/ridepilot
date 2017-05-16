@@ -13,8 +13,8 @@ class Run < ActiveRecord::Base
   #     provider_id
   #     vehicle_id
   #   Already checked by set_complete:
-  #     actual_end_time
-  #     actual_start_time (by virtue of actual_end_time)
+  #     start_odometer
+  #     end_odometer 
   #   Meta
   #     created_at
   #     updated_at
@@ -92,7 +92,7 @@ class Run < ActiveRecord::Base
   end
 
   def check_complete_status
-    actual_end_time.present? && actual_end_time < Time.zone.now && trips.incomplete.empty? && check_provider_fields_required_for_run_completion
+    start_odometer.present? && end_odometer.present? && start_odometer < end_odometer && trips.incomplete.empty? && check_provider_fields_required_for_run_completion
   end
 
   def self.other_overlapped_runs(run)

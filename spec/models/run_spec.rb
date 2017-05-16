@@ -10,7 +10,7 @@ RSpec.describe Run, type: :model do
     end
 
     it "checks for any pending trips" do
-      run = create :run, actual_start_time: 15.minutes.ago.in_time_zone, actual_end_time: Time.zone.now
+      run = create :run, start_odometer:100, end_odometer: 200
       trip = create :trip, run: run, trip_result: nil
       run.valid?
       expect(run.complete?).to be_falsey
@@ -20,27 +20,13 @@ RSpec.describe Run, type: :model do
       expect(run.complete?).to be_truthy
     end
 
-    it "checks to see if #actual_end_time is before 'now'" do
-      run = create :run, actual_start_time: 15.minutes.ago.in_time_zone, actual_end_time: nil
-      run.valid?
-      expect(run.complete?).to be_falsey
-
-      run.actual_end_time = 5.minutes.from_now.in_time_zone
-      run.valid?
-      expect(run.complete?).to be_falsey
-
-      run.actual_end_time = 5.minutes.ago.in_time_zone
-      run.valid?
-      expect(run.complete?).to be_truthy
-    end
-
     it "uses the Provider#fields_required_for_run_completion to decide if a run is considered complete" do
-      run = create :run, actual_start_time: 15.minutes.ago.in_time_zone, actual_end_time: Time.zone.now
-      run.provider.update_attributes fields_required_for_run_completion: %w(start_odometer)
+      run = create :run, start_odometer:100, end_odometer: 200
+      run.provider.update_attributes fields_required_for_run_completion: %w(paid)
       run.valid?
       expect(run.complete?).to be_falsey
 
-      run.start_odometer = 1
+      run.paid = true
       run.valid?
       expect(run.complete?).to be_truthy
     end
