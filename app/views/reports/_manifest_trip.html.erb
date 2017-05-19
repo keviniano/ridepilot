@@ -2,8 +2,8 @@
   <tr class="customer">
     <td class="name">
       <%= trip.customer.name %><span class='address_separator'></span>
-      <%= number_to_phone(trip.customer.phone_number_1, area_code: true) %><span class='address_separator'></span>
-      <%= number_to_phone(trip.customer.phone_number_2, area_code: true) %>
+      <%= format_phone_number(trip.customer.phone_number_1) %><span class='address_separator'></span>
+      <%= format_phone_number(trip.customer.phone_number_2) %>
     </td>
     <td class="mobility">
       <%= trip.mobility.try(:name) %>

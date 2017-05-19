@@ -9,10 +9,10 @@
     = link_to trip.customer.name, trip.customer, :title => translate_helper("view_customer_record_link_text")
   %td
     - if trip.customer.try(:phone_number_1)
-      = number_to_phone(trip.customer.try(:phone_number_1), area_code: true)
+      = format_phone_number(trip.customer.try(:phone_number_1))
     - if trip.customer.try(:phone_number_2)
       %br/
-      = number_to_phone(trip.customer.try(:phone_number_2), area_code: true)
+      = format_phone_number(trip.customer.try(:phone_number_2))
   %td
     = trip.is_return? ? translate_helper("return_trip") : translate_helper("outbound_trip")
     - if trip.is_linked?

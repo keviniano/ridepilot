@@ -20,8 +20,8 @@
     <tr>
       <td class="plurality"><%= link_to customer.group ? content_tag(:span, "Group", :class=>'group') : content_tag(:span, "Individual", :class=>'individual'), customer %></td>
       <td><%= link_to customer.name, customer %></td>
-      <td><%= number_to_phone(customer.phone_number_1, area_code: true) %></td>
-      <td><%= number_to_phone(customer.phone_number_2, area_code: true) %></td>
+      <td><%= format_phone_number(customer.phone_number_1) %></td>
+      <td><%= format_phone_number(customer.phone_number_2) %></td>
       <td><%= customer.email %></td>
       <td><%= image_tag("tick-circle.png") if customer.active? %></td>
       <td><%= customer.activated_date %></td>

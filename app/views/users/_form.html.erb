@@ -63,7 +63,7 @@
               <% if edit_mode != :show %>
                 <%= f.text_field :phone_number, class: "form-control" %>
               <% else %>
-                <%= number_to_phone(@user.phone_number, area_code: true)%>
+                <%= format_phone_number(@user.phone_number)%>
               <% end %>
             </div>
           </div>   

@@ -20,4 +20,7 @@
     .form-group
       = f.label :garage_phone_number, translate_helper("phone_number"), class: "col-md-2 control-label"
       .col-md-10
-        = f.text_field :garage_phone_number, disabled: @readonly, class: "form-control"
+        - if @readonly
+          = format_phone_number(@vehicle.garage_phone_number)
+        - else
+          = f.text_field :garage_phone_number, disabled: @readonly, class: "form-control"

@@ -56,7 +56,7 @@
         = f.label :phone_number_1, translate_helper(:phone_number) 
       .col-sm-9
         - if edit_mode == :show
-          = number_to_phone(@customer.phone_number_1, area_code: true)
+          = format_phone_number(@customer.phone_number_1)
         - else
           = f.text_field :phone_number_1, class: 'form-control'
     .form-group.col-sm-12
@@ -64,7 +64,7 @@
         = f.label :phone_number_2, translate_helper(:alternate_phone_number) 
       .col-sm-9
         - if edit_mode == :show
-          = number_to_phone(@customer.phone_number_2, area_code: true)
+          = format_phone_number(@customer.phone_number_2)
         - else
           = f.text_field :phone_number_2, class: 'form-control'
     .form-group.col-sm-12

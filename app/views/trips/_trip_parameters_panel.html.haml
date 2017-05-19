@@ -89,7 +89,7 @@
           - if edit_mode != :show
             = c.text_field :phone_number_1, :class => :full, class: 'form-control'
           - else
-            = number_to_phone(c.object.phone_number_1, area_code: true)
+            = format_phone_number(c.object.phone_number_1)
 
       - if @trip.customer.try(:id).blank?
         %input#trip_customer_attributes_id{type:"hidden", name:"trip[customer_attributes][id]"}
@@ -115,7 +115,7 @@
         %label{for:"dropoff_phone"}
           = translate_helper("dropoff_phone")
       .col-sm-9
-        %input.full.form-control#dropoff_phone{type:"text", size:"30", name:"dropoff_phone", value:"#{number_to_phone(@trip.dropoff_address.try(:phone_number), area_code: true)}", readonly:"readonly"}
+        %input.full.form-control#dropoff_phone{type:"text", size:"30", name:"dropoff_phone", value:"#{format_phone_number(@trip.dropoff_address.try(:phone_number))}", readonly:"readonly"}
 
     .form-group.col-sm-12
       .col-sm-3

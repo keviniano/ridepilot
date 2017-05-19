@@ -6,7 +6,7 @@
       %td= address.address
       %td= address.city
       %td= address.state
-      %td= number_to_phone(address.phone_number, area_code: true)
+      %td= format_phone_number address.phone_number
       %td= address.in_district? ? "In District" : "Out of District"
       %td= address.notes
       - if can? :edit, Address

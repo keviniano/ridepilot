@@ -28,7 +28,7 @@
             .col-md-10
               - if @readonly
                 %p.form-control
-                  = number_to_phone(@driver.phone_number, area_code: true)
+                  = format_phone_number(@driver.phone_number)
               - else
                 = f.text_field :phone_number, class: "form-control"
           .form-group
@@ -36,7 +36,7 @@
             .col-md-10
               - if @readonly
                 %p.form-control
-                  = number_to_phone(@driver.alt_phone_number, area_code: true)
+                  = format_phone_number(@driver.alt_phone_number)
               - else
                 = f.text_field :alt_phone_number, class: "form-control"
           - if @readonly
@@ -44,7 +44,7 @@
               = f.label :email, translate_helper("driver_form_email"), class: "col-md-2 control-label"
               .col-md-10
                 = @driver.user.try(:email) || @driver.email
-                - @driver.user.present? && !@driver.user.deleted? && if can?(:edit, @driver.user)
+                - if @driver.user.present? && !@driver.user.deleted? && can?(:edit, @driver.user)
                   = link_to translate_helper("edit"), edit_user_path(@driver.user), class: "btn action-button"
           .form-group
             = f.label :active, translate_helper("driver_form_active"), class: "col-md-2 control-label"

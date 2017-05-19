@@ -161,4 +161,14 @@ module ApplicationHelper
     end
   end
 
+  def format_phone_number(phone_number)
+    return "" if phone_number.blank?
+
+    us_phony = Phony['1'] # US phone validation
+
+    norm_number = us_phony.normalize(phone_number.to_s)
+
+    number_to_phone norm_number, area_code: true
+  end
+
 end
