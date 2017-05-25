@@ -1,6 +1,5 @@
 TRIP_RESULT_CODES = {
   "COMP"  => "Complete",    # the trip was (as far as we know) completed
-  "STNBY" => "Standby",     # the trip is put on standby
   "NS"    => "No-show",     # the customer did not show up for the trip
   "MT"    => "Missed Trip", # the customer missed the trip
   "CANC"  => "Cancelled",   # the trip was cancelled by the customer

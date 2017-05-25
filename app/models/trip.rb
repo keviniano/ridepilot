@@ -56,7 +56,6 @@ class Trip < ActiveRecord::Base
   scope :incomplete,         -> { where(trip_result: nil) }
   scope :empty_or_completed, -> { includes(:trip_result).references(:trip_result).where("trips.trip_result_id is NULL or trip_results.code = 'COMP'") }
   scope :turned_down,        -> { joins(:trip_result).where(trip_results: {code: 'TD'}) }
-  scope :standby,            -> { joins(:trip_result).where(trip_results: {code: 'STNBY'}) }
   scope :scheduled,          -> { where("cab = ? or run_id is not NULL", true) }
   scope :repeating_based_on, ->(scheduler) { where(repeating_trip_id: scheduler.try(:id)) }
 
