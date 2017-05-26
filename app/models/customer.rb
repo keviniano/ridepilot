@@ -25,6 +25,10 @@ class Customer < ActiveRecord::Base
   has_many   :travel_trainings, dependent: :destroy
   accepts_nested_attributes_for :travel_trainings
 
+  # funding numbers
+  has_many   :funding_authorization_numbers, dependent: :destroy
+  accepts_nested_attributes_for :funding_authorization_numbers
+
   belongs_to :service_level, -> { with_deleted }
   delegate :name, to: :service_level, prefix: :service_level, allow_nil: true
 
@@ -286,6 +290,19 @@ class Customer < ActiveRecord::Base
     # update travel trainings
     travel_training_objects.select {|tt| tt[:id].blank? }.each do |travel_training_hash|
       tt = TravelTraining.parse(travel_training_hash, self)
+      tt.save
+    end
+  end
+
+  def edit_funding_authorization_numbers(funding_number_objects)
+    # remove non-existing ones
+    prev_funding_number_ids = funding_authorization_numbers.pluck(:id)
+    existing_funding_number_ids = funding_number_objects.select {|tt| tt[:id] != nil}.map{|tt| tt[:id]}
+    FundingAuthorizationNumber.where(id: prev_funding_number_ids - existing_funding_number_ids).delete_all
+  
+    # update funding numbers
+    funding_number_objects.select {|tt| tt[:id].blank? }.each do |funding_number_hash|
+      tt = FundingAuthorizationNumber.parse(funding_number_hash, self)
       tt.save
     end
   end

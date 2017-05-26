@@ -145,6 +145,7 @@ class CustomersController < ApplicationController
       if @customer.is_all_valid?(current_provider_id) && @customer.save
         edit_donations
         edit_travel_trainings
+        edit_funding_authorization_numbers
         edit_eligibilities
         format.html { redirect_to(@customer, :notice => 'Customer was successfully created.') }
         format.xml  { render :xml => @customer, :status => :created, :location => @customer }
@@ -203,6 +204,7 @@ class CustomersController < ApplicationController
       if @customer.is_all_valid?(current_provider_id) && @customer.save
         edit_donations
         edit_travel_trainings
+        edit_funding_authorization_numbers
         edit_eligibilities
         format.html { redirect_to(@customer, :notice => 'Customer was successfully updated.') }
         format.xml  { head :ok }
@@ -265,6 +267,7 @@ class CustomersController < ApplicationController
       :is_elderly,
       :message,
       :travel_trainings,
+      :funding_authorization_numbers,
       photo_attributes: [:image],
       :address_attributes => [
         :address,
@@ -354,6 +357,13 @@ class CustomersController < ApplicationController
     if params[:travel_trainings]
       travel_trainings = JSON.parse(params[:travel_trainings], symbolize_names: true)
       @customer.edit_travel_trainings(travel_trainings)
+    end
+  end
+
+  def edit_funding_authorization_numbers
+    if params[:funding_authorization_numbers]
+      funding_numbers = JSON.parse(params[:funding_authorization_numbers], symbolize_names: true)
+      @customer.edit_funding_authorization_numbers(funding_numbers)
     end
   end
 

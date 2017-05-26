@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170524152920) do
+ActiveRecord::Schema.define(version: 20170526182317) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -338,6 +338,18 @@ ActiveRecord::Schema.define(version: 20170524152920) do
   end
 
   add_index "field_configs", ["provider_id"], :name => "index_field_configs_on_provider_id"
+
+  create_table "funding_authorization_numbers", force: true do |t|
+    t.integer  "funding_source_id"
+    t.integer  "customer_id"
+    t.string   "number"
+    t.text     "contact_info"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "funding_authorization_numbers", ["customer_id"], :name => "index_funding_authorization_numbers_on_customer_id"
+  add_index "funding_authorization_numbers", ["funding_source_id"], :name => "index_funding_authorization_numbers_on_funding_source_id"
 
   create_table "funding_source_visibilities", force: true do |t|
     t.integer "funding_source_id"
