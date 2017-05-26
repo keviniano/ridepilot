@@ -82,23 +82,24 @@
       
       // Pull the action name from the dropdown
       var action = $(this).data('run-batch-action');
-      
-      // PERFORM APPROPRIATE ACTION ON SELECTED RUNS
-      console.log("RUN ACTION", runIds, action);
+      var confirmation = false;
       
       // Update the appropriate form based on the action
       var form;
       if (action === "cancel") {
+        confirmation = confirm("#{translate_helper('confirm_runs_batch_cancel')}");
+        if(!confirmation) { return; } // Return if cancel clicked
         form = $('form.cancel-multiple-runs');
         form.find('#cancel_multiple_runs_run_ids').val(runIds);
-      } else if (action === "delete") {
+      } else if (action === "delete") {        
+        confirmation = confirm("#{translate_helper('confirm_runs_batch_delete')}");
+        if(!confirmation) { return; } // Return if cancel clicked
         form = $('form.delete-multiple-runs');
         form.find('#delete_multiple_runs_run_ids').val(runIds);
       }
       
-      // SUBMIT THE FORM
+      // Submit the form and clear the checkboxes
       form.submit();
-      
       clearCheckboxes();
       
     });

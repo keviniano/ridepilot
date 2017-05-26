@@ -927,6 +927,9 @@ en:
   modify_selected_runs: "Apply Action to Selected Runs"
   delete_run: "Delete"
   cancel_run: "Unschedule"
+  confirm_runs_batch_cancel: "Are you sure you want to unschedule all selected runs?"
+  confirm_runs_batch_delete: "Are you sure you want to delete all selected runs?"
+  
   
   #shared
   generic_error_message:
