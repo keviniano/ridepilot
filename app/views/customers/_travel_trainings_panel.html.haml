@@ -16,7 +16,7 @@
           %th
             = translate_helper(:travel_training_comment)
       %tbody
-        - @customer.travel_trainings.each do |travel_training|
+        - @customer.travel_trainings.order(date: :desc).each do |travel_training|
           %tr{data: {travel_training: travel_training.to_json}}
             - if is_editing
               %td
