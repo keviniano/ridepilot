@@ -101,9 +101,9 @@ class TrackerActionLog < PublicActivity::Activity
           old_driver = Driver.find_by_id change[0]
           params["Driver"] = [old_driver.try(:name), run.driver.try(:name)]
         when 'start_date'
-          params["Start Date"] = [change[0]..try(:strftime, "%B %d, %Y"), run.start_date.try(:strftime, "%B %d, %Y")]
+          params["Start Date"] = [change[0].try(:strftime, "%B %d, %Y"), run.start_date.try(:strftime, "%B %d, %Y")]
         when 'end_date'
-          params["End Date"] = [change[0]..try(:strftime, "%B %d, %Y"), run.end_date.try(:strftime, "%B %d, %Y")]
+          params["End Date"] = [change[0].try(:strftime, "%B %d, %Y"), run.end_date.try(:strftime, "%B %d, %Y")]
         when 'schedule_yaml'
           params["Schedule"] = [previous_schedule.try(:to_s), run.schedule.to_s]
         end
