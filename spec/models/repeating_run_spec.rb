@@ -24,10 +24,10 @@ RSpec.describe RepeatingRun, type: :model do
     # Set some context...
     let(:provider_a) { create(:provider) }
     let(:provider_b) { create(:provider) }
-    before(:each) { create(:run, :tomorrow, name: "Run A", provider: provider_a) }
-    before(:each) { create(:repeating_run, :biweekly, :tomorrow, name: "Run C", provider: provider_a) }
+    let!(:run_a) { create(:run, :tomorrow, :scheduled_morning, name: "Run A", provider: provider_a) }
+    let!(:repeating_run_c) { create(:repeating_run, :biweekly, :tomorrow, :scheduled_morning, name: "Run C", provider: provider_a) }
     
-    it 'name must be unique among daily runs by date and provider' do
+    it 'validates name uniqueness among daily runs by date and provider' do
       valid_run_diff_name = build(:repeating_run, :weekly, :tomorrow, name: "Run B", provider: provider_a)
       valid_run_diff_provider = build(:repeating_run, :weekly, :tomorrow, name: "Run A", provider: provider_b)
       valid_run_diff_date = build(:repeating_run, :weekly, :next_week, name: "Run A", provider: provider_a)
@@ -47,7 +47,7 @@ RSpec.describe RepeatingRun, type: :model do
       expect(invalid_run_collision.valid?).to be false      
     end
     
-    it 'name must be unique among repeating runs by date and provider' do
+    it 'validates name uniqueness among repeating runs by date and provider' do
       valid_run_diff_name     = build(:repeating_run, :weekly, :tomorrow, name: "Run D", provider: provider_a)
       valid_run_diff_provider = build(:repeating_run, :weekly, :tomorrow, name: "Run C", provider: provider_b)
       valid_run_diff_date     = build(:repeating_run, :weekly, :next_week, name: "Run C", provider: provider_a)
@@ -67,7 +67,7 @@ RSpec.describe RepeatingRun, type: :model do
       expect(invalid_run_collision.valid?).to be false
     end
     
-    it 'at least one day of the week must be checked' do
+    it 'validates that at least one day of the week is checked' do
       valid_one_day   = build(:repeating_run, :no_repeating_days,
                               repeats_mondays: true)
       valid_many_days = build(:repeating_run, :no_repeating_days,
@@ -77,6 +77,34 @@ RSpec.describe RepeatingRun, type: :model do
       expect(valid_one_day.valid?).to be true
       expect(valid_many_days.valid?).to be true
       expect(invalid_no_days.valid?).to be false
+    end
+    
+    it 'validates driver availability against daily runs' do
+      
+      invalid_run_same_driver = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning, driver: run_a.driver)
+      valid_run_diff_day = build(:repeating_run, :weekly, :next_week, :scheduled_morning, driver: run_a.driver)
+      valid_run_diff_time = build(:repeating_run, :weekly, :tomorrow, :scheduled_afternoon, driver: run_a.driver)
+      valid_run_diff_driver = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning)
+                  
+      expect(invalid_run_same_driver.valid?).to be false
+      expect(valid_run_diff_day.valid?).to be true
+      expect(valid_run_diff_time.valid?).to be true
+      expect(valid_run_diff_driver.valid?).to be true
+      
+    end
+    
+    it 'validates driver availability against other repeating runs' do
+      
+      invalid_run_same_driver = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning, driver: repeating_run_c.driver)
+      valid_run_diff_day = build(:repeating_run, :weekly, :next_week, :scheduled_morning, driver: repeating_run_c.driver)
+      valid_run_diff_time = build(:repeating_run, :weekly, :tomorrow, :scheduled_afternoon, driver: repeating_run_c.driver)
+      valid_run_diff_driver = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning)
+      
+      expect(invalid_run_same_driver.valid?).to be false
+      expect(valid_run_diff_day.valid?).to be true
+      expect(valid_run_diff_time.valid?).to be true
+      expect(valid_run_diff_driver.valid?).to be true
+      
     end
     
   end

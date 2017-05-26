@@ -16,6 +16,16 @@ FactoryGirl.define do
     repeats_saturdays { start_date.saturday? }
     repeats_sundays { start_date.sunday? }
 
+    trait :scheduled_morning do
+      scheduled_start_time "9:00 AM"
+      scheduled_end_time "11:00 AM"
+    end
+    
+    trait :scheduled_afternoon do
+      scheduled_start_time "1:00 PM"
+      scheduled_end_time "3:00 PM"
+    end
+
     trait :no_repeating_days do
       repeats_mondays nil
       repeats_tuesdays nil

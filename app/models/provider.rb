@@ -98,4 +98,9 @@ class Provider < ActiveRecord::Base
   def get_advance_day_scheduling
     advance_day_scheduling || DEFAULT_ADVANCE_DAY_SCHEDULING
   end
+  
+  # Returns true if the passed date falls within the advance scheduling window
+  def scheduler_window_covers?(date)
+    date < (Date.today + get_advance_day_scheduling.days)
+  end
 end

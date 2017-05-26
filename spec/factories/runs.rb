@@ -10,13 +10,18 @@ FactoryGirl.define do
       repeating_run
     end
 
-    trait :scheduled do
-      scheduled_start_time "10:00 AM"
-      scheduled_end_time "12:30 PM"
+    trait :scheduled_morning do
+      scheduled_start_time "9:00 AM"
+      scheduled_end_time "11:00 AM"
+    end
+    
+    trait :scheduled_afternoon do
+      scheduled_start_time "1:00 PM"
+      scheduled_end_time "3:00 PM"
     end
 
     trait :completed do
-      scheduled
+      scheduled_morning
       start_odometer 100
       end_odometer 200
     end

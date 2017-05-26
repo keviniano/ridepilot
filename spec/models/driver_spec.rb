@@ -200,8 +200,8 @@ RSpec.describe Driver, type: :model do
       complete_run_yesterday = create(:run, :completed, :yesterday, driver: driver)
       complete_run_two_days_ago = create(:run, :completed, :two_days_ago, driver: driver)
       complete_run_last_week = create(:run, :completed, :last_week, driver: driver)
-      incomplete_run_today = create(:run, :scheduled, driver: driver)
-      incomplete_run_next_week = create(:run, :scheduled, :next_week, driver: driver)
+      incomplete_run_today = create(:run, :scheduled_morning, driver: driver)
+      incomplete_run_next_week = create(:run, :scheduled_morning, :next_week, driver: driver)
 
       # Only the completed runs this week should add to the hours
       expect(driver.run_hours).to eq(

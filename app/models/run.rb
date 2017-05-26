@@ -40,8 +40,7 @@ class Run < ActiveRecord::Base
   before_validation :fix_dates, :set_complete
 
   validates                 :name, presence: true
-  validate                  :daily_name_uniqueness
-  validate                  :repeating_name_uniqueness
+  validate                  :name_uniqueness
   validates_date            :date
   validates_datetime        :actual_start_time, allow_blank: true
   validates_datetime        :actual_end_time, after: :actual_start_time, allow_blank: true
@@ -50,25 +49,34 @@ class Run < ActiveRecord::Base
   validates_numericality_of :end_odometer, greater_than: -> (run){ run.start_odometer }, less_than: -> (run){ run.start_odometer + 500 }, if: -> (run){ run.start_odometer.present? }, allow_nil: true
   validates_numericality_of :unpaid_driver_break_time, allow_nil: true
   validate                  :within_advance_day_scheduling
-  validate                  :driver_availability, unless: :child_run?
+  validate                  :driver_availability
   validate                  :vehicle_availability
 
   scope :after,                  -> (date) { where('runs.date > ?', date) }
   scope :after_today,            -> { where('runs.date > ?', Date.today) }
   scope :prior_to,               -> (date) { where('runs.date < ?', date) }
   scope :today_and_prior,        -> { where('runs.date <= ?', Date.today) }
-  scope :for_date,               -> (date) { where('runs.date = ?', date) }
+  scope :for_date,               -> (date) { where(date: date) }
   scope :for_date_range,         -> (start_date, end_date) { where("runs.date >= ? and runs.date < ?", start_date, end_date) }
-  scope :overlapped,             -> (run) { where("date = ?", run.date).where.not("scheduled_end_time <= ? or scheduled_start_time >= ?", run.scheduled_start_time, run.scheduled_end_time) }
+  scope :overlapped,             -> (run) { for_date(run.date).time_overlaps_with(run.scheduled_start_time, run.scheduled_end_time) }
+  scope :this_week,              -> {
+    where(date: DateTime.now.in_time_zone.beginning_of_week.to_date..DateTime.now.in_time_zone.end_of_week.to_date)
+  }
+  # Daily runs which conflict with another Repeating Run's schedule
+  scope :conflicts_with_schedule, -> (repeating_run) do
+    not_a_child_of(repeating_run)
+    .select {|r| repeating_run.date_in_active_range?(r.date) && repeating_run.schedule.occurs_on?(r.date)}
+  end
 
   scope :complete,               -> { where(complete: true) }
   scope :incomplete,             -> { where('complete is NULL or complete = ?', false) }
   scope :incomplete_on,          -> (date) { incomplete.for_date(date) }
   scope :with_odometer_readings, -> { where("start_odometer IS NOT NULL and end_odometer IS NOT NULL") }
   scope :repeating_based_on,     ->(scheduler) { where(repeating_run_id: scheduler.try(:id)) }
-  scope :this_week,              -> {
-    where(date: DateTime.now.in_time_zone.beginning_of_week.to_date..DateTime.now.in_time_zone.end_of_week.to_date)
-  }
+  scope :other_than,             -> (run) { run.new_record? ? all : where.not(id: run.id) }
+  scope :not_a_child_of,         -> (repeating_run) { where.not(repeating_run_id: [repeating_run.id].compact) }
+
+  scope :other_overlapped_runs, -> (run) { overlapped(run).other_than(run) }
 
   CAB_RUN_ID = -1 # id for cab runs
   UNSCHEDULED_RUN_ID = -2 # id for unscheduled run (empty container)
@@ -112,14 +120,7 @@ class Run < ActiveRecord::Base
   def check_complete_status
     start_odometer.present? && end_odometer.present? && start_odometer < end_odometer && trips.incomplete.empty? && check_provider_fields_required_for_run_completion
   end
-
-  def self.other_overlapped_runs(run)
-    overlapped_runs = Run.overlapped(run)
-    overlapped_runs = overlapped_runs.where.not(id: run.id) unless run.new_record?
-
-    overlapped_runs
-  end
-
+  
   # Returns sum of actual run hours across a collection
   def self.total_actual_hours
     total_hours(actual: true)
@@ -201,12 +202,20 @@ class Run < ActiveRecord::Base
     true
   end
   
+  # Is the name unique by date and provider among daily and repeating runs?
+  def name_uniqueness
+    return true if date.nil? || name.nil? || provider.nil?
+    daily_name_uniqueness
+    repeating_name_uniqueness
+  end
+  
   # determines if any daily runs overlap with this run and have the same name and provider
   def daily_name_uniqueness
-    daily_overlaps = provider.runs    # same provider
-      .where(name: name, date: date)  # same name and date
-      .where.not(id: id)              # not the same run
-    unless daily_overlaps.empty?
+    if provider.runs      # same provider
+        .for_date(date)     # same date
+        .where(name: name)  # same name
+        .other_than(self)   # not the same run
+        .present?
       errors.add(:name,  "should be unique by day and by provider among daily runs")
     end
   end
@@ -214,25 +223,36 @@ class Run < ActiveRecord::Base
   # determines if any repeating runs overlap with this run and have the same name and provider
   # skip this validation if the date is within the advance day scheduling window for the provider
   def repeating_name_uniqueness
-    return true if date.nil? || date < (Date.today + provider.advance_day_scheduling.days)
-    repeating_overlaps = provider.repeating_runs  # same provider
-      .where(name: name)                          # same name
-      .where.not(id: repeating_run_id)            # not the parent repeating run
-      .select do |rr| 
-        rr.date_in_active_range?(date) &&         # date is in schedule's active range 
-        rr.schedule.occurs_on?(date)              # schedule occurs on this date
-      end
-    unless repeating_overlaps.empty?
+    return true if provider.scheduler_window_covers?(date)
+    if provider.repeating_runs    # same provider
+        .where(name: name)          # same name
+        .not_the_parent_of(self)    # not the parent repeating run
+        .schedule_occurs_on(date)   # repeating run schedule occurs on this run's date
+        .present?
       errors.add(:name,  "should be unique by day and by provider among repeating runs")
     end
   end
 
+  # Validates that the driver is not assigned to any overlapping daily or repeating runs
   def driver_availability
-    #if date && scheduled_start_time && driver && !driver.available?(date.wday, scheduled_start_time.strftime('%H:%M'))
-      #errors.add(:driver_id, TranslationEngine.translate_text(:unavailable_at_run_time))
-    #end
-    if self.driver && Run.other_overlapped_runs(self).pluck(:driver_id).include?(self.driver.id)
+    return true if date.nil? || driver.nil?
+    daily_driver_availability
+    repeating_driver_availability
+  end
+  
+  def daily_driver_availability
+    if Run.other_overlapped_runs(self).pluck(:driver_id).include?(self.driver.id)
       errors.add(:driver_id, TranslationEngine.translate_text(:assigned_to_other_overlapping_run))
+    end
+  end
+  
+  def repeating_driver_availability
+    return true if provider.scheduler_window_covers?(date)
+    if RepeatingRun.where(driver: driver)   # same driver
+        .not_the_parent_of(self)            # not the parent repeating run
+        .overlaps_with_run(self)            # repeating run schedule occurs on this run's date and time
+        .present?
+      errors.add(:driver_id, TranslationEngine.translate_text(:assigned_to_overlapping_repeating_run))
     end
   end
 
