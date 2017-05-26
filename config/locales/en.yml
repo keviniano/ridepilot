@@ -150,6 +150,12 @@ en:
   travel_training_comment: 'Comment'
   add_travel_training: 'Add'
   add_travel_training_dialog_title: 'Add Travel Training'
+  customer_funding_authorization_numbers_panel: 'Funding Authorization Numbers'
+  funding_authorization_number_name: 'Number'
+  funding_authorization_number_funding_source: 'Funding Source'
+  funding_authorization_number_contact_info: 'Contact Info'
+  add_funding_authorization_number: 'Add'
+  add_funding_authorization_number_dialog_title: 'Add Funding Authorization Number'
   
   # Lookup tables
   add_value: "Add Value"

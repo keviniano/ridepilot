@@ -167,6 +167,25 @@ RSpec.describe CustomersController, type: :controller do
         expect(original_tt_ids.none? {|id| new_tt_ids.include?(id)}).to be true
         expect(customer.travel_trainings.where(comment: tt_2.comment).count).to eq(1)
       end
+
+      it "updates customer's funding authorization numbers" do
+        customer = create(:customer, :with_funding_authorization_numbers, provider: @current_user.current_provider)
+        fn_1 = customer.funding_authorization_numbers.first
+        fn_2 = build(:funding_authorization_number, customer: customer)
+        new_fn_json = [fn_1, fn_2].to_json
+
+        original_fn_ids = customer.funding_authorization_numbers.pluck(:id)
+        expect(customer.funding_authorization_numbers.count).to eq(3)
+        
+        put :update, id: customer.to_param, customer: new_attributes, funding_authorization_numbers: new_fn_json
+        customer.reload
+        
+        new_fn_ids = customer.funding_authorization_numbers.pluck(:id)
+        
+        expect(customer.funding_authorization_numbers.count).to eq(2)
+        expect(new_fn_ids.include?(original_fn_ids.delete(fn_1.id))).to be true
+        expect(original_fn_ids.none? {|id| new_fn_ids.include?(id)}).to be true
+      end
     end
 
     context "with invalid params" do

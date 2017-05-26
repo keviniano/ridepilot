@@ -1,9 +1,9 @@
 FactoryGirl.define do
   factory :funding_authorization_number do
     customer
-    number "MyString"
-    funding_source nil
-    contact_info "MyText"
+    number { Faker::Number.number(10)}
+    funding_source
+    contact_info { Faker::Lorem.words(12).join(' ') }
   end
 
 end

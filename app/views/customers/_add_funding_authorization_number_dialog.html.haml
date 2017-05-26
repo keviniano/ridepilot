@@ -1,4 +1,4 @@
-#addFundingNumberDialog.modal.fade.col-sm-12{:role => "dialog", "aria-hidden" => 'true', :tabindex => "-1"}
+#addFundingAuthorizationNumberDialog.modal.fade.col-sm-12{:role => "dialog", "aria-hidden" => 'true', :tabindex => "-1"}
   .modal-dialog
     .modal-content
       = form_for FundingAuthorizationNumber.new, :url=>'#' do |f|
@@ -15,12 +15,12 @@
             .col-sm-3
               = f.label :number, translate_helper("funding_authorization_number_name")
             .col-sm-9  
-              = f.text_field :number, class: 'form-control'
+              = f.text_field :number, class: 'form-control', maxlength: 20, required: true
           .form-group.col-sm-12
             .col-sm-3
-              = f.label :funding_source, translate_helper("funding_authorization_funding_source")
+              = f.label :funding_source, translate_helper("funding_source")
             .col-sm-9  
-              = f.select :funding_source, FundingSource.all, {include_blank: true}, {class: 'form-control'}
+              = f.select :funding_source, FundingSource.all.pluck(:name,:id), {include_blank: true}, {class: 'form-control', required: true}
           .form-group.col-sm-12
             .col-sm-3
               = f.label :contact_info, translate_helper(:funding_authorization_number_contact_info) 

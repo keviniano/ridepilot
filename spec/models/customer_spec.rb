@@ -164,5 +164,42 @@ RSpec.describe Customer do
       
     end
   end
+
+  describe 'funding_authorization_numbers' do
+    let(:customer) { create(:customer) }
+    let(:customer_w_funding_numbers) { create(:customer, :with_funding_authorization_numbers) }
+    
+    it 'has many funding authorization numbers' do
+      fn_count = customer.funding_authorization_numbers.count
+      customer.funding_authorization_numbers << create(:funding_authorization_number)
+      expect(customer.funding_authorization_numbers.count).to eq(fn_count + 1)
+      customer.funding_authorization_numbers << create(:funding_authorization_number)      
+      expect(customer.funding_authorization_numbers.count).to eq(fn_count + 2)      
+    end
+    
+    it 'edits funding authorization numbers via hash' do
+      original_numbers = customer_w_funding_numbers.funding_authorization_numbers
+      expect(customer_w_funding_numbers.funding_authorization_numbers.count).to eq(3)
+      
+      # new numbers array consists of one new funding number, and two of the original
+      # ones. One old number is left out.
+      new_funding_numbers_hash = [
+        { number: 'test number', funding_source: FundingSource.first, contact_info: 'test contact info'},
+        original_numbers[0].attributes.with_indifferent_access,
+        original_numbers[1].attributes.with_indifferent_access
+      ]
+      
+      customer_w_funding_numbers.edit_funding_authorization_numbers(new_funding_numbers_hash)
+      customer_w_funding_numbers.reload
+      new_funding_numbers = customer_w_funding_numbers.funding_authorization_numbers
+      
+      # Expect two of the old funding numbers and the one new one to be present
+      expect(new_funding_numbers.pluck(:id).include?(original_numbers[0].id)).to be true
+      expect(new_funding_numbers.pluck(:id).include?(original_numbers[1].id)).to be true
+      expect(new_funding_numbers.pluck(:id).include?(original_numbers[2].id)).to be false
+      expect(new_funding_numbers.where(contact_info: 'test contact info').count).to eq(1)
+      
+    end
+  end
   
 end

@@ -15,9 +15,9 @@
             .col-sm-3
               = f.label :date, translate_helper("travel_training_date")
             .col-sm-9  
-              = f.text_field :date, :value => format_time_for_listing_day(Time.current), class: 'date-picker form-control', readonly: true
+              = f.text_field :date, :value => format_time_for_listing_day(Time.current), class: 'date-picker form-control', required: true,readonly: true
           .form-group.col-sm-12
             .col-sm-3
               = f.label :comment, translate_helper(:travel_training_comment) 
             .col-sm-9
-              = f.text_area :comment, class: 'form-control'
+              = f.text_area :comment, class: 'form-control', required: true
