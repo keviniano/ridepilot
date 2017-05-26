@@ -58,6 +58,8 @@ class Trip < ActiveRecord::Base
   scope :turned_down,        -> { joins(:trip_result).where(trip_results: {code: 'TD'}) }
   scope :scheduled,          -> { where("cab = ? or run_id is not NULL", true) }
   scope :repeating_based_on, ->(scheduler) { where(repeating_trip_id: scheduler.try(:id)) }
+  scope :outbound,           ->() { where(direction: 'outbound') }
+  scope :return,             ->() { where(direction: 'return') }
 
   # List of attributes of which the change would affect the run
   ATTRIBUTES_CAN_DISRUPT_RUN = [
