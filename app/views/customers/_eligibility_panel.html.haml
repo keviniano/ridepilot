@@ -6,19 +6,19 @@
       = translate_helper(:customer_eligibility_panel)
   .panel-body{style: 'padding: 5px;'}
     - yes_label = translate_helper('yes')
-    - no_label = translate_helper('no')
-    .form-group.col-sm-12
-      .col-sm-7.control-label
-        %b= translate_helper(:age_eligible)
-      .col-sm-5
-        = @customer.age_eligible? ? yes_label : no_label
     - if edit_mode == :show
-      - @customer.customer_eligibilities.specified.includes(:eligibility).references(:eligibility).each do |elig|
+      - if @customer.age_eligible?
+        .form-group.col-sm-12
+          .col-sm-7.control-label
+            %b= translate_helper(:age_eligible)
+          .col-sm-5
+            = yes_label
+      - @customer.customer_eligibilities.eligible.includes(:eligibility).references(:eligibility).each do |elig|
         .form-group.col-sm-12
           .col-sm-7.control-label
             %b= elig.eligibility.description
           .col-sm-5
-            = elig.eligible ? yes_label : no_label
+            = yes_label
     - else
       - Eligibility.by_provider(current_provider).each do |eligibility|
         = render 'eligibility_item', item: eligibility

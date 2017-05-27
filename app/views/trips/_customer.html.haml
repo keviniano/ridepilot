@@ -51,32 +51,42 @@
 
       var elig_data = customerData.customer_eligibilities;
       $('.customer-eligibilities').html('');
-      $('.customer-eligibilities').append("<h4 class='col-sm-12'>#{translate_helper('customer_eligibilities')}</h4>");
-  
-      var yes_label = "#{translate_helper('yes')}";
-      var no_label = "#{translate_helper('no')}";
+      var hasEligibleItems = false;
 
-      var age_elig_tags = '<div class="form-group col-sm-12">' +
-        '<label class="col-sm-3">' +
-          "#{translate_helper('age_eligible')}" +
-        '</label>' +
-        '<div class="col-sm-9">' +
-          (customerData.age_eligible ? yes_label : no_label) +
-        '</div>' +
-      '</div>';
-      $('.customer-eligibilities').append(age_elig_tags);
+      var yes_label = "#{translate_helper('yes')}";
+
+      if(customerData.age_eligible) {
+        hasEligibleItems = true;
+        var age_elig_tags = '<div class="form-group col-sm-12">' +
+          '<label class="col-sm-3">' +
+            "#{translate_helper('age_eligible')}" +
+          '</label>' +
+          '<div class="col-sm-9">' +
+            yes_label +
+          '</div>' +
+        '</div>';
+
+        $('.customer-eligibilities').append(age_elig_tags);
+      }
 
       for(var i=0; i<elig_data.length; i++) {
         var elig = elig_data[i];
-        var new_elig_tags = '<div class="form-group col-sm-12">' +
-          '<label class="col-sm-3">' +
-            elig.description +
-          '</label>' +
-          '<div class="col-sm-9">' +
-            (elig.eligible ? yes_label : no_label) +
-          '</div>' +
-        '</div>';
-        $('.customer-eligibilities').append(new_elig_tags);
+        if(elig.eligible) {
+          hasEligibleItems = true;
+          var new_elig_tags = '<div class="form-group col-sm-12">' +
+            '<label class="col-sm-3">' +
+              elig.description +
+            '</label>' +
+            '<div class="col-sm-9">' +
+              yes_label +
+            '</div>' +
+          '</div>';
+          $('.customer-eligibilities').append(new_elig_tags);
+        }
+      }
+
+      if(hasEligibleItems) {
+        $('.customer-eligibilities').prepend("<h4 class='col-sm-12'>#{translate_helper('customer_eligibilities')}</h4>");
       }
     }
 
