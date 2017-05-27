@@ -537,7 +537,7 @@ en:
   all_customers_link_text: "All Customers"
   new_customer_link_text: "New Customer"
   #repeating trips layout
-  view_repeating_trips_link_text: "View Repeating Trips"
+  view_repeating_trips_link_text: "View Subscription Trips"
   #runs layout
   view_runs_link_text: "View Runs"
   #trips layout
@@ -1216,6 +1216,7 @@ en:
   vehicle_unavailable: 'Vehicle is not available'
   driver_unavailable: 'Driver is not available'
   assigned_to_other_overlapping_run: 'has been assigned to another overlapping run'
+  assigned_to_overlapping_repeating_run: 'has been assigned to another overlapping subscription run'
   unknown_error: 'There was something wrong with the request, please try again.'
   # address upload
   address_file_uploaded: 'Address file was uploaded.'
