@@ -32,7 +32,7 @@
     = render 'repeating_runs/repetition_panel', f: f if @is_repeating_run
     = render 'runs/vehicle_panel', f: f 
     = render 'runs/driver_panel', f: f 
-    - if @is_repeating_run && edit_mode == :show
+    - if edit_mode == :show
       - logs = TrackerActionLog.for(@run).order(created_at: :desc)
       = render 'shared/action_log_panel', logs: logs if logs.any?
 

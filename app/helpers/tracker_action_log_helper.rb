@@ -3,6 +3,16 @@ module TrackerActionLogHelper
     return nil unless log 
 
     case log.key
+    when "trip.created"
+      trip = log.trackable
+      if trip.present?
+        "Trip created.".html_safe
+      end
+    when "run.created"
+      run = log.trackable
+      if run.present?
+        "Run created.".html_safe
+      end
     when "trip.create_return"
       return_trip = log.trackable.try(:return_trip)
       if return_trip.present?

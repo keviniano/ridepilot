@@ -307,6 +307,7 @@ class TripsController < ApplicationController
         @ask_for_return_trip = true if @trip.is_outbound?
         format.html {
           if @ask_for_return_trip
+            TrackerActionLog.create_trip(@trip, current_user)
             render action: :show
           else
             if @trip.is_return?

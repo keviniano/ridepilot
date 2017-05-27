@@ -1,6 +1,7 @@
 class Run < ActiveRecord::Base
   include RequiredFieldValidatorModule
   include RunCore
+  include PublicActivity::Common
 
   acts_as_paranoid # soft delete
 

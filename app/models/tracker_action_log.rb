@@ -3,6 +3,18 @@ class TrackerActionLog < PublicActivity::Activity
 
   scope :for, -> (trackable) { where(trackable: trackable) }
 
+  def self.create_trip(trip, user)
+    if trip
+      trip.create_activity :created, owner: user 
+    end
+  end
+
+  def self.create_run(run, user)
+    if run
+      run.create_activity :created, owner: user 
+    end
+  end
+
   def self.create_return_trip(return_trip, user)
     if return_trip
       return_trip.create_activity :return_created, owner: user 

@@ -74,6 +74,7 @@ class RunsController < ApplicationController
     
     respond_to do |format|
       if @run.is_all_valid?(current_provider_id) && @run.save
+        TrackerActionLog.create_run(@run, current_user)
         format.html { redirect_to @run, :notice => 'Run was successfully created.' }
         format.xml  { render :xml => @run, :status => :created, :location => @run }
       else
