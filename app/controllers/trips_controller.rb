@@ -5,8 +5,8 @@ class TripsController < ApplicationController
     Date.beginning_of_week= :sunday
 
     # by default, select all trip results
-    unless session[:trip_result_id].present?
-      session[:trip_result_id] = [TripResult::UNSCHEDULED_ID, TripResult::SHOW_ALL_ID] + TripResult.pluck(:id).uniq
+    unless session[:trips_trip_result_id].present?
+      session[:trips_trip_result_id] = [TripResult::UNSCHEDULED_ID, TripResult::SHOW_ALL_ID] + TripResult.pluck(:id).uniq
     end
     @trips = Trip.for_provider(current_provider_id).includes(:customer, :pickup_address, {:run => [:driver, :vehicle]})
     .references(:customer, :pickup_address, {:run => [:driver, :vehicle]}).order(:pickup_time)
@@ -17,8 +17,8 @@ class TripsController < ApplicationController
       @vehicles = add_cab(@vehicles)
     end
     @drivers         = Driver.for_provider current_provider_id
-    @start_pickup_date = Time.zone.at(session[:start].to_i).to_date
-    @end_pickup_date = Time.zone.at(session[:end].to_i).to_date
+    @start_pickup_date = Time.zone.at(session[:trips_start].to_i).to_date
+    @end_pickup_date = Time.zone.at(session[:trips_end].to_i).to_date
     @days_of_week = trip_sessions[:days_of_week].blank? ? [0,1,2,3,4,5,6] : trip_sessions[:days_of_week].split(',').map(&:to_i)
     if can? :edit, Trip
       @trip_results = TripResult.by_provider(current_provider).order(:name).pluck(:name, :id)
@@ -497,18 +497,18 @@ class TripsController < ApplicationController
 
   def update_sessions(params = {})
     params.each do |key, val|
-      session[key] = val if !val.nil?
+      session["trips_#{key}"] = val if !val.nil?
     end
   end
 
   def trip_sessions
     {
-      start: session[:start],
-      end: session[:end],
-      customer_id: session[:customer_id],
-      trip_result_id: session[:trip_result_id],
-      status_id: session[:status_id],
-      days_of_week: session[:days_of_week]
+      start: session[:trips_start],
+      end: session[:trips_end],
+      customer_id: session[:trips_customer_id],
+      trip_result_id: session[:trips_trip_result_id],
+      status_id: session[:trips_status_id],
+      days_of_week: session[:trips_days_of_week]
     }
   end
   

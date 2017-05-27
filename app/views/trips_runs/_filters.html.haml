@@ -20,7 +20,7 @@
         .col-sm-12{style: 'padding: 5px;'}
           = f.label :run_result_id, translate_helper(:run_result)
           = f.select :run_result_id, options_for_select( [[translate_helper(:complete), 1], [translate_helper(:incomplete), 2]], session[:run_result_id]), {:include_blank => translate_helper(:all) }, { :class => 'form-control' }
-      = render 'trips/trip_result_filter', f:f
+      = render 'trips/trip_result_filter', f:f, trip_result_session_name: :trip_result_id
 = render "shared/date_time_picker_javascript"
 :javascript
   $(document).ready(function(){

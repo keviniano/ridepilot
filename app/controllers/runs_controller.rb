@@ -17,8 +17,8 @@ class RunsController < ApplicationController
     
     @drivers = Driver.where(:provider_id=>current_provider_id)
     @vehicles = Vehicle.where(:provider_id=>current_provider_id)
-    @start_pickup_date = Time.zone.at(session[:start].to_i).to_date
-    @end_pickup_date = Time.zone.at(session[:end].to_i).to_date
+    @start_pickup_date = Time.zone.at(session[:runs_start].to_i).to_date
+    @end_pickup_date = Time.zone.at(session[:runs_end].to_i).to_date
     @days_of_week = run_sessions[:days_of_week].blank? ? [0,1,2,3,4,5,6] : run_sessions[:days_of_week].split(',').map(&:to_i)
 
     @runs_json = @runs.has_scheduled_time.map(&:as_calendar_json).to_json # TODO: sql refactor to improve performance
@@ -217,18 +217,18 @@ class RunsController < ApplicationController
 
   def update_sessions(params = {})
     params.each do |key, val|
-      session[key] = val if !val.nil?
+      session["runs_#{key}"] = val if !val.nil?
     end
   end
 
   def run_sessions
     {
-      start: session[:start],
-      end: session[:end], 
-      driver_id: session[:driver_id], 
-      vehicle_id: session[:vehicle_id],
-      run_result_id: session[:run_result_id], 
-      days_of_week: session[:days_of_week]
+      start: session[:runs_start],
+      end: session[:runs_end], 
+      driver_id: session[:runs_driver_id], 
+      vehicle_id: session[:runs_vehicle_id],
+      run_result_id: session[:runs_run_result_id], 
+      days_of_week: session[:runs_days_of_week]
     }
   end
   
