@@ -6,7 +6,8 @@
       %th= translate_helper("run_start_time_column")
       %th= translate_helper("run_end_time_column") 
       %th= translate_helper("run_vehicle_column") 
-      %th= translate_helper("run_driver_column")
+      %th= translate_helper("run_driver_column") 
+      %th= translate_helper("repeating_schedule")
   %tbody
     - @runs.each do |run|
       %tr
@@ -22,4 +23,6 @@
           = run.vehicle ? run.vehicle.name : translate_helper('no_vehicle')
         %td
           = run.driver  ? run.driver.name : translate_helper('no_driver')
+        %td
+          = run.schedule.to_s rescue nil
     

@@ -1,7 +1,6 @@
 :ruby
   @is_repeating_trip = @trip.is_a? RepeatingTrip
   @trip_id = @trip ? @trip.id : nil
-  @is_return_trip = @trip.is_return?
 
 = render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'trips'
 - edit_mode = :edit if !defined? edit_mode
@@ -65,7 +64,7 @@
 - else
   = render 'shared/hide_invisible_form_fields_js', model_name: "trip", table_name: 'trips', provider_id:  current_provider.try(:id)
 
-- if !@is_repeating_trip && !@is_return_trip
+- if !@is_repeating_trip && !@trip.is_return?
   = render partial: 'trips/double_booked_trip_dialog'
   :javascript
     $(document).ready(function(){
