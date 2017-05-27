@@ -1,6 +1,6 @@
 %tr
   %td
-    = link_to_if can?(:read, driver), driver.name, driver
+    = link_to_if can?(:read, driver), driver.user_name, driver
   %td
     = driver.active? ? translate_helper("active") : translate_helper("inactive")
   %td

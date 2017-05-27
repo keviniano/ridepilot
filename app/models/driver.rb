@@ -61,6 +61,10 @@ class Driver < ActiveRecord::Base
     runs.this_week.complete.total_scheduled_hours
   end
 
+  def user_name
+    user.try(:name) || name
+  end
+
   private
 
   def valid_phone_number

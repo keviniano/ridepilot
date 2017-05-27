@@ -21,4 +21,5 @@
         - if @drivers.empty?
           %tr
             %td{:colspan => "5"}= translate_helper("drivers_empty")
-        = render partial: 'driver', collection: @drivers
+        - else
+          = render partial: 'driver', collection: @drivers.includes(:user).references(:user).reorder("lower(users.last_name)", "lower(users.first_name)") 

@@ -19,10 +19,13 @@
               - unless @readonly
                 = f.fields_for :photo do |image_upload|
                   = image_upload.file_field :image, class: "form-control"
-          .form-group
-            = f.label :name, translate_helper("driver_form_name"), class: "col-md-2 control-label"
-            .col-md-10
-              = f.text_field :name, class: "form-control", disabled: @readonly
+          - if @readonly
+            .form-group
+              = f.label :name, translate_helper("driver_form_name"), class: "col-md-2 control-label"
+              .col-md-10
+                = @driver.user_name || @driver.name
+                - if @driver.user.present? && !@driver.user.deleted? && can?(:edit, @driver.user)
+                  = link_to translate_helper("edit"), edit_user_path(@driver.user), class: "btn action-button"
           .form-group
             = f.label :phone_number, translate_helper("phone_number"), class: "col-md-2 control-label"
             .col-md-10
