@@ -79,7 +79,8 @@
         %label{for:"pickup_address_notes"}
           = translate_helper("pickup_address_notes")
       .col-sm-9
-        %input.full.form-control#pickup_address_notes{type:"text", size:"30", name:"pickup_address_notes", value:"#{@trip.pickup_address.try(:notes)}", readonly:"readonly"}
+        - @trip.pickup_address_notes ||= @trip.pickup_address.try(:notes)
+        = f.text_area :pickup_address_notes, class: 'full form-control', id: 'pickup_address_notes', maxlength: 30
 
     .form-group.col-sm-12
       = f.fields_for :customer do |c|
@@ -108,7 +109,8 @@
         %label{for:"dropoff_address_notes"}
           = translate_helper("dropoff_address_notes")
       .col-sm-9
-        %input.full.form-control#dropoff_address_notes{type:"text", size:"30", name:"dropoff_address_notes", value:"#{@trip.dropoff_address.try(:notes)}", readonly:"readonly"}
+        - @trip.dropoff_address_notes ||= @trip.dropoff_address.try(:notes)
+        = f.text_area :dropoff_address_notes, class: 'full form-control', id: 'dropoff_address_notes', maxlength: 30
 
     .form-group.col-sm-12
       .col-sm-3

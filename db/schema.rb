@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170526182317) do
+ActiveRecord::Schema.define(version: 20170527212202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -838,6 +838,8 @@ ActiveRecord::Schema.define(version: 20170526182317) do
     t.integer  "number_of_senior_passengers_served"
     t.integer  "number_of_disabled_passengers_served"
     t.integer  "number_of_low_income_passengers_served"
+    t.string   "pickup_address_notes"
+    t.string   "dropoff_address_notes"
   end
 
   add_index "trips", ["called_back_by_id"], :name => "index_trips_on_called_back_by_id"

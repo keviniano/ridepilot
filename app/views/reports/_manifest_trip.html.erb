@@ -14,11 +14,11 @@
   </tr>
   <tr class="addresses">
     <td class="pickup">
-      <% pickup_address_notes =  trip.pickup_address.try(:notes)%>
+      <% pickup_address_notes =  trip.pickup_address_notes || trip.pickup_address.try(:notes)%>
       PU: <%= (trip.pickup_address.try(:text) || translate_helper("pickup_unspecified")).to_s + (pickup_address_notes.blank? ? "" : " (" + pickup_address_notes + ")") %>
     </td>
     <td class="dropoff">
-      <% dropoff_address_notes =  trip.dropoff_address.try(:notes)%>
+      <% dropoff_address_notes =  trip.dropoff_address_notes || trip.dropoff_address.try(:notes)%>
       DO: <%= (trip.dropoff_address.try(:text) || translate_helper("dropoff_unspecified")).to_s  + (dropoff_address_notes.blank? ? "" : " (" + dropoff_address_notes + ")") %>
     </td>
   </tr>
