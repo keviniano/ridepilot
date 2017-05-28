@@ -12,14 +12,6 @@
 .col-md-3{style: 'padding: 0px 15px 0px 0px;'}
   = render :partial => 'filters'
 .col-md-9{style: 'padding: 0px;'}
-  .checkbox.pull-right
-    %label
-      %input#hide_trip_calendar{type: 'checkbox'}
-      %b
-        = translate_helper("hide_calendar")
-  = render 'calendar', base_path: trips_path, resources: @day_resources, events: @trips_json
-
-  %br
   .cancel-selected-trips.dropdown{style: 'margin-bottom: 5px;'}
     %button.btn.btn-primary.dropdown-toggle{type: 'button', data: {toggle: 'dropdown'}} 
       =translate_helper(:change_selected_trips_result)
@@ -35,26 +27,6 @@
 
 :javascript
   $(function() {
-    // hide/unhide calendar
-    function manage_calendar_hidden_status() {
-      var is_calendar_hidden = (localStorage.getItem('trip_calendar_hidden') == 'true');
-      if(is_calendar_hidden) {
-        $('#calendar').hide();
-      } else {
-        $('#calendar').show();
-      }
-    }
-
-    $('#hide_trip_calendar').change(function() {
-      var checked = $(this).prop('checked');
-      localStorage.setItem('trip_calendar_hidden', checked || false);
-
-      manage_calendar_hidden_status();
-    });
-
-    manage_calendar_hidden_status();
-    $('#hide_trip_calendar').prop('checked', (localStorage.getItem('trip_calendar_hidden') == 'true'));
-
     // Initialize a helper object with the trip result reason modal, and a list of cancellation codes.
     var trh = new TripResultHelper(
       "#tripResultReasonDialog",

@@ -24,18 +24,10 @@ class TripsController < ApplicationController
       @trip_results = TripResult.by_provider(current_provider).order(:name).pluck(:name, :id)
     end
 
-    @trips_json = @trips.has_scheduled_time.map(&:as_calendar_json).flatten.compact.to_json # TODO: sql refactor to improve performance
-    @day_resources = []
-
     if @start_pickup_date > @end_pickup_date
       flash.now[:alert] = TranslationEngine.translate_text(:from_date_cannot_later_than_to_date)
     else
       flash.now[:alert] = nil
-      @day_resources = (@start_pickup_date..@end_pickup_date).select{|d| @days_of_week.index(d.wday)}.map{|d| {
-        id:   d.to_s(:js),
-        name: d.strftime("%a, %b %d,%Y"),
-        isDate: true
-        } }.to_json
     end
 
     respond_to do |format|

@@ -32,9 +32,6 @@ class TripsRunsController < ApplicationController
 
     @runs_for_dropdown = @runs_array.collect {|r| [r[:label], r[:id]]}
 
-    @runs_json = @runs_array.to_json # TODO: sql refactor to improve performance
-    @trips_json = @trips.map(&:as_run_event_json).compact.to_json # TODO: sql refactor to improve performance
-
     respond_to do |format|
       format.html
     end

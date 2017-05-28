@@ -12,14 +12,6 @@
 .col-md-3{style: 'padding: 0px 15px 0px 0px;'}
   = render :partial => 'filters'
 .col-md-9{style: 'padding: 0px;'}
-  .checkbox.pull-right
-    %label
-      %input#hide_run_calendar{type: 'checkbox'}
-      %b
-        = translate_helper("hide_calendar")
-  = render 'trips/calendar', base_path: runs_path, resources: @day_resources, events: @runs_json
-
-  %br
   .modify-selected-runs.dropdown{style: 'margin-bottom: 5px;'}
     %button.btn.btn-primary.dropdown-toggle{type: 'button', data: {toggle: 'dropdown'}} 
       =translate_helper(:modify_selected_runs)
@@ -33,31 +25,7 @@
   = render :partial => 'list'
 
 :javascript
-  $(function() {
-  
-    /* CALENDAR */
-  
-    // hide/unhide calendar
-    function manage_calendar_hidden_status() {
-      var is_calendar_hidden = (localStorage.getItem('run_calendar_hidden') == 'true');
-      if(is_calendar_hidden) {
-        $('#calendar').hide();
-      } else {
-        $('#calendar').show();
-      }
-    }
-
-    $('#hide_run_calendar').change(function() {
-      var checked = $(this).prop('checked');
-      localStorage.setItem('run_calendar_hidden', checked || false);
-
-      manage_calendar_hidden_status();
-    });
-
-    manage_calendar_hidden_status();
-    $('#hide_run_calendar').prop('checked', (localStorage.getItem('run_calendar_hidden') == 'true'));
-    
-    
+  $(function() {    
     /* MULTI-SELECT AND BATCH CANCEL */
     
     // One checkbox to rule them all

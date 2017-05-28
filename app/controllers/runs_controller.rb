@@ -21,18 +21,10 @@ class RunsController < ApplicationController
     @end_pickup_date = Time.zone.at(session[:runs_end].to_i).to_date
     @days_of_week = run_sessions[:days_of_week].blank? ? [0,1,2,3,4,5,6] : run_sessions[:days_of_week].split(',').map(&:to_i)
 
-    @runs_json = @runs.has_scheduled_time.map(&:as_calendar_json).to_json # TODO: sql refactor to improve performance
-    @day_resources = []
-
     if @start_pickup_date > @end_pickup_date
       flash.now[:alert] = TranslationEngine.translate_text(:from_date_cannot_later_than_to_date)
     else
       flash.now[:alert] = nil
-      @day_resources = (@start_pickup_date..@end_pickup_date).select{|d| @days_of_week.index(d.wday)}.map{|d| {
-        id:   d.to_s(:js), 
-        name: d.strftime("%a, %b %d,%Y"),
-        isDate: true
-        } }.to_json
     end
 
 
