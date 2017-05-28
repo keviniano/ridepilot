@@ -67,7 +67,7 @@ class TripScheduler
     run_end_time = @run.scheduled_end_time
 
     if run_start_time && run_end_time
-      @trip.pickup_time >= @run.scheduled_start_time && @trip.appointment_time <= @run.scheduled_end_time
+      @trip.pickup_time >= @run.scheduled_start_time && (@trip.appointment_time.nil? || @trip.appointment_time <= @run.scheduled_end_time)
     else
       true
     end

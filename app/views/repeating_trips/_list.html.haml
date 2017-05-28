@@ -22,7 +22,7 @@
         %td
           = trip.dropoff_address.try :address_text
         %td
-          = format_time_for_listing trip.appointment_time
+          = format_time_for_listing trip.appointment_time if trip.appointment_time
         %td
           = trip.schedule.to_s rescue nil
     

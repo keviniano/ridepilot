@@ -29,7 +29,7 @@ class API::V1::TripsController < API::ApiController
       trip_purpose: @trip_purpose,
       direction: Trip.parse_leg_as_direction(params[:leg]),
       pickup_time: Time.parse(params[:pickup_time]).in_time_zone,
-      appointment_time: Time.parse(params[:dropoff_time]).in_time_zone,
+      appointment_time: Time.parse(params[:dropoff_time]).try(:in_time_zone),
       guest_count: params[:guests],
       attendant_count: params[:attendants], 
       mobility_device_accommodations: params[:mobility_devices],

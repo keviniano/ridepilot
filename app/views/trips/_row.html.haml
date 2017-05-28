@@ -32,10 +32,12 @@
   %td
     = trip.dropoff_address.try :address_text
   %td
-    - if trip.appointment_time.try(:to_date) != trip.pickup_time.try(:to_date)
-      = format_simple_full_datetime trip.appointment_time
-    - else
-      = format_time_for_listing trip.appointment_time
+    - if trip.appointment_time
+      - if trip.appointment_time.try(:to_date) != trip.pickup_time.try(:to_date)
+        = format_simple_full_datetime trip.appointment_time
+      - else
+        = format_time_for_listing trip.appointment_time
+      
   %td.trip-status
     - if trip.run.present?
       = link_to trip.run_text, run_path(trip.run.id)

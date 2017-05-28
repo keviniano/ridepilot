@@ -90,7 +90,7 @@ class RepeatingTrip < ActiveRecord::Base
               .select{ |k, v| (RepeatingTrip.ride_coordinator_attributes - ['repeating_run_id']).include?(k.to_s) }
               .merge( {
                 "pickup_time" => this_trip_pickup_time,
-                "appointment_time" => this_trip_pickup_time + (appointment_time - pickup_time)
+                "appointment_time" => appointment_time.present? ? (this_trip_pickup_time + (appointment_time - pickup_time)) : nil
               } )
           )    
         end

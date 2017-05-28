@@ -21,13 +21,6 @@ class Trip < ActiveRecord::Base
   delegate :label, to: :run, prefix: :run, allow_nil: true
   delegate :code, :name, to: :trip_result, prefix: :trip_result, allow_nil: true
 
-  # Trip is now manually assigned to a run via trips_runs controller
-  # we dont need to compute or create a run when a new trip is created or updated
-  #before_validation :compute_run
-
-  #serialize :guests
-
-
   validates :mileage, numericality: {greater_than: 0, allow_blank: true}
   validate :driver_is_valid_for_vehicle
   validate :vehicle_has_open_seating_capacity
@@ -41,11 +34,13 @@ class Trip < ActiveRecord::Base
   scope :after_today,        -> { where('CAST(pickup_time AS date) > ?', Date.today.in_time_zone.utc) }
   scope :today_and_prior,    -> { where('CAST(pickup_time AS date) <= ?', Date.today.in_time_zone.utc) }
   scope :prior_to_today,     -> { where('CAST(pickup_time AS date) < ?', Date.today.in_time_zone.utc) }
-  scope :during,             -> (pickup_time, appointment_time) { where('NOT ((pickup_time < ? AND appointment_time < ?) OR (pickup_time > ? AND appointment_time > ?))', pickup_time.utc, appointment_time.utc, pickup_time.utc, appointment_time.utc) }
+  scope :during,             -> (pickup_time, appointment_time) { 
+                                  where('NOT ((pickup_time < ? AND appointment_time < ?) OR (pickup_time > ? AND appointment_time > ?))', 
+                                  pickup_time.utc, appointment_time.utc, pickup_time.utc, appointment_time.utc) }
   scope :for_date,           ->(date) { where(pickup_time: date.beginning_of_day..date.end_of_day) }
   scope :for_date_range,     -> (from_date, to_date) { where(pickup_time: from_date.beginning_of_day..to_date.end_of_day) } 
   scope :prior_to,           -> (pickup_time) { where('pickup_time < ?', pickup_time.to_datetime.in_time_zone.utc) } 
-  scope :has_scheduled_time, -> { where.not(pickup_time: nil).where.not(appointment_time: nil) }
+  scope :has_scheduled_time, -> { where.not(pickup_time: nil) }
   scope :by_result,          -> (code) { includes(:trip_result).references(:trip_result).where("trip_results.code = ?", code) }
   scope :called_back,        -> { where('called_back_at IS NOT NULL') }
   scope :completed,          -> { joins(:trip_result).where(trip_results: {code: 'COMP'}) }
@@ -133,8 +128,8 @@ class Trip < ActiveRecord::Base
 
   # When setting appointment_time, set with @date attribute if present
   def appointment_time=(datetime)
-    write_attribute :appointment_time,
-      time_on_date(format_datetime(datetime), date)
+    new_appointment_time = datetime ? time_on_date(format_datetime(datetime), date) : nil
+    write_attribute :appointment_time, new_appointment_time
   end
 
   def run_text
@@ -152,57 +147,28 @@ class Trip < ActiveRecord::Base
   end
 
   def as_calendar_json
-    return if appointment_time < pickup_time
-    # if trip spans multiple day, should spit into several objects by each day
-    common_data = {
+    return if appointment_time && appointment_time < pickup_time
+    
+    {
       id: id,
       pickup_time: pickup_time.iso8601,
-      appointment_time: appointment_time.iso8601,
-      title: customer_name + "\n" + pickup_address.try(:address_text).to_s
+      appointment_time: appointment_time.try(:iso8601),
+      title: customer_name + "\n" + pickup_address.try(:address_text).to_s,
+      start: pickup_time.iso8601,
+      "end": appointment_time ? appointment_time.iso8601 : date.end_of_day.iso8601,
+      resource: pickup_time.to_date.to_s(:js)
     }
-
-    if pickup_time.to_date == appointment_time.to_date
-      common_data.merge({
-        start: pickup_time.iso8601,
-        "end": appointment_time.iso8601,
-        resource: pickup_time.to_date.to_s(:js)
-      })
-    else
-      start_time, end_time = pickup_time, appointment_time
-      events = []
-      while end_time.to_date != start_time.to_date
-        new_event_data = common_data.dup
-        events << new_event_data.merge({
-          start: start_time.iso8601,
-          "end": start_time.end_of_day.iso8601,
-          resource: start_time.to_date.to_s(:js)
-        })
-
-        start_time = start_time.beginning_of_day + 1.day
-      end
-
-      if start_time <= appointment_time
-        events << common_data.dup.merge({
-          start: start_time.iso8601,
-          "end": appointment_time.iso8601,
-          resource: start_time.to_date.to_s(:js)
-        })
-      end
-    end
   end
 
   def as_run_event_json
-    return if appointment_time < pickup_time
-    # run calendar requires start and end should be within one day
-    end_time = appointment_time.to_date == pickup_time.to_date ?
-      appointment_time : pickup_time.end_of_day
+    return if appointment_time && appointment_time < pickup_time
 
     {
       id: id,
       pickup_time: pickup_time.iso8601,
-      appointment_time: appointment_time.iso8601,
+      appointment_time: appointment_time.try(:iso8601),
       start: pickup_time.iso8601,
-      "end": end_time.iso8601,
+      "end": appointment_time ? appointment_time.iso8601 : date.end_of_day.iso8601,
       title: customer_name + "\n" + pickup_address.try(:address_text).to_s,
       resource: adjusted_run_id
     }
@@ -394,6 +360,7 @@ class Trip < ActiveRecord::Base
   end
 
   # Check if the run's vehicle has open capacity at the time of this trip
+  # TODO: refactor needed to deal with re-arranging pickup and dropoff orders from different trip
   def vehicle_has_open_seating_capacity
     if run.try(:vehicle_id).present? && pickup_time.present? && appointment_time.present?
       vehicle_open_seating_capacity = run.vehicle.try(:open_seating_capacity, pickup_time, appointment_time, ignore: self)
@@ -403,6 +370,7 @@ class Trip < ActiveRecord::Base
   end
 
   # Check if the run's vehicle has enough mobility accommodations at the time of this trip
+  # TODO: refactor needed to deal with re-arranging pickup and dropoff orders from different trip
   def vehicle_has_mobility_device_capacity
     if mobility_device_accommodations && run.try(:vehicle_id).present? && pickup_time.present? && appointment_time.present?
       vehicle_mobility_capacity = run.vehicle.try(:open_mobility_device_capacity, pickup_time, appointment_time, ignore: self)
@@ -413,7 +381,7 @@ class Trip < ActiveRecord::Base
 
   # Can only allow to set trip as complete until day of the trip
   def completable_until_trip_appointment_day
-    if complete && Time.current < appointment_time.in_time_zone.beginning_of_day
+    if complete && Time.current < pickup_time.in_time_zone.beginning_of_day
       errors.add(:base, TranslationEngine.translate_text(:completable_until_trip_appointment_day_validation_error))
     end
   end
@@ -428,132 +396,10 @@ class Trip < ActiveRecord::Base
     if is_linked?
       if is_outbound? && appointment_time
         errors.add(:base, TranslationEngine.translate_text(:outbound_trip_dropoff_time_no_later_than_return_trip_pickup_time)) if appointment_time > return_trip.pickup_time
-      elsif is_return? && pickup_time
+      elsif is_return? && pickup_time && outbound_trip.appointment_time
         errors.add(:base, TranslationEngine.translate_text(:return_trip_pickup_time_no_earlier_than_outbound_trip_dropoff_time)) if pickup_time < outbound_trip.appointment_time
       end
     end
-  end
-
-  def compute_run
-    return true if run_id || cab || vehicle_id.blank? || provider_id.blank?
-
-    if !pickup_time or !appointment_time
-      return true # we'll error out in validation
-    end
-
-    Trip.transaction do
-      # When the trip is saved, we need to find or create a run for it. This
-      # will depend on the driver and vehicle.
-      self.run = Run.where("scheduled_start_time <= ? and scheduled_end_time >= ? and vehicle_id=? and provider_id=?", pickup_time, appointment_time, vehicle_id, provider_id).first
-
-      if run.nil?
-        # Find the next/previous runs for this vehicle and, if necessary, split
-        # or change times on them
-
-        previous_run = Run.where("scheduled_start_time <= ? and vehicle_id=? and provider_id=? ", appointment_time, vehicle_id, provider_id).order("scheduled_start_time").last
-
-        next_run = Run.where("scheduled_start_time >= ? and vehicle_id=? and provider_id=? ", pickup_time, vehicle_id, provider_id).order("scheduled_start_time").first
-
-        # There are four possible cases: either the previous or the next run
-        # could overlap the trip, or neither could.
-
-        if previous_run and previous_run.scheduled_end_time > pickup_time
-          # previous run overlaps trip
-          if next_run and next_run.scheduled_start_time < appointment_time
-            # Next run overlaps trip too
-            return handle_overlapping_runs(previous_run, next_run)
-          else
-            # Just the previous run
-            if previous_run.scheduled_start_time.to_date != pickup_time.to_date
-              self.run = make_run
-            else
-              self.run = previous_run
-              previous_run.update_attributes! scheduled_end_time: run.appointment_time
-            end
-          end
-        else
-          if next_run and next_run.scheduled_start_time < appointment_time
-            # Just the next run
-            if next_run.scheduled_start_time.to_date != pickup_time.to_date
-              self.run = make_run
-            else
-              self.run = next_run
-              next_run.update_attributes! scheduled_start_time: run.pickup_time
-            end
-          else
-            # No overlap, create a new run
-            self.run = make_run
-          end
-        end
-      end
-    end
-  end
-
-  def handle_overlapping_runs(previous_run, next_run)
-    Trip.transaction do
-      # Can we unify the runs?
-      if next_run.driver_id == previous_run.driver_id
-        self.run = unify_runs(previous_run, next_run)
-        return
-      end
-
-      # Now, can we push the start of the second run later?
-      first_trip = next_run.trips.first
-      if first_trip.pickup_time > appointment_time
-        # Yes, we can
-        next_run.update_attributes! scheduled_start_time: appointment_time
-        previous_run.update_attributes! scheduled_end_time: appointment_time
-        self.run = previous_run
-      else
-        # No, the second run is fixed. Can we push the end of the first run
-        # earlier?
-        last_trip = previous_run.trips.last
-        if last_trip.appointment_time <= pickup_time
-          # Yes, we can
-          previous_run.update_attributes! scheduled_end_time: pickup_time
-          next_run.update_attributes! scheduled_start_time: appointment_time
-          self.run = next_run
-        else
-          return false
-        end
-      end
-    end
-  end
-
-  def unify_runs(before, after)
-    Trip.transaction do
-      before.update_attributes! scheduled_end_time: after.scheduled_end_time, end_odometer: after.end_odometer
-      for trip in after.trips
-        trip.run = before
-      end
-      after.destroy
-    end
-    return before
-  end
-
-  def make_run
-    Run.create!({
-      provider_id:          provider_id,
-      date:                 pickup_time.to_date,
-      scheduled_start_time: Time.zone.local(
-        pickup_time.year,
-        pickup_time.month,
-        pickup_time.day,
-        BUSINESS_HOURS[:start],
-        0, 0
-      ),
-      scheduled_end_time:   Time.zone.local(
-        pickup_time.year,
-        pickup_time.month,
-        pickup_time.day,
-        BUSINESS_HOURS[:end],
-        0, 0
-      ),
-      vehicle_id:           vehicle_id,
-      driver_id:            driver_id,
-      complete:             false,
-      paid:                 true
-    })
   end
 
   # Formats a variety of inputs as a Time object, and catches errors.

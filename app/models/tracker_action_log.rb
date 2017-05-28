@@ -49,7 +49,9 @@ class TrackerActionLog < PublicActivity::Activity
             params["Pickup Time"] = [change[0].try(:strftime,'%I:%M%P'), trip.pickup_time.strftime('%I:%M%P')]
           end
         when 'appointment_time'
-          params["Appointment Time"] = [change[0].try(:strftime,'%I:%M%P'), trip.appointment_time.strftime('%I:%M%P')] if !compare_time_only(change[0], change[1])
+          if change[0].nil? || change[1].nil? || !compare_time_only(change[0], change[1])
+            params["Appointment Time"] = [change[0].try(:strftime,'%I:%M%P'), trip.appointment_time.try(:strftime, '%I:%M%P')]
+          end
         when 'pickup_address_id'
           old_address = Address.find_by_id(change[0])
           new_address = trip.pickup_address
