@@ -6,6 +6,6 @@
     - if can? :manage, @vehicle
       .pull-right
         = link_to translate_helper("vehicle_documents_add_link_title"), new_vehicle_document_path(@vehicle), class: "btn action-button"
-        = link_to translate_helper("delete_vehicle_button"), @vehicle, method: :delete, data: { confirm: translate_helper("delete_vehicle_confirmation") }, class: "btn action-button"
+        = link_to translate_helper("delete_vehicle_button"), @vehicle, method: :delete, data: { confirm: translate_helper("delete_vehicle_confirmation") }, class: "btn action-button" if can?(:delete, @vehicle)
         = link_to translate_helper("edit_vehicle_button"), edit_vehicle_path(@vehicle), class: "btn action-button"
 = render partial: "form"

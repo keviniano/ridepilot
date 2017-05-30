@@ -69,6 +69,8 @@ class Ability
     else
       can :read, User, :roles => {:provider_id => provider.id}
       can :edit, user
+      cannot :delete, Vehicle
+      cannot :delete, Driver
     end
 
     if role.editor?
