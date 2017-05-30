@@ -16,7 +16,7 @@ RSpec.describe DriversController, type: :controller do
   }
 
   let(:invalid_attributes) {
-    attributes_for(:driver, :name => "")
+    attributes_for(:driver, :phone_number => nil)
   }
 
   describe "GET #index" do
@@ -96,16 +96,16 @@ RSpec.describe DriversController, type: :controller do
         {
           :active => false,
           :paid => false,
-          :name => "Judy",
+          :phone_number => "8881234567",
           :user => create(:user, :current_provider => @current_user.current_provider).id,
         }
       }
 
       it "updates the requested driver" do
-        driver = create(:driver, :provider => @current_user.current_provider, :name => "Bob")
+        driver = create(:driver, :provider => @current_user.current_provider, :phone_number => '8884567890')
         expect {
           put :update, {:id => driver.to_param, :driver => new_attributes}
-        }.to change { driver.reload.name }.from("Bob").to("Judy")
+        }.to change { driver.reload.phone_number }.from("8884567890").to("8881234567")
       end
 
       it "assigns the requested driver as @driver" do

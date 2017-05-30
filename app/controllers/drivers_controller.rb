@@ -157,7 +157,6 @@ class DriversController < ApplicationController
     params.require(:driver).permit(
       :active, 
       :paid, 
-      :name, 
       :email, 
       :user_id,
       :phone_number,
