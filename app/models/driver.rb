@@ -35,7 +35,6 @@ class Driver < ActiveRecord::Base
 
   validates :address, associated: true, presence: true
   validates :email, format: { with: Devise.email_regexp, allow_blank: true }
-  validates :name, uniqueness: { scope: :provider_id, conditions: -> { where(deleted_at: nil) } }, length: { minimum: 2 }
   validates :provider, presence: true
   validates :user, presence: true
   validates :user_id, uniqueness: { allow_nil: true, conditions: -> { where(deleted_at: nil) } }
@@ -43,10 +42,12 @@ class Driver < ActiveRecord::Base
   validate  :valid_phone_number
   validates_associated :photo
 
+  before_validation :load_name
+
   scope :users,         -> { where("drivers.user_id IS NOT NULL") }
   scope :active,        -> { where(active: true) }
   scope :for_provider,  -> (provider_id) { where(provider_id: provider_id) }
-  scope :default_order, -> { order(:name) }
+  scope :default_order, -> { includes(:user).references(:user).reorder("lower(users.last_name)", "lower(users.first_name)") }
 
   def self.unassigned(provider)
     users.for_provider(provider).reject { |driver| driver.device_pool.present? }
@@ -76,6 +77,10 @@ class Driver < ActiveRecord::Base
     if alt_phone_number.present?
       errors.add(:alt_phone_number, 'is invalid') unless util.phone_number_valid?(alt_phone_number)
     end
+  end
+
+  def load_name
+    self.name = self.user.try(:name)
   end
 
 end
