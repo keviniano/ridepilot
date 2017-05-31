@@ -40,7 +40,6 @@ class Run < ActiveRecord::Base
 
   before_validation :fix_dates, :set_complete
 
-  validates                 :name, presence: true
   validate                  :name_uniqueness
   validates_date            :date
   validates_datetime        :actual_start_time, allow_blank: true

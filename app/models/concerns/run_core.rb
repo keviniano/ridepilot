@@ -10,9 +10,10 @@ module RunCore
 
     #validates                 :driver, presence: true
     validates                 :provider, presence: true
-    validates                 :vehicle, presence: true
+    validates                 :name, presence: true
     validates_datetime        :scheduled_start_time, allow_blank: true
     validates_datetime        :scheduled_end_time, after: :scheduled_start_time, allow_blank: true
+    validates                 :vehicle, presence: true
 
     scope :for_paid_driver,        -> { where(paid: true) }
     scope :for_volunteer_driver,   -> { where(paid: false) }
