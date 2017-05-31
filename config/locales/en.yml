@@ -936,7 +936,9 @@ en:
   cancel_run: "Unschedule"
   confirm_runs_batch_cancel: "Are you sure you want to unschedule all selected runs?"
   confirm_runs_batch_delete: "Are you sure you want to delete all selected runs?"
-  
+  unavailable_driver_for_run_time_range_warning: "Driver is not available within the run scheduled time range. Are you sure to proceed?"
+  unavailable_driver_warning: "Driver Unavailable"
+  proceed_button: "Proceed"
   
   #shared
   generic_error_message:

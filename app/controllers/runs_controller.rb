@@ -145,7 +145,6 @@ class RunsController < ApplicationController
     end
   end
   
-  
   private
   
   def setup_run

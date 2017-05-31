@@ -145,6 +145,7 @@ Rails.application.routes.draw do
     resources :drivers do
       member do
         get :delete_photo
+        get :check_time_range_availability
       end
 
       resources :documents, except: [:index, :show]

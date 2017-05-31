@@ -122,13 +122,21 @@ class DriversController < ApplicationController
   end
 
   def delete_photo
-    @driver = Driver.find(params[:id])
+    @driver = Driver.find_by_id(params[:id])
 
     authorize! :update, @driver
 
     @driver.photo.try(:destroy!)
 
     redirect_to @driver, :notice => "Photo has been deleted."
+  end
+
+  def check_time_range_availability
+    @driver = Driver.find_by_id(params[:id])
+    date = Date.parse params[:date] if params[:date]
+    start_time = DateTime.parse params[:start_time] if params[:start_time]
+    end_time = DateTime.parse params[:end_time] if params[:end_time]
+    @is_available = @driver.available_between?(date.wday, start_time.strftime('%H:%M'), end_time.strftime('%H:%M')) if @driver && date && start_time && end_time
   end
 
   private
