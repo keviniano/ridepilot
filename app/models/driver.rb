@@ -47,7 +47,7 @@ class Driver < ActiveRecord::Base
   scope :users,         -> { where("drivers.user_id IS NOT NULL") }
   scope :active,        -> { where(active: true) }
   scope :for_provider,  -> (provider_id) { where(provider_id: provider_id) }
-  scope :default_order, -> { includes(:user).references(:user).reorder("lower(users.last_name)", "lower(users.first_name)") }
+  scope :default_order, -> { joins("left outer join users on users.id = drivers.user_id").reorder("lower(users.last_name)", "lower(users.first_name)") }
 
   def self.unassigned(provider)
     users.for_provider(provider).reject { |driver| driver.device_pool.present? }
