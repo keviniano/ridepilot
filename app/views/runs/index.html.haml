@@ -11,64 +11,68 @@
 
 .col-md-3{style: 'padding: 0px 15px 0px 0px;'}
   = render :partial => 'filters'
-.col-md-9{style: 'padding: 0px;'}
-  .modify-selected-runs.dropdown{style: 'margin-bottom: 5px;'}
-    %button.btn.btn-primary.dropdown-toggle{type: 'button', data: {toggle: 'dropdown'}} 
-      =translate_helper(:modify_selected_runs)
-      %span.caret
-    %ul.dropdown-menu
-      -Run::BATCH_ACTIONS.each do |action|
-        %li
-          %a{href: '#', 'data-run-batch-action' => action.to_s }
-            =translate_helper("#{action}_run")
+- unless can?(:edit, Run)
+  .col-md-9{style: 'padding: 0px;'}
+    = render :partial => 'list'
+- else
+  .col-md-9{style: 'padding: 0px;'}
+    .modify-selected-runs.dropdown{style: 'margin-bottom: 5px;'}
+      %button.btn.btn-primary.dropdown-toggle{type: 'button', data: {toggle: 'dropdown'}} 
+        =translate_helper(:modify_selected_runs)
+        %span.caret
+      %ul.dropdown-menu
+        -Run::BATCH_ACTIONS.each do |action|
+          %li
+            %a{href: '#', 'data-run-batch-action' => action.to_s }
+              =translate_helper("#{action}_run")
 
-  = render :partial => 'list'
+    = render :partial => 'list'
 
-:javascript
-  $(function() {    
-    /* MULTI-SELECT AND BATCH CANCEL */
-    
-    // One checkbox to rule them all
-    $('.master-select-checkbox').change(function() {
-      $('.run-selected').prop('checked', $(this).prop('checked'));
-    });
-    
-    var clearCheckboxes = function() {
-      $('.master-select-checkbox').prop('checked', false).trigger('change');
-    }
-    
-    // Handler for applying an action to multiple selected runs
-    $('.modify-selected-runs a').click(function() {
-      var checkedBoxes = $('.run-selected:checked');
-      if(checkedBoxes.length === 0) { return; } // Return if no runs are selected
-
-      // Pull the run ids from the selected rows
-      var runRows = checkedBoxes.closest('tr.run');
-      var runIds = runRows.map(function() {
-        return this.dataset.runId;
-      }).get().join();
+  :javascript
+    $(function() {    
+      /* MULTI-SELECT AND BATCH CANCEL */
       
-      // Pull the action name from the dropdown
-      var action = $(this).data('run-batch-action');
-      var confirmation = false;
+      // One checkbox to rule them all
+      $('.master-select-checkbox').change(function() {
+        $('.run-selected').prop('checked', $(this).prop('checked'));
+      });
       
-      // Update the appropriate form based on the action
-      var form;
-      if (action === "cancel") {
-        confirmation = confirm("#{translate_helper('confirm_runs_batch_cancel')}");
-        if(!confirmation) { return; } // Return if cancel clicked
-        form = $('form.cancel-multiple-runs');
-        form.find('#cancel_multiple_runs_run_ids').val(runIds);
-      } else if (action === "delete") {        
-        confirmation = confirm("#{translate_helper('confirm_runs_batch_delete')}");
-        if(!confirmation) { return; } // Return if cancel clicked
-        form = $('form.delete-multiple-runs');
-        form.find('#delete_multiple_runs_run_ids').val(runIds);
+      var clearCheckboxes = function() {
+        $('.master-select-checkbox').prop('checked', false).trigger('change');
       }
       
-      // Submit the form and clear the checkboxes
-      form.submit();
-      clearCheckboxes();
-      
+      // Handler for applying an action to multiple selected runs
+      $('.modify-selected-runs a').click(function() {
+        var checkedBoxes = $('.run-selected:checked');
+        if(checkedBoxes.length === 0) { return; } // Return if no runs are selected
+
+        // Pull the run ids from the selected rows
+        var runRows = checkedBoxes.closest('tr.run');
+        var runIds = runRows.map(function() {
+          return this.dataset.runId;
+        }).get().join();
+        
+        // Pull the action name from the dropdown
+        var action = $(this).data('run-batch-action');
+        var confirmation = false;
+        
+        // Update the appropriate form based on the action
+        var form;
+        if (action === "cancel") {
+          confirmation = confirm("#{translate_helper('confirm_runs_batch_cancel')}");
+          if(!confirmation) { return; } // Return if cancel clicked
+          form = $('form.cancel-multiple-runs');
+          form.find('#cancel_multiple_runs_run_ids').val(runIds);
+        } else if (action === "delete") {        
+          confirmation = confirm("#{translate_helper('confirm_runs_batch_delete')}");
+          if(!confirmation) { return; } // Return if cancel clicked
+          form = $('form.delete-multiple-runs');
+          form.find('#delete_multiple_runs_run_ids').val(runIds);
+        }
+        
+        // Submit the form and clear the checkboxes
+        form.submit();
+        clearCheckboxes();
+        
+      });
     });
-  });
