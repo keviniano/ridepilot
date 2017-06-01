@@ -13,6 +13,7 @@ class RepeatingRun < ActiveRecord::Base
   validates :comments, :length => { :maximum => 30 }
   validate :name_uniqueness
   validate :driver_availability
+  validate :vehicle_availability
   validate :repeating_schedule_day_present
   
   has_many :runs # Child runs created by this RepeatingRun's scheduler
@@ -139,6 +140,7 @@ class RepeatingRun < ActiveRecord::Base
   
   private
   
+  ### NAME UNIQUENESS ###
   # Is the name unique by date and provider among daily and repeating runs?
   def name_uniqueness
     daily_name_uniqueness
@@ -165,6 +167,8 @@ class RepeatingRun < ActiveRecord::Base
       errors.add(:name,  "should be unique by day and by provider among repeating runs")
     end
   end
+  ###
+  
   
   # At least one day of the week must be checked to create a repeating run
   def repeating_schedule_day_present
@@ -173,6 +177,8 @@ class RepeatingRun < ActiveRecord::Base
     end
   end
   
+  
+  ### DRIVER AVAILABILITY ###
   # Validates that the driver is not assigned to any overlapping daily or repeating runs
   def driver_availability
     return true if driver.nil?
@@ -189,12 +195,38 @@ class RepeatingRun < ActiveRecord::Base
   end
   
   def repeating_driver_availability
-    # puts "CHECKING REPEATING DRIVER AVAILABILITY..."
     if RepeatingRun.where(driver: driver)   # same driver
         .overlaps_with_repeating_run(self)  # schedules overlap by date and time
         .present?
       errors.add(:driver_id, TranslationEngine.translate_text(:assigned_to_overlapping_repeating_run))
     end
   end
+  ###
+  
+  
+  ### VEHICLE AVAILABILITY ###
+  # Validates that the vehicle is not assigned to any overlapping daily or repeating runs
+  def vehicle_availability
+    return true if vehicle.nil?
+    daily_vehicle_availability
+    repeating_vehicle_availability
+  end
+  
+  def daily_vehicle_availability
+    if Run.where(vehicle: vehicle)            # same vehicle
+        .overlaps_with_repeating_run(self)    # run overlaps by date and time
+        .present?
+      errors.add(:vehicle_id, TranslationEngine.translate_text(:assigned_to_other_overlapping_run))
+    end
+  end
+  
+  def repeating_vehicle_availability
+    if RepeatingRun.where(vehicle: vehicle)   # same vehicle
+        .overlaps_with_repeating_run(self)    # schedules overlap by date and time
+        .present?
+      errors.add(:vehicle_id, TranslationEngine.translate_text(:assigned_to_overlapping_repeating_run))
+    end
+  end
+  ###
   
 end
