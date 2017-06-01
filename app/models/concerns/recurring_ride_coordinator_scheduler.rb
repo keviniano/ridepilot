@@ -7,7 +7,8 @@ module RecurringRideCoordinatorScheduler
 
   NON_RIDE_COORDINATOR_ATTRIBUTES = %w(
     id recurrence schedule_yaml created_at updated_at lock_version 
-    start_date end_date comments scheduled_through
+    start_date end_date comments scheduled_through pickup_address_notes 
+    dropoff_address_notes
   )
 
   included do
