@@ -203,6 +203,8 @@ class Run < ActiveRecord::Base
     true
   end
   
+  
+  ### NAME UNIQUENESS ###
   # Is the name unique by date and provider among daily and repeating runs?
   def name_uniqueness
     return true if date.nil? || name.nil? || provider.nil?
@@ -233,7 +235,10 @@ class Run < ActiveRecord::Base
       errors.add(:name,  "should be unique by day and by provider among repeating runs")
     end
   end
+  ###
+  
 
+  ### DRIVER AVAILABILITY ###
   # Validates that the driver is not assigned to any overlapping daily or repeating runs
   def driver_availability
     return true if date.nil? || driver.nil?
@@ -256,12 +261,34 @@ class Run < ActiveRecord::Base
       errors.add(:driver_id, TranslationEngine.translate_text(:assigned_to_overlapping_repeating_run))
     end
   end
+  ###
 
+
+  ### VEHICLE AVAILABILITY ###
+  # Validates that the vehicle is not assigned to any overlapping daily or repeating runs
   def vehicle_availability
-    if self.vehicle && Run.other_overlapped_runs(self).pluck(:vehicle_id).include?(self.vehicle.id)
+    return true if date.nil? || vehicle.nil?
+    daily_vehicle_availability
+    repeating_vehicle_availability
+  end
+  
+  def daily_vehicle_availability
+    if Run.other_overlapped_runs(self).pluck(:vehicle_id).include?(self.vehicle.id)
       errors.add(:vehicle_id, TranslationEngine.translate_text(:assigned_to_other_overlapping_run))
     end
   end
+  
+  def repeating_vehicle_availability
+    return true if provider.scheduler_window_covers?(date)
+    if RepeatingRun.where(vehicle: vehicle)   # same vehicle
+        .not_the_parent_of(self)              # not the parent repeating run
+        .overlaps_with_run(self)              # repeating run schedule occurs on this run's date and time
+        .present?
+      errors.add(:vehicle_id, TranslationEngine.translate_text(:assigned_to_overlapping_repeating_run))
+    end
+  end
+  ###
+  
 
   def check_provider_fields_required_for_run_completion
     provider.present? && provider.fields_required_for_run_completion.select{ |attr| self[attr].blank? }.empty?

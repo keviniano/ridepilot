@@ -95,6 +95,34 @@ RSpec.describe Run, type: :model do
       
     end
     
+    it 'validates vehicle availability against other daily runs' do
+      
+      invalid_run_same_vehicle = build(:run, :tomorrow, :scheduled_morning, vehicle: run_a.vehicle)
+      valid_run_diff_day = build(:run, :next_week, :scheduled_morning, vehicle: run_a.vehicle)
+      valid_run_diff_time = build(:run, :tomorrow, :scheduled_afternoon, vehicle: run_a.vehicle)
+      valid_run_diff_vehicle = build(:run, :tomorrow, :scheduled_morning)
+      
+      expect(invalid_run_same_vehicle.valid?).to be false
+      expect(valid_run_diff_day.valid?).to be true
+      expect(valid_run_diff_time.valid?).to be true
+      expect(valid_run_diff_vehicle.valid?).to be true
+      
+    end
+    
+    it 'validates vehicle availability against repeating runs' do
+      
+      invalid_run_same_vehicle = build(:run, :tomorrow, :scheduled_morning, vehicle: repeating_run_c.vehicle)
+      valid_run_diff_day = build(:run, :next_week, :scheduled_morning, vehicle: repeating_run_c.vehicle)
+      valid_run_diff_time = build(:run, :tomorrow, :scheduled_afternoon, vehicle: repeating_run_c.vehicle)
+      valid_run_diff_vehicle = build(:run, :tomorrow, :scheduled_morning)
+      
+      expect(invalid_run_same_vehicle.valid?).to be false
+      expect(valid_run_diff_day.valid?).to be true
+      expect(valid_run_diff_time.valid?).to be true
+      expect(valid_run_diff_vehicle.valid?).to be true
+      
+    end
+    
     skip 'skips driver availability validation for child runs' do
             
       child_run_same_driver = build(:run, :child_run, :tomorrow, :scheduled_morning, driver: run_a.driver)

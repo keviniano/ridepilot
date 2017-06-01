@@ -107,6 +107,34 @@ RSpec.describe RepeatingRun, type: :model do
       
     end
     
+    it 'validates vehicle availability against daily runs' do
+      
+      invalid_run_same_vehicle = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning, vehicle: run_a.vehicle)
+      valid_run_diff_day = build(:repeating_run, :weekly, :next_week, :scheduled_morning, vehicle: run_a.vehicle)
+      valid_run_diff_time = build(:repeating_run, :weekly, :tomorrow, :scheduled_afternoon, vehicle: run_a.vehicle)
+      valid_run_diff_vehicle = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning)
+                  
+      expect(invalid_run_same_vehicle.valid?).to be false
+      expect(valid_run_diff_day.valid?).to be true
+      expect(valid_run_diff_time.valid?).to be true
+      expect(valid_run_diff_vehicle.valid?).to be true
+      
+    end
+    
+    it 'validates driver availability against other repeating runs' do
+      
+      invalid_run_same_vehicle = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning, vehicle: repeating_run_c.vehicle)
+      valid_run_diff_day = build(:repeating_run, :weekly, :next_week, :scheduled_morning, vehicle: repeating_run_c.vehicle)
+      valid_run_diff_time = build(:repeating_run, :weekly, :tomorrow, :scheduled_afternoon, vehicle: repeating_run_c.vehicle)
+      valid_run_diff_vehicle = build(:repeating_run, :weekly, :tomorrow, :scheduled_morning)
+      
+      expect(invalid_run_same_vehicle.valid?).to be false
+      expect(valid_run_diff_day.valid?).to be true
+      expect(valid_run_diff_time.valid?).to be true
+      expect(valid_run_diff_vehicle.valid?).to be true
+      
+    end
+    
   end
   
 end
