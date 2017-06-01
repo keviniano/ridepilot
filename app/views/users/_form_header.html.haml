@@ -11,7 +11,9 @@
         = f.submit translate_helper(:update), class: 'btn action-button'
         = link_to translate_helper(:cancel), :back, class: "btn btn-default"
       - else
-        = link_to translate_helper("edit"), edit_user_path(@user), :class=>'btn action-button' if !@user.new_record? && can?(:edit, @user)
+        - if !@user.new_record? && can?(:edit, @user)
+          = link_to translate_helper("reset_password"), show_reset_password_user_path(@user), :class=>'btn action-button btn-danger' 
+          = link_to translate_helper("edit"), edit_user_path(@user), :class=>'btn action-button' 
         = link_to translate_helper(:back), :back, class: "btn btn-default"
     %h1
       = @user.display_name

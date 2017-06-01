@@ -245,6 +245,8 @@ en:
   new_password: "New Password"
   confirm_new_password: "Confirm New Password"
   change_my_password: "Change My Password"
+  reset_password: "Reset Password"
+  reset_password_heading: "Reset Password"
   new_password_heading: "Forgot your password?"
   submit_new_password_form: "Send me reset password instructions"
   submit_new_confirmation_form: "Send new confirmation instructions"

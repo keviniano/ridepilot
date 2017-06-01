@@ -1,0 +1,64 @@
+- url = edit_mode == :new ? url_for(:action=>:create_user) : user_path(@user)
+= form_for @user, :url=>url, :html => {class: 'user_form'} do |f|
+  = render 'form_header', edit_mode: edit_mode, f: f
+  - error_messages = @user.errors.any? ? @user.errors.full_messages : @errors
+  - if error_messages && error_messages.any?
+    #error_explanation
+      %h2= translate_helper("user_form_error_message", count: error_messages.count)
+      %ul
+        - error_messages.each do |msg|
+          %li= msg
+  - if @is_user_deleted
+    %p= link_to translate_helper("restore_user_link_text"), restore_user_path(id: @user.try(:id)), :class=>'new-user action-bttn'
+  .row
+    .col-sm-12.col-md-6
+      .panel.panel-primary
+        .panel-heading= translate_helper("user_details_heading")
+        .panel-body.form-horizontal
+          .form-group
+            = f.label :first_name, translate_helper("first_name"), class: "col-md-2 control-label"
+            .col-md-10
+              = f.text_field :first_name, class: "form-control"
+          .form-group
+            = f.label :last_name, translate_helper("last_name"), class: "col-md-2 control-label"
+            .col-md-10
+              = f.text_field :last_name, class: "form-control"
+          .form-group
+            = f.label :username, translate_helper("username"), class: "col-md-2 control-label"
+            .col-md-10
+              = f.text_field :username, class: "form-control"
+          .form-group
+            = f.label :email, translate_helper("email"), class: "col-md-2 control-label"
+            .col-md-10
+              = f.text_field :email, class: "form-control"
+          - if @user != current_user
+            - editable_roles = Role.editable_role_array_by_user(current_user)
+            - if editable_roles.any?
+              .form-group
+                = f.label :permissions, translate_helper("permissions"), class: "col-md-2 control-label"
+                .col-md-10
+                  = select :role, :level, Role.editable_role_array_by_user(current_user), {}, { class: "form-control" }
+          .form-group
+            = f.label :phone_number, translate_helper("phone_number"), class: "col-md-2 control-label"
+            .col-md-10
+              - if edit_mode != :show
+                = f.text_field :phone_number, class: "form-control"
+              - else
+                = format_phone_number(@user.phone_number)
+      - prefix = "user_address_attributes"
+      .panel.panel-primary
+        .panel-heading= translate_helper("user_address_heading")
+        .panel-body.form-horizontal
+          - @user.user_address ||= @user.build_user_address
+          = f.fields_for :user_address, @user.user_address do |address_form|
+            = render 'addresses/non_geocoding_form_fields', address_form: address_form, readonly: false
+        / END .panel-body
+      / END .panel
+      = render 'addresses/google_place_autocomplete_js'
+      :javascript
+        $(function() {
+          // Force uppercase text
+          $('[data-convert="uppercase"]').keyup(function(evt) {
+            convert_uppercase(this);
+          });
+        });

@@ -1,7 +1,7 @@
 require 'new_user_mailer'
 
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update]
+  before_action :set_user, only: [:show, :edit, :update, :reset_password]
 
   def new_user
     authorize! :edit, current_user.current_provider
@@ -102,6 +102,29 @@ class UsersController < ApplicationController
       flash.now[:notice] = "Unable to update user."
 
       render :edit
+    end
+  end
+
+  def show_reset_password
+    @user = User.find_by_id(params[:id])
+    authorize! :manage, @user
+  end
+
+  def reset_password
+    @user = User.find(params[:id])
+    authorize! :manage, @user
+
+    @user.assign_attributes reset_password_params
+    if @user.save
+      if @user == current_user
+        sign_in(current_user, :bypass => true)
+      end
+
+      flash.now[:notice] = "Password reset"
+      redirect_to @user
+    else
+      flash.now[:alert] = "Error resetting password"
+      render :action=>:show_reset_password
     end
   end
   
@@ -228,6 +251,10 @@ class UsersController < ApplicationController
   
   def change_password_params
     params.require(:user).permit(:current_password, :password, :password_confirmation)
+  end
+
+  def reset_password_params
+    params.require(:user).permit(:password, :password_confirmation)
   end
 
   def change_email_params

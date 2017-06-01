@@ -26,7 +26,12 @@ Rails.application.routes.draw do
       get "restore_user" => "users#restore"
     end
 
-    resources :users, only: [:show, :edit, :update]
+    resources :users, only: [:show, :edit, :update] do 
+      member do 
+        get :show_reset_password
+        patch :reset_password
+      end
+    end
 
     resource :application_settings, only: [:edit, :update] do
       collection do
