@@ -520,6 +520,7 @@ en:
   vehicle_maintenance_schedule_type_form_error:
     one: "1 error prohibited this schedule type from being saved"
     other: "%{count} errors prohibited this schedule type from being saved"
+  vehicle_maintenance_schedule_type_form_edit_heading: "Edit Maintenance Schedule Type"
   vehicle_maintenance_schedule_type_form_submit: "Submit"
   vehicle_maintenance_schedule_type_delete_confirm: "Are you sure to delete this schedule type?"
   vehicle_maintenance_schedule_types: 'Maintenance Schedule Types'
