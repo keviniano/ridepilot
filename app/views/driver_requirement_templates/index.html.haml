@@ -14,9 +14,6 @@
           %th.col-sm-2= translate_helper("driver_requirement_template_legal")
           %th.col-sm-2= translate_helper("driver_requirement_template_reoccuring")
       %tbody
-        - if @driver_requirement_templates.empty?
-          %tr
-            %td{:colspan => "2"}= translate_helper("driver_requirement_templates_empty")
         = render partial: 'driver_requirement_template', collection: @driver_requirement_templates
 
 :javascript
