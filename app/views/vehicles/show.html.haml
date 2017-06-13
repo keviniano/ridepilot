@@ -8,7 +8,10 @@
         = link_to translate_helper("vehicle_documents_add_link_title"), new_vehicle_document_path(@vehicle), class: "btn action-button"
         = link_to translate_helper("delete_vehicle_button"), @vehicle, method: :delete, data: { confirm: translate_helper("delete_vehicle_confirmation") }, class: "btn action-button" if can?(:delete, @vehicle)
         = link_to translate_helper("edit_vehicle_button"), edit_vehicle_path(@vehicle), class: "btn action-button"
-        = button_tag :type => 'button', id: 'inactivateVehicle', "data-target" => "#inactivateDialog", "data-toggle" => "modal", :class => "btn action-button btn-danger" do
-          = @vehicle.inactivated? ? translate_helper(:activate) : translate_helper(:inactivate)
+        - if @vehicle.permanent_inactivated?
+          = link_to translate_helper("reactivate"), vehicle_activate_path(@vehicle), method: :post, :class=>'btn action-button', :data => { :confirm => translate_helper(:reactivate_confirmation)}
+        - else
+          = button_tag :type => 'button', id: 'inactivateVehicle', "data-target" => "#inactivateDialog", "data-toggle" => "modal", :class => "btn action-button btn-danger" do
+            = @vehicle.inactivated? ? translate_helper(:activate) : translate_helper(:inactivate)
 = render partial: "form"
 = render 'shared/date_range_inactivate_dialog', resource: @vehicle, inactivation_url: inactivate_vehicle_path(@vehicle)
