@@ -45,7 +45,7 @@ class UsersController < ApplicationController
 
           @role.user = @user
           @role.provider = current_provider
-          @role.level = params[:role][:level]
+          @role.level = params[:role][:level] if params[:role].present? && params[:role][:level].present?
           @role.save!
 
           record_valid = true
@@ -97,7 +97,10 @@ class UsersController < ApplicationController
     
     if @user.update_attributes(new_attrs)
       role = Role.find_by(user: @user, provider: current_provider)
-      role.update(level: params[:role][:level]) if role
+      if role && params[:role].present? && params[:role][:level].present?
+        role.update(level: params[:role][:level]) 
+      end
+
       prev_address.destroy if is_address_blank && prev_address.present?
       edit_verification_questions
       flash.now[:notice] = "User updated."
