@@ -42,7 +42,6 @@ class Vehicle < ActiveRecord::Base
   validates :initial_mileage, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 10000000 }
   validate  :valid_phone_number
   
-  scope :active,        -> { where(active: true) }
   scope :for_provider,  -> (provider_id) { where(provider_id: provider_id) }
   scope :reportable,    -> { where(reportable: true) }
   scope :default_order, -> { order(:name) }

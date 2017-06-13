@@ -15,8 +15,8 @@ class RunsController < ApplicationController
     @runs = Run.for_provider(current_provider_id).includes(:driver, :vehicle).order(:date)
     filter_runs
     
-    @drivers = Driver.where(:provider_id=>current_provider_id)
-    @vehicles = Vehicle.where(:provider_id=>current_provider_id)
+    @drivers = Driver.where(:provider_id=>current_provider_id).default_order
+    @vehicles = Vehicle.where(:provider_id=>current_provider_id).default_order
     @start_pickup_date = Time.zone.at(session[:runs_start].to_i).to_date
     @end_pickup_date = Time.zone.at(session[:runs_end].to_i).to_date
     @days_of_week = run_sessions[:days_of_week].blank? ? [0,1,2,3,4,5,6] : run_sessions[:days_of_week].split(',').map(&:to_i)
@@ -144,12 +144,33 @@ class RunsController < ApplicationController
       end
     end
   end
+
+  def check_driver_vehicle_availability
+    date = Date.parse params[:date] if !params[:date].blank?
+    start_time = DateTime.parse params[:start_time] if !params[:start_time].blank?
+    end_time = DateTime.parse params[:end_time] if !params[:end_time].blank?
+
+    @is_vehicle_active = @is_driver_active = @is_driver_available = true
+
+    @vehicle = Vehicle.find_by_id(params[:vehicle_id])
+    if @vehicle && date
+      @is_vehicle_active = @vehicle.active_for_date?(date)
+    end
+
+    @driver = Driver.find_by_id(params[:driver_id])
+    if @driver && date 
+      @is_driver_active = @driver.active_for_date?(date)
+      if start_time && end_time
+        @is_driver_available = @driver.available_between?(date.wday, start_time.strftime('%H:%M'), end_time.strftime('%H:%M')) 
+      end
+    end
+  end 
   
   private
   
   def setup_run
-    @drivers = Driver.active.where(:provider_id=>@run.provider_id)
-    @vehicles = Vehicle.active.where(:provider_id=>@run.provider_id)
+    @drivers = Driver.active.where(:provider_id=>@run.provider_id).default_order
+    @vehicles = Vehicle.active.where(:provider_id=>@run.provider_id).default_order
   end
 
   def date_range(run)

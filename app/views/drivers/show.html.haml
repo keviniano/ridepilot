@@ -9,8 +9,11 @@
         = link_to translate_helper("delete_driver_button"), @driver, method: :delete, data: { confirm: translate_helper("delete_driver_confirm") }, class: "btn action-button  btn-danger" if can?(:delete, @driver)
         = link_to translate_helper("delete_photo"), delete_photo_driver_path(@driver), data: { confirm: translate_helper("delete_photo_confirm") }, class: "btn action-button btn-danger" if !@driver.new_record? && can?(:edit, @driver) && @driver.photo.present?
         = link_to translate_helper("edit_driver_button"), edit_driver_path(@driver), class: "btn action-button"
-        = button_tag :type => 'button', id: 'inactivateDriver', "data-target" => "#inactivateDialog", "data-toggle" => "modal", :class => "btn action-button btn-danger" do
-          = @driver.inactivated? ? translate_helper(:activate) : translate_helper(:inactivate)
+        - if @driver.permanent_inactivated?
+          = link_to translate_helper("reactivate"), reactivate_driver_path(@driver), method: :post, :class=>'btn action-button', :data => { :confirm => translate_helper(:reactivate_confirmation)}
+        - else
+          = button_tag :type => 'button', id: 'inactivateDriver', "data-target" => "#inactivateDialog", "data-toggle" => "modal", :class => "btn action-button btn-danger" do
+            = @driver.inactivated? ? translate_helper(:activate) : translate_helper(:inactivate)
 
 = render partial: "form"
 = render 'shared/date_range_inactivate_dialog', resource: @driver, inactivation_url: inactivate_driver_path(@driver)

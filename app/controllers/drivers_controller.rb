@@ -135,14 +135,6 @@ class DriversController < ApplicationController
     redirect_to @driver, :notice => "Photo has been deleted."
   end
 
-  def check_time_range_availability
-    @driver = Driver.find_by_id(params[:id])
-    date = Date.parse params[:date] if params[:date]
-    start_time = DateTime.parse params[:start_time] if params[:start_time]
-    end_time = DateTime.parse params[:end_time] if params[:end_time]
-    @is_available = @driver.available_between?(date.wday, start_time.strftime('%H:%M'), end_time.strftime('%H:%M')) if @driver && date && start_time && end_time
-  end
-
   def inactivate
     @driver = Driver.find_by_id(params[:id])
 
@@ -170,6 +162,18 @@ class DriversController < ApplicationController
       TrackerActionLog.driver_active_status_changed(@driver, current_user, prev_active_text, prev_reason)
     end
 
+    @driver.save(validate: false)
+
+    redirect_to @driver
+  end
+
+  def reactivate
+    @driver = Driver.find(params[:id])
+    authorize! :edit, @driver
+
+    @driver.active = true
+    @driver.inactivated_start_date = nil
+    @driver.inactivated_end_date = nil
     @driver.save(validate: false)
 
     redirect_to @driver

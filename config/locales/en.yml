@@ -206,6 +206,8 @@ en:
   close_button_label: "Close"
   back: "Back"
   inactivate: "Inactivate"
+  reactivate_confirmation: "Are you sure to reactivate it?"
+  reactivate: "Reactivate"
   delete_photo: "Delete Photo"
   delete_photo_confirm: "Are you sure to delete the photo?"
   activate: "Activate"
@@ -1023,8 +1025,11 @@ en:
   cancel_run: "Unschedule"
   confirm_runs_batch_cancel: "Are you sure you want to unschedule all selected runs?"
   confirm_runs_batch_delete: "Are you sure you want to delete all selected runs?"
-  unavailable_driver_for_run_time_range_warning: "Driver is not available within the run scheduled time range. Are you sure to proceed?"
-  unavailable_driver_warning: "Driver Unavailable"
+  unavailable_warning_message: "System detected following warnings, would you still like to proceed?"
+  unavailable_warning_dialog_title: "Unavailable"
+  vehicle_temporarily_inactive: "Vehicle is put on temporarily inactive for the date."
+  driver_temporarily_inactive: "Driver is put on temporarily inactive for the date."
+  unavailable_driver_for_run_time_range_warning: "Driver is not available within the run scheduled time range."
   proceed_button: "Proceed"
   
   #shared

@@ -47,7 +47,6 @@ class Driver < ActiveRecord::Base
   before_validation :load_name
 
   scope :users,         -> { where("drivers.user_id IS NOT NULL") }
-  scope :active,        -> { where(active: true) }
   scope :for_provider,  -> (provider_id) { where(provider_id: provider_id) }
   scope :default_order, -> { joins("left outer join users on users.id = drivers.user_id").reorder("lower(users.last_name)", "lower(users.first_name)") }
 

@@ -134,6 +134,18 @@ class VehiclesController < ApplicationController
     redirect_to @vehicle
   end
 
+  def reactivate
+    @vehicle = Vehicle.find(params[:id])
+    authorize! :edit, @vehicle
+
+    @vehicle.active = true
+    @vehicle.inactivated_start_date = nil
+    @vehicle.inactivated_end_date = nil
+    @vehicle.save
+
+    redirect_to @vehicle
+  end
+
   private
 
   def vehicle_params
