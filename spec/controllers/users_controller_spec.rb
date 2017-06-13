@@ -11,7 +11,7 @@ RSpec.describe UsersController, type: :controller do
   }
 
   let(:invalid_attributes) {
-    attributes_for(:user, :password => '')
+    attributes_for(:user, :username => '')
   }
 
   describe "GET #new_user" do
