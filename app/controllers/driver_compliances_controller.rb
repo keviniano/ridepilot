@@ -56,7 +56,7 @@ class DriverCompliancesController < ApplicationController
   def update
     params = build_new_documents(driver_compliance_params)
     was_incomplete = !@driver_compliance.complete?
-    if @driver_compliance.update(driver_compliance_params)
+    if @driver_compliance.update(params)
       @is_newly_completed = was_incomplete && @driver_compliance.complete?
       respond_to do |format|
         format.html { redirect_to @driver, notice: 'Driver compliance was successfully updated.' }
