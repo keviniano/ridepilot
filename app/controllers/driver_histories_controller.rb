@@ -20,6 +20,8 @@ class DriverHistoriesController < ApplicationController
 
   # POST /driver_histories
   def create
+    puts "DH CREATE"
+    puts params.inspect
     params = build_new_documents(driver_history_params)
     @driver_history.assign_attributes(params)
     

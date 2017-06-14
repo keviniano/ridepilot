@@ -1,6 +1,7 @@
 -document = local_assigns[:document] || Document.new
+-hidden = local_assigns[:hidden] || false
 =f.fields_for :documents, document, wrapper: false do |doc_f|
-  %tr.document-row
+  %tr.document-row{class: hidden ? 'hidden' : ''}
     %td.hidden
       =doc_f.hidden_field :id, value: document.id
     %td

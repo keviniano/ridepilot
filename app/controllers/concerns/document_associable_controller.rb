@@ -45,7 +45,6 @@ module DocumentAssociableController
   
   # Sends a flash reminder if documents were present
   def show_documents_reminder
-    puts "SHOWING DOCUMENTS REMINDER"
     flash[:reminder] = "You must re-attach your documents." if @documents_present
   end
   

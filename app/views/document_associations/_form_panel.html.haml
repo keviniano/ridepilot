@@ -13,7 +13,10 @@
       %tbody
         - @parent.documents.each do |doc|
           =render partial: 'document_associations/document_row', locals: {f: f, document: doc}
-        =render partial: 'document_associations/document_row', locals: {f: f} unless @readonly
+        -unless @readonly # Need to render the document rows ahead of time so form indices increment properly.
+          =render partial: 'document_associations/document_row', locals: {f: f}
+          -9.times do
+            =render partial: 'document_associations/document_row', locals: {f: f, hidden: true} 
     - unless @readonly
       .btn.btn-primary.add-document-row.pull-right=translate_helper(:add_document)
     
@@ -27,13 +30,9 @@
       row.addClass('hidden');
     }
     
-    // Add a new document row on click of add-document-row button
+    // Show the last document row on click of add-document-row button
     $('.add-document-row').click(function() {
-      $('table#associated-documents tr:last').after(
-        "#{escape_javascript(render partial: 'document_associations/document_row', locals: {f: f})}"
-      );
-      $('table#associated-documents tr:last').find('.delete-document-row').click(deleteDocumentRow);
-      
+      $('table#associated-documents tr.hidden:first').removeClass('hidden');
     });
     
     // Delete row on click of delete-document-row button
@@ -49,5 +48,5 @@
     }
     
     refreshReminder();
-    
+
   });
