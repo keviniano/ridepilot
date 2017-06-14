@@ -1,4 +1,5 @@
-.panel.panel-primary
+#flash-reminder
+.panel.panel-primary#documents-panel
   .panel-heading= label_tag translate_helper("document_associations_documents_heading")
   .panel-body.form-horizontal
     %table#associated-documents.table.table-striped
@@ -37,5 +38,16 @@
     
     // Delete row on click of delete-document-row button
     $('.delete-document-row').click(deleteDocumentRow);
+    
+    // If there's a flash[:reminder], display it in the modal
+    var refreshReminder = function() {
+      if(#{flash[:reminder].present?}) {
+        show_alert("#{flash[:reminder]}", "warning", $('#flash-reminder'));
+      } else {
+        hide_alert();
+      }
+    }
+    
+    refreshReminder();
     
   });

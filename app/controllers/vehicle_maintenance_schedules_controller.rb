@@ -13,7 +13,6 @@ class VehicleMaintenanceSchedulesController < ApplicationController
   end
 
   def create
-    puts "PARAMS FOR CREATE", params.inspect, schedule_params.inspect
     @vehicle_maintenance_schedule.assign_attributes(schedule_params)
     @vehicle_maintenance_schedule.vehicle_maintenance_schedule_type = @vehicle_maintenance_schedule_type
     if @vehicle_maintenance_schedule.save

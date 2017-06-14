@@ -117,10 +117,12 @@ function createPopover(node_id) {
 }
 
 // Displays an alert
-function show_alert(message, type) {
+function show_alert(message, type, container) {
+  if(!container)
+    container = $('#messages');
   if(!type)
     type = 'danger';
-  $('#messages').html('<div class="alert alert-' + type + ' fade in"><a class="close" data-dismiss="alert">x</a><div id="flash_notice">' + message + '</div></div>');
+  container.html('<div class="alert alert-' + type + ' fade in"><a class="close" data-dismiss="alert">x</a><div id="flash_notice">' + message + '</div></div>');
 }
 
 function hide_alert () {

@@ -29,6 +29,7 @@ class VehicleWarrantiesController < ApplicationController
         format.js
       end
     else
+      show_documents_reminder
       render :new
     end
   end
@@ -43,6 +44,7 @@ class VehicleWarrantiesController < ApplicationController
         format.js
       end
     else
+      show_documents_reminder
       render :edit
     end
   end

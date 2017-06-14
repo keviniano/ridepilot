@@ -49,6 +49,7 @@ class VehicleMaintenanceCompliancesController < ApplicationController
         format.js
       end
     else
+      show_documents_reminder
       prep_edit
       render :new
     end
@@ -66,6 +67,7 @@ class VehicleMaintenanceCompliancesController < ApplicationController
         format.js
       end
     else
+      show_documents_reminder
       prep_edit
       render :edit
     end

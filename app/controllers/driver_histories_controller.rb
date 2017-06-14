@@ -29,12 +29,13 @@ class DriverHistoriesController < ApplicationController
         format.js
       end
     else
+      show_documents_reminder
       render :new
     end
   end
 
   # PATCH/PUT /driver_histories/1
-  def update    
+  def update
     params = build_new_documents(driver_history_params)
             
     if @driver_history.update(params)
@@ -43,6 +44,7 @@ class DriverHistoriesController < ApplicationController
         format.js
       end
     else
+      show_documents_reminder
       render :edit
     end
   end

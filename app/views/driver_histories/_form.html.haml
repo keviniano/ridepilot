@@ -1,7 +1,8 @@
 - remote ||= false
 = nested_form_for [@driver, @driver_history], 
     remote: remote, 
-    multipart: true, 
+    multipart: true,
+    html: {class: 'driver-history-form'}, 
     authenticity_token: true do |f|
   - if @driver_history.errors.any?
     .panel.panel-danger
@@ -37,3 +38,8 @@
     / END .col-md-12
   / END .row
   .row.form-actions= f.submit translate_helper("driver_history_form_submit"), class: "btn action-button" unless @readonly
+
+:javascript
+  $(document).ready(function() {
+
+  });

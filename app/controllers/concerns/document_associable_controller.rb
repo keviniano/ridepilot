@@ -3,6 +3,7 @@ module DocumentAssociableController
   # Set @parent instance variable
   def self.included(including_class)
     including_class.before_action :load_associable_resource
+    including_class.before_action :init_documents_present
   end
 
   # Sets the including controller's resource to a generic @parent instance variable,
@@ -23,7 +24,8 @@ module DocumentAssociableController
     # Build new documents as appropriate
     params[:documents_attributes].each do |i, doc|
       unless doc[:id].present?
-        if doc[:document].present? && doc[:description].present? && doc[:_destroy].to_i.zero?      
+        if doc[:document].present? && doc[:description].present? && doc[:_destroy].to_i.zero?
+          @documents_present = true      
           model_instance.build_document(
             document: doc[:document], 
             description: doc[:description]
@@ -39,6 +41,18 @@ module DocumentAssociableController
   # returns a list of documents attributes for safe params
   def documents_attributes
     [:id, :document, :description, :_destroy]
+  end
+  
+  # Sends a flash reminder if documents were present
+  def show_documents_reminder
+    puts "SHOWING DOCUMENTS REMINDER"
+    flash[:reminder] = "You must re-attach your documents." if @documents_present
+  end
+  
+  private
+  
+  def init_documents_present
+    @documents_present = false
   end
   
 end
