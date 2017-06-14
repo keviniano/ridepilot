@@ -260,7 +260,7 @@ class UsersController < ApplicationController
       redirect_to action: :show_reset_password, id: @user.id
     else
       flash[:alert] = TranslationEngine.translate_text(:verification_question_incorrect_answer)
-      redirect_to action: :get_verification_question, user: {email: @user.email}
+      redirect_to action: :get_verification_question, user: {username: @user.username}
     end
   end
 
