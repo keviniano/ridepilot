@@ -76,6 +76,7 @@ class Ability
     else
       can :read, User, :roles => {:provider_id => provider.id}
       can :edit, user
+      can :manage, user # User can manage themselves
       cannot :delete, Vehicle
       cannot :delete, Driver
     end
