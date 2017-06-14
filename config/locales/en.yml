@@ -1172,8 +1172,8 @@ en:
   submit_new_password_form_verification_question: "Reset Password by Answering a Security Question"
   answer_verification_questions_heading: "Answer a Security Question to Reset your Password"
   submit_answer_verification_questions_form: "Submit Answer"
-  no_verification_questions_set: "User has not set up any security questions"
-  verification_question_incorrect_answer: "That answer is not correct"
+  no_verification_questions_set: "You have not set up any security questions. Please contact your administrator to reset your password."
+  verification_question_incorrect_answer: "That answer is not correct. Please try again or contact your administrator to reset your password."
 
   # Vehicle Maintenance Events
   vehicle_maintenance_event_form_error:
