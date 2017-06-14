@@ -48,6 +48,8 @@ class UsersController < ApplicationController
           @role.level = params[:role][:level] if params[:role].present? && params[:role][:level].present?
           @role.save!
 
+          edit_verification_questions
+
           record_valid = true
         rescue => e
           Rails.logger.info(e)
