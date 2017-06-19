@@ -84,9 +84,13 @@ class TrackerActionLog < PublicActivity::Activity
           params["Start Date"] = [change[0].try(:strftime, "%B %d, %Y"), trip.start_date.try(:strftime, "%B %d, %Y")]
         when 'end_date'
           params["End Date"] = [change[0].try(:strftime, "%B %d, %Y"), trip.end_date.try(:strftime, "%B %d, %Y")]
-        when 'schedule_yaml'
-          params["Schedule"] = [previous_schedule.try(:to_s), trip.schedule.to_s]
         end
+      end
+
+      previous_schedule_desc = previous_schedule.try(:to_s) rescue ""
+      current_schedule_desc = trip.schedule.try(:to_s) rescue ""
+      if previous_schedule_desc != current_schedule_desc
+        params["Schedule"] = [previous_schedule_desc, current_schedule_desc]
       end
 
       trip.create_activity :subscription_updated, owner: user, params: params unless params.blank?
@@ -118,9 +122,13 @@ class TrackerActionLog < PublicActivity::Activity
           params["Start Date"] = [change[0].try(:strftime, "%B %d, %Y"), run.start_date.try(:strftime, "%B %d, %Y")]
         when 'end_date'
           params["End Date"] = [change[0].try(:strftime, "%B %d, %Y"), run.end_date.try(:strftime, "%B %d, %Y")]
-        when 'schedule_yaml'
-          params["Schedule"] = [previous_schedule.try(:to_s), run.schedule.to_s]
         end
+      end
+
+      previous_schedule_desc = previous_schedule.try(:to_s) rescue ""
+      current_schedule_desc = run.schedule.try(:to_s) rescue ""
+      if previous_schedule_desc != current_schedule_desc
+        params["Schedule"] = [previous_schedule_desc, current_schedule_desc]
       end
 
       run.create_activity :subscription_updated, owner: user, params: params unless params.blank?
