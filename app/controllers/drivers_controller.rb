@@ -1,5 +1,5 @@
 class DriversController < ApplicationController
-  load_and_authorize_resource except: [:delete_photo, :inactivate, :reactivate]
+  load_and_authorize_resource except: [:create, :delete_photo, :inactivate, :reactivate]
   
   # Load documents through their associated parent
   load_and_authorize_resource :document, through: [:driver]
@@ -75,6 +75,9 @@ class DriversController < ApplicationController
   end
 
   def create
+    @driver = Driver.new 
+    authorize! :create, Driver
+    
     new_attrs = driver_params
     is_alt_address_blank = check_blank_alt_address
     if is_alt_address_blank

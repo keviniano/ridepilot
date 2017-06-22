@@ -1,5 +1,5 @@
 class ProvidersController < ApplicationController
-  load_and_authorize_resource except: [:upload_vendor_list, :remove_vendor_list]
+  load_and_authorize_resource except: [:create, :upload_vendor_list, :remove_vendor_list]
   before_action :redirect_to_current_provider, only: [:users, :drivers, :general, :vehicles, :customers, :addresses]
 
   def new
@@ -7,6 +7,9 @@ class ProvidersController < ApplicationController
   end
 
   def create
+    @provider = Provider.new
+    authorize! :create, Provider
+
     new_attrs = provider_params
 
     is_business_address_blank = check_blank_address("business")
@@ -26,6 +29,7 @@ class ProvidersController < ApplicationController
       if @provider.has_admin?
         redirect_to @provider, notice: 'Provider was successfully created.'
       else
+        change_user_current_provider
         redirect_to new_user_provider_users_path(@provider), notice: "Please create an admin user for provider: #{@provider.name}"
       end
     else
@@ -56,12 +60,13 @@ class ProvidersController < ApplicationController
 
     @provider.attributes = new_attrs
 
-    if @provider.update_attributes(new_attrs)
+    if @provider.save
       prev_business_address.destroy if is_business_address_blank && prev_business_address.present?
       prev_mailing_address.destroy if is_mailing_address_blank && prev_mailing_address.present?
       if @provider.has_admin?
         redirect_to @provider, notice: 'Provider was successfully updated.'
       else
+        change_user_current_provider
         redirect_to new_user_provider_users_path(@provider), notice: "Please create an admin user for provider: #{@provider.name}"
       end
     else
@@ -78,10 +83,7 @@ class ProvidersController < ApplicationController
   def show
     # change current provider
     if @provider.active? && @provider != current_provider && can?(:read, @provider)
-      current_user.current_provider = @provider
-      current_user.save!
-
-      flash.now[:notice] = "Current provider has been changed to #{@provider.name}"
+      change_user_current_provider
     end
 
     @readonly = true
@@ -339,5 +341,12 @@ class ProvidersController < ApplicationController
     if @provider != current_provider
       redirect_to polymorphic_path(current_provider, action: action_name), notice: 'Page reloaded to show data for current selected provider.'
     end
+  end
+
+  def change_user_current_provider
+    current_user.current_provider = @provider
+    current_user.save!
+
+    flash.now[:notice] = "Current provider has been changed to #{@provider.name}"
   end
 end
