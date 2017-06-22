@@ -1,4 +1,5 @@
 = render 'shared/highlight_active_tab_js', is_primary_nav: false, tab_class: 'admin'
+
 %ul
   - if can? :manage, ApplicationSetting
     %li= link_to translate_helper("application_settings_link_text"), application_settings_path
