@@ -8,7 +8,7 @@ class TripsController < ApplicationController
     unless session[:trips_trip_result_id].present?
       session[:trips_trip_result_id] = [TripResult::UNSCHEDULED_ID, TripResult::SHOW_ALL_ID] + TripResult.pluck(:id).uniq
     end
-    @trips = Trip.for_provider(current_provider_id).includes(:customer, :pickup_address, {:run => [:driver, :vehicle]})
+    @trips = Trip.for_provider(current_provider_id).includes(:customer, :pickup_address, {:run => [:driver, :vehicle]}).distinct
     .references(:customer, :pickup_address, {:run => [:driver, :vehicle]}).order(:pickup_time)
     filter_trips
 
