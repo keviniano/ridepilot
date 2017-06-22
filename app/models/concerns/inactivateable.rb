@@ -35,8 +35,8 @@ module Inactivateable
     def active_for_date?(date)
       active && (
         (!inactivated_start_date && !inactivated_end_date) ||
-        (!inactivated_start_date && inactivated_start_date > date) ||
-        (!inactivated_end_date && inactivated_end_date < date)
+        (inactivated_start_date && inactivated_start_date > date) ||
+        (inactivated_end_date && inactivated_end_date < date)
       )
     end
 
