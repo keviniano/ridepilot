@@ -67,7 +67,8 @@ class TripScheduler
     run_end_time = @run.scheduled_end_time
 
     if run_start_time && run_end_time
-      @trip.pickup_time >= @run.scheduled_start_time && (@trip.appointment_time.nil? || @trip.appointment_time <= @run.scheduled_end_time)
+      (to_utc_time_only(@trip.pickup_time) >= to_utc_time_only(run_start_time)) && 
+      (@trip.appointment_time.nil? || to_utc_time_only(@trip.appointment_time) <= to_utc_time_only(run_end_time))
     else
       true
     end
@@ -87,6 +88,12 @@ class TripScheduler
       message: error_text || '',
       trip_event_json: is_success ? @trip.as_run_event_json : nil
     }
+  end
+
+  private
+
+  def to_utc_time_only(time)
+    time.utc.strftime("%H%M%S%N") if time
   end
 
 end
