@@ -84,20 +84,23 @@ class RepeatingTrip < ActiveRecord::Base
         # Build a trip belonging to the repeating trip for each schedule 
         # occurrence that doesn't already have a trip built for it.
         unless self.trips.for_date(date).exists?
-          self.trips.build(
+          trip = Trip.new(
             self.attributes
               .select{ |k, v| (RepeatingTrip.ride_coordinator_attributes - ['repeating_run_id']).include?(k.to_s) }
               .merge( {
+                "repeating_trip_id" => id,
                 "pickup_time" => this_trip_pickup_time,
                 "appointment_time" => appointment_time.present? ? (this_trip_pickup_time + (appointment_time - pickup_time)) : nil
               } )
-          )    
+          )  
+
+          trip.save(validate: false)  #allow invalid trip exist
         end
       end
       
       # Timestamp the scheduler to its current timestamp or the end of the
       # advance scheduling period, whichever comes last
-      self.scheduled_through = [self.scheduled_through, later].compact.max
+      self.update_column :scheduled_through, [self.scheduled_through, later].compact.max
     end
   end
 

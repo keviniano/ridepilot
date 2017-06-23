@@ -115,17 +115,19 @@ class RepeatingRun < ActiveRecord::Base
             self.attributes
               .select{ |k, v| RepeatingRun.ride_coordinator_attributes.include?(k.to_s) }
               .merge( {
+                "repeating_run_id" => id,
                 "date" => date
               } )
           )
-          self.runs << run
+          
+          run.save(validate: false) #allow invalid run exist
         end
                 
       end
       
       # Timestamp the scheduler to its current timestamp or the end of the
       # advance scheduling period, whichever comes last
-      self.scheduled_through = [self.scheduled_through, later].compact.max
+      self.update_column :scheduled_through, [self.scheduled_through, later].compact.max
     end
   end
 

@@ -7,7 +7,7 @@ module RecurringRideCoordinator
 
   included do
     before_validation   :update_schedule_attributes
-    before_save    :instantiate_recurring_ride_coordinators
+    after_save    :instantiate_recurring_ride_coordinators
 
     DAYS_OF_WEEK.each do |day|
       define_method "repeats_#{day}s=" do |value|
