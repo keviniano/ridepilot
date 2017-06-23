@@ -77,9 +77,8 @@ class RepeatingTrip < ActiveRecord::Base
     RepeatingTrip.transaction do
       # Potentially create a trip for each schedule occurrence in the scheduler window
       for date in schedule.occurrences_between(now, later)
-        
         # Skip if occurrence is outside of schedule's active window
-        next unless date_in_active_range?(date.to_date) || !customer || !customer.active_for_date?(date)
+        next unless date_in_active_range?(date.to_date) && customer && customer.active_for_date?(date)
         this_trip_pickup_time = Time.zone.local(date.year, date.month, date.day, pickup_time.hour, pickup_time.min, pickup_time.sec)
       
         # Build a trip belonging to the repeating trip for each schedule 
@@ -94,7 +93,6 @@ class RepeatingTrip < ActiveRecord::Base
               } )
           )    
         end
-  
       end
       
       # Timestamp the scheduler to its current timestamp or the end of the
