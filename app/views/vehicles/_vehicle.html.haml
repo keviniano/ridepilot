@@ -14,7 +14,7 @@
   %td
     = vehicle.garaged_location
   %td
-    = vehicle.active ? translate_helper("active") : translate_helper("inactive")
+    = vehicle.active_status_text
   %td
     = number_with_delimiter vehicle.last_odometer_reading
     mi.

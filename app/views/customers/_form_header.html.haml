@@ -26,3 +26,5 @@
         = link_to translate_helper(:back), customers_path, class: "btn btn-default"
     %h1
       = translate_helper("customer")
+      - if @customer.inactivated?
+        %span{style: 'font-size: small; color: red;'}= @customer.active_status_text

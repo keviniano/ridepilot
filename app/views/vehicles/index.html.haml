@@ -15,13 +15,13 @@
     %table#vehicles-table.table.table-striped.table-bordered
       %thead
         %tr
-          %th.col-sm-2= translate_helper("name")
+          %th= translate_helper("name")
           %th= translate_helper("vehicle_year")
           %th= translate_helper("vehicle_make")
           %th= translate_helper("vehicle_model")
           %th= translate_helper("license_plate")
-          %th.col-sm-2= translate_helper("vin")
-          %th.col-sm-2= translate_helper("vehicle_location")
+          %th= translate_helper("vin")
+          %th= translate_helper("vehicle_location")
           %th= translate_helper("vehicle_form_active_label")
           %th= translate_helper("vehicle_form_last_odometer_reading")
           %th= translate_helper("vehicle_overdue_events")

@@ -1,7 +1,10 @@
 = render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'vehicles'
 #page-header.row
   .col-sm-12.col-md-6
-    %h1= translate_helper("vehicle_show_heading")
+    %h1
+      = translate_helper("vehicle_show_heading")
+      - if @vehicle.inactivated?
+        %span{style: 'font-size: small; color: red;'}= @vehicle.active_status_text
   .col-sm-12.col-md-6
     - if can? :manage, @vehicle
       .pull-right

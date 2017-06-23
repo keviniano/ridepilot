@@ -2,7 +2,7 @@
   %td
     = link_to_if can?(:read, driver), driver.user_name, driver
   %td
-    = driver.active? ? translate_helper("active") : translate_helper("inactive")
+    = driver.active_status_text
   %td
     = driver.paid? ? translate_helper("driver_paid") : translate_helper("volunteer")
   %td
