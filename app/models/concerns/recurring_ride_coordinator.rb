@@ -62,18 +62,20 @@ module RecurringRideCoordinator
     self.schedule_attributes[:interval].to_i
   end
   
-  # Returns the first day in the current scheduler window: Either tomorrow, or
-  # the last day the scheduler has been run for, whichever comes last
+  # Returns the first day in the current scheduler window: Either start_date, tomorrow, or
+  # the following day after the last day scheduler has been run for, whichever comes last
   def scheduler_window_start
-    [(Date.today.in_time_zone + 1.day), self.try(:scheduled_through)].compact.max
+    base_date = [Date.today.in_time_zone, self.try(:scheduled_through)].compact.max + 1.day
+
+    [base_date, start_date].compact.max 
   end
     
-  # Returns the last day in the current scheduler window
+  # Returns the last day in the current scheduler window or configured end_date
   def scheduler_window_end
-    Date.today.in_time_zone.advance(
+    [Date.today.in_time_zone.advance(
       days: ( provider.try(:advance_day_scheduling) ||
               Provider::DEFAULT_ADVANCE_DAY_SCHEDULING)
-    )
+    ), end_date].compact.min
   end
   
   private
