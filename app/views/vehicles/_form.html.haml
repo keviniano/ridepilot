@@ -19,6 +19,8 @@
         = render 'maintenance_events_panel', f: f
         = render 'compliance_events_panel', f: f
         = render 'warranties_panel', f: f
+        = render 'legal_requirements_panel'
+        = render 'non_legal_requirements_panel'
         - if @readonly
           - logs = TrackerActionLog.for(@vehicle).order(created_at: :desc)
           = render 'shared/action_log_panel', logs: logs if logs.any?

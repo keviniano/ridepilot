@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170620191112) do
+ActiveRecord::Schema.define(version: 20170624133401) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -940,6 +940,21 @@ ActiveRecord::Schema.define(version: 20170620191112) do
   add_index "users", ["password_changed_at"], :name => "index_users_on_password_changed_at"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
 
+  create_table "vehicle_compliances", force: true do |t|
+    t.integer  "vehicle_id"
+    t.string   "event"
+    t.text     "notes"
+    t.date     "due_date"
+    t.date     "compliance_date"
+    t.integer  "vehicle_requirement_template_id"
+    t.boolean  "legal"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "vehicle_compliances", ["vehicle_id"], :name => "index_vehicle_compliances_on_vehicle_id"
+  add_index "vehicle_compliances", ["vehicle_requirement_template_id"], :name => "index_vehicle_compliances_on_vehicle_requirement_template_id"
+
   create_table "vehicle_maintenance_compliance_due_types", force: true do |t|
     t.string "name", limit: 16
     t.string "note", limit: 16
@@ -999,6 +1014,18 @@ ActiveRecord::Schema.define(version: 20170620191112) do
   end
 
   add_index "vehicle_maintenance_schedules", ["vehicle_maintenance_schedule_type_id"], :name => "index_vehicle_maintenance_schedule_type_id"
+
+  create_table "vehicle_requirement_templates", force: true do |t|
+    t.integer  "provider_id"
+    t.string   "name"
+    t.boolean  "legal"
+    t.boolean  "reoccuring"
+    t.datetime "deleted_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "vehicle_requirement_templates", ["provider_id"], :name => "index_vehicle_requirement_templates_on_provider_id"
 
   create_table "vehicle_warranties", force: true do |t|
     t.integer  "vehicle_id"

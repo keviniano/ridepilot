@@ -24,6 +24,7 @@ class Vehicle < ActiveRecord::Base
   has_many :trips, through: :runs
   has_many :vehicle_maintenance_events, dependent: :destroy, inverse_of: :vehicle
   has_many :vehicle_warranties, dependent: :destroy, inverse_of: :vehicle
+  has_many :vehicle_compliances, dependent: :delete_all, inverse_of: :vehicle
 
   # We must specify :delete_all in order to avoid the before_destroy hook. See
   # the RecurringComplianceEvent concern for more details. 
@@ -65,7 +66,7 @@ class Vehicle < ActiveRecord::Base
   end
 
   def compliant?(as_of: Date.current)
-    vehicle_maintenance_compliances.overdue(as_of: as_of).empty?
+    vehicle_maintenance_compliances.overdue(as_of: as_of).empty? || vehicle_compliances.overdue(as_of: as_of).empty?
   end  
 
   def expired?(as_of: Date.current)

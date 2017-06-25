@@ -137,6 +137,7 @@ Rails.application.routes.draw do
     end
 
     resources :driver_requirement_templates 
+    resources :vehicle_requirement_templates 
     resources :vehicle_maintenance_schedule_types do 
       resources :vehicle_maintenance_schedules, except: [:show]
     end
@@ -191,6 +192,7 @@ Rails.application.routes.draw do
       resources :vehicle_maintenance_events, except: [:index]
       resources :vehicle_maintenance_compliances
       resources :vehicle_warranties, :except => [:index]
+      resources :vehicle_compliances
 
       member do 
         get  :edit_initial_mileage
