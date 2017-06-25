@@ -66,7 +66,7 @@ class Vehicle < ActiveRecord::Base
   end
 
   def compliant?(as_of: Date.current)
-    vehicle_maintenance_compliances.overdue(as_of: as_of).empty? || vehicle_compliances.overdue(as_of: as_of).empty?
+    vehicle_maintenance_compliances.overdue(as_of: as_of).empty? && vehicle_compliances.overdue(as_of: as_of).empty?
   end  
 
   def expired?(as_of: Date.current)
