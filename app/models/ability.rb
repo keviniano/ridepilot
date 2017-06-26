@@ -25,12 +25,13 @@ class Ability
     
     unless can_manage_all
       for role in user.roles
+        can :read, Provider, :id => role.provider.id
         if role.admin?
-          action = :manage
-        else
-          action = :read
+          can :manage, Provider do |p|
+            p.active? && p.id == role.provider_id
+          end
         end
-        can action, Provider, :id => role.provider.id
+        
         cannot :create, Provider
       end
     end
@@ -40,7 +41,7 @@ class Ability
     if not role
       return
     end
-    if role.editor?
+    if provider.active? && role.editor? 
       action = :manage
     else
       action = [:read, :search]
@@ -50,7 +51,7 @@ class Ability
     can action,  Customer, :provider_id => provider.id
     can action,  DevicePool, :provider_id => provider.id if provider.dispatch?
     can action,  DevicePoolDriver, :provider_id => provider.id
-    can :manage, DevicePoolDriver, :driver_id => user.driver.id if user.driver.present?
+    can action,  DevicePoolDriver, :driver_id => user.driver.id if user.driver.present?
     can action,  Document, :documentable => {:provider_id => provider.id}
     can action,  Driver, :provider_id => provider.id
     can action,  Monthly, :provider_id => provider.id
@@ -60,7 +61,7 @@ class Ability
     can action,  Trip, :provider_id => provider.id if provider.scheduling?
     can action,  Vehicle, :provider_id => provider.id
     
-    if role.admin?
+    if provider.active? && role.admin?
       can :manage, DriverCompliance, :driver => {:provider_id => provider.id}
       can :manage, DriverHistory, :driver => {:provider_id => provider.id}
       can :manage, LookupTable
@@ -83,7 +84,7 @@ class Ability
       cannot :delete, Driver
     end
 
-    if role.editor?
+    if provider.active? && role.editor?
       can :manage, :cab_trip
       can :manage, RecurringDriverCompliance, :provider_id => provider.id
       can :manage, RecurringVehicleMaintenanceCompliance, :provider_id => provider.id
