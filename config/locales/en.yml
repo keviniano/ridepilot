@@ -1348,7 +1348,7 @@ en:
   add_maintenance_link_text: "Add Maintenance Event"
   edit_vehicle_link_text: "Edit Vehicle"
   index_vehicle_heading: "Vehicles"
-  vehicle_maintenance_events_heading: "Maintenance Events"
+  vehicle_maintenance_events_heading: "Preventive Maintenance Logs (PM)"
   vehicle_maintenance_events_empty: "There are no maintenance events"
   vehicle_maintenance_event_add_link_title: "Add Maintenance Event"
   vehicle_maintenance_event_delete_confirm: "Are you sure?"
