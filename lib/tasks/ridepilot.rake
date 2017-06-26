@@ -170,7 +170,7 @@ namespace :ridepilot do
       no_verification_questions_set: "You have not set up any security questions. Please contact your administrator to reset your password.",
       verification_question_incorrect_answer: "That answer is not correct. Please try again or contact your administrator to reset your password.",
       customer_inactive_for_trip_date: "is not active on the trip scheduled date.",
-      vehicle_maintenance_events_heading: "Preventive Maintenance Logs (PM)"
+      vehicle_maintenance_compliances_heading: "Preventive Maintenance Logs (PM)"
     }
 
     en_locale = Locale.find_by_name 'en'

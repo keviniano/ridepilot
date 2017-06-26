@@ -1348,7 +1348,7 @@ en:
   add_maintenance_link_text: "Add Maintenance Event"
   edit_vehicle_link_text: "Edit Vehicle"
   index_vehicle_heading: "Vehicles"
-  vehicle_maintenance_events_heading: "Preventive Maintenance Logs (PM)"
+  vehicle_maintenance_events_heading: "Maintenance Events"
   vehicle_maintenance_events_empty: "There are no maintenance events"
   vehicle_maintenance_event_add_link_title: "Add Maintenance Event"
   vehicle_maintenance_event_delete_confirm: "Are you sure?"
@@ -1356,7 +1356,7 @@ en:
   vehicle_form_initial_mileage_change_reason: "Reason"
 
   # Vehicle Maintenance Compliances
-  vehicle_maintenance_compliances_heading: "Compliance Events"
+  vehicle_maintenance_compliances_heading: "Preventive Maintenance Logs (PM)"
   vehicle_maintenance_compliances_add_link_title: "Add compliance event"
   vehicle_maintenance_compliances_empty: "No compliance events exist for this driver"
   vehicle_maintenance_compliance_delete_confirm: "Are you sure you want to delete this compliance event?"
