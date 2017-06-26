@@ -51,7 +51,7 @@ class Ability
     can action,  Customer, :provider_id => provider.id
     can action,  DevicePool, :provider_id => provider.id if provider.dispatch?
     can action,  DevicePoolDriver, :provider_id => provider.id
-    can action,  DevicePoolDriver, :driver_id => user.driver.id if user.driver.present?
+    can :manage,  DevicePoolDriver, :driver_id => user.driver.id if provider.active? && user.driver.present?
     can action,  Document, :documentable => {:provider_id => provider.id}
     can action,  Driver, :provider_id => provider.id
     can action,  Monthly, :provider_id => provider.id
