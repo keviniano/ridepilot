@@ -1,4 +1,6 @@
 class ProviderCommonAddress < Address
+  
+  belongs_to :address_group, -> { with_deleted }
 
   #validates :provider, presence: true
 

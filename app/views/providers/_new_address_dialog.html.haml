@@ -1,5 +1,5 @@
 .address-form#provider-address-form
-  = render 'addresses/new_form', :prefix=>'provider', address: Address.new 
+  = render 'addresses/new_form', :prefix=>'provider', address: ProviderCommonAddress.new(provider: @provider) 
 
 :javascript
   $(document).ready(function() {

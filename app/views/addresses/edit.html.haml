@@ -13,7 +13,7 @@
   = form.hidden_field :provider_id
   %fieldset
     %ol.section.first
-      = render 'geocoding_form_fields', :form => form, address: @address, prefix: 'address', edit_mode: :edit
+      = render 'provider_common_address_form_fields', :form => form, address: @address, prefix: 'address', edit_mode: :edit
       %li.selfclear
         = form.label :inactive, translate_helper("inactive")
         = form.check_box :inactive

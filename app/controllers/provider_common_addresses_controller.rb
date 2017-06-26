@@ -83,9 +83,6 @@ class ProviderCommonAddressesController < AddressesController
       errors = address.errors.messages
       errors['prefix'] = prefix
       respond_to do |format|
-        format.html {
-          redirect_to addresses_provider_path(current_provider)
-        }
         format.json { render json: errors }
       end
     end

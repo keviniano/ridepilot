@@ -7,6 +7,9 @@
 = hidden_field_tag :lat, address.latitude, class: 'address_lat'
 = hidden_field_tag :lon, address.longitude, class: 'address_lon'
 %li.selfclear
+  = form.label :address_group, translate_helper("address_group_label")
+  = form.select :address_group, AddressGroup.by_provider(current_provider).pluck(:name, :id), { :include_blank => true }, { class: 'address_group', required: true }
+%li.selfclear
   = form.label :name, translate_helper("address_name")
   = form.text_field :name, maxlength: 30, class: 'form-control'
 %li.selfclear.full_address
@@ -28,3 +31,10 @@
   = form.label :notes, translate_helper("address_notes")
   = form.text_area :notes, class: 'form-control'
 = render 'addresses/google_place_autocomplete_js' if prefix != 'pickup'
+
+:javascript
+  $('#provider_address_group').selectize({
+    create: true,
+    dropdownParent: 'body'
+  });
+

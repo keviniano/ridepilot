@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170624133401) do
+ActiveRecord::Schema.define(version: 20170625200421) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,6 +36,15 @@ ActiveRecord::Schema.define(version: 20170624133401) do
   add_index "activities", ["owner_id", "owner_type"], :name => "index_activities_on_owner_id_and_owner_type"
   add_index "activities", ["recipient_id", "recipient_type"], :name => "index_activities_on_recipient_id_and_recipient_type"
   add_index "activities", ["trackable_id", "trackable_type"], :name => "index_activities_on_trackable_id_and_trackable_type"
+
+  create_table "address_groups", force: true do |t|
+    t.string   "name"
+    t.integer  "provider_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "address_groups", ["provider_id"], :name => "index_address_groups_on_provider_id"
 
   create_table "address_upload_flags", force: true do |t|
     t.boolean  "is_loading",          default: false
@@ -70,8 +79,10 @@ ActiveRecord::Schema.define(version: 20170624133401) do
     t.boolean  "is_driver_associated",                                                          default: false
     t.boolean  "is_user_associated"
     t.string   "type"
+    t.integer  "address_group_id"
   end
 
+  add_index "addresses", ["address_group_id"], :name => "index_addresses_on_address_group_id"
   add_index "addresses", ["customer_id"], :name => "index_addresses_on_customer_id"
   add_index "addresses", ["deleted_at"], :name => "index_addresses_on_deleted_at"
   add_index "addresses", ["provider_id"], :name => "index_addresses_on_provider_id"
