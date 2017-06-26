@@ -6,8 +6,12 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
   # This should return the minimal set of attributes required to create a valid
   # Address. As you add validations to Address, be sure to
   # adjust the attributes here as well.
+  let(:test_group) {
+    create(:address_group)
+  }
+
   let(:valid_attributes) {
-    attributes_for(:provider_common_address)
+    attributes_for(:provider_common_address).merge({address_group_id: test_group.id})
   }
 
   let(:invalid_attributes) {
@@ -26,7 +30,7 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
     let(:valid_create_attributes) {
       # Convert the params to a flat list of params because that's what the
       # controller expects
-      prefix = "pickup"
+      prefix = "provider_common_address"
       params = {"prefix" => prefix, "#{prefix}" => {}, format: :json}
       valid_attributes.each do |k,v|
         params["#{prefix}"]["#{k}"] = v
@@ -41,12 +45,12 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
           
           expect {
             post :create, valid_create_attributes.merge({:address_id => address.id})
-          }.to_not change(Address, :count)
+          }.to_not change(ProviderCommonAddress, :count)
         end
 
         it "updates the requested vehicle" do
           address = create(:provider_common_address, :provider => @current_user.current_provider, :address => "Foobar")
-          valid_create_attributes["pickup"]["address"] = "Barfoo"
+          valid_create_attributes["provider_common_address"]["address"] = "Barfoo"
           expect {
             post :create, valid_create_attributes.merge({:address_id => address.id})
           }.to change { address.reload.address }.from("Foobar").to("Barfoo")
@@ -71,7 +75,7 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
         it "creates a new Address" do
           expect {
             post :create, valid_create_attributes
-          }.to change(Address, :count).by(1)
+          }.to change(ProviderCommonAddress, :count).by(1)
         end
 
         it "responds with JSON" do
@@ -89,17 +93,17 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
         it "includes the address type in the json response" do
           post :create, valid_create_attributes
           json = JSON.parse(response.body)
-          expect(json["prefix"]).to eq("pickup")
+          expect(json["prefix"]).to eq("provider_common_address")
         end
       end
     end
 
     context "with invalid params" do
       let(:invalid_create_attributes) {
-        valid_create_attributes["pickup"]["address"] = ""
-        valid_create_attributes["pickup"]["city"] = ""
-        valid_create_attributes["pickup"]["state"] = ""
-        valid_create_attributes["pickup"]["zip"] = ""
+        valid_create_attributes["provider_common_address"]["address"] = ""
+        valid_create_attributes["provider_common_address"]["city"] = ""
+        valid_create_attributes["provider_common_address"]["state"] = ""
+        valid_create_attributes["provider_common_address"]["zip"] = ""
 
         valid_create_attributes
       }
@@ -118,7 +122,7 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
       it "includes the address type in the json response" do
         post :create, invalid_create_attributes
         json = JSON.parse(response.body)
-        expect(json["prefix"]).to eq("pickup")
+        expect(json["prefix"]).to eq("provider_common_address")
       end
     end
   end
@@ -138,6 +142,7 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
           :phone_number => "(801)4567890",
           :inactive => false,
           :trip_purpose => create(:trip_purpose, name: "Purpose") ,
+          :address_group => test_group
         }
       }
 
@@ -191,7 +196,7 @@ RSpec.describe ProviderCommonAddressesController, type: :controller do
         it "destroys the requested address" do
           expect {
             delete :destroy, {:id => @address.to_param, :address_id => @replacement_address.id}
-          }.to change(Address, :count).by(-1)
+          }.to change(ProviderCommonAddress, :count).by(-1)
         end
 
         it "associates the trips with the replacement address" do

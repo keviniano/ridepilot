@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :address_group do
-    name "MyString"
-provider nil
+    name { Faker::Lorem.words(2).join(' ') }
+    provider
   end
 
 end

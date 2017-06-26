@@ -50,41 +50,30 @@ class ProviderCommonAddressesController < AddressesController
   def create
     the_geom       = params[:lat].to_s.size > 0 ? RGeo::Geographic.spherical_factory(srid: 4326).point(params[:lon].to_f, params[:lat].to_f) : nil
     prefix         = params['prefix'] || ""
-    address_params = {}
-    
-    # Some kind of faux strong parameters...
-    for param in ['name', 'building_name', 'address', 'city', 'state', 'zip', 'phone_number', 'in_district', 'trip_purpose_id', 'notes']
-      address_params[param] = params[prefix][param]
-    end
 
-    address_params[:provider_id] = current_provider_id
-    address_params[:the_geom]    = the_geom if the_geom
+    new_params = address_params
+
+    new_params[:provider_id] = current_provider_id
+    new_params[:the_geom]    = the_geom if the_geom
 
     if params[:address_id].present?
       address = ProviderCommonAddress.find(params[:address_id])
       authorize! :edit, address
-      address.attributes = address_params
+      address.attributes = new_params
     else
-      address_params[:customer_id] = params[:customer_id] if params[:customer_id].present?
+      new_params[:customer_id] = params[:customer_id] if params[:customer_id].present?
       authorize! :new, ProviderCommonAddress
-      address = ProviderCommonAddress.new(address_params)
+      address = ProviderCommonAddress.new(new_params)
     end
     if address.save
       attrs = address.attributes
       attrs[:label] = address.text.gsub(/\s+/, ' ')
       attrs[:prefix] = prefix
-      respond_to do |format|
-        format.html {
-          redirect_to addresses_provider_path(current_provider)
-        }
-        format.json { render json: attrs.to_json }
-      end
+      render json: attrs.to_json 
     else
       errors = address.errors.messages
       errors['prefix'] = prefix
-      respond_to do |format|
-        format.json { render json: errors }
-      end
+      render json: errors
     end
   end
 
@@ -189,6 +178,6 @@ class ProviderCommonAddressesController < AddressesController
 
 
   def address_params
-    params.require(:provider_common_address).permit(:name, :building_name, :address, :city, :state, :zip, :in_district, :provider_id, :phone_number, :inactive, :trip_purpose_id, :notes)
+    params.require(:provider_common_address).permit(:address_group_id, :name, :building_name, :address, :city, :state, :zip, :in_district, :provider_id, :phone_number, :inactive, :trip_purpose_id, :notes)
   end
 end

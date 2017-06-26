@@ -17,5 +17,7 @@ FactoryGirl.define do
 
   factory :customer_common_address, parent: :address, class: CustomerCommonAddress
 
-  factory :provider_common_address, parent: :address, class: ProviderCommonAddress
+  factory :provider_common_address, parent: :address, class: ProviderCommonAddress do 
+    address_group
+  end
 end

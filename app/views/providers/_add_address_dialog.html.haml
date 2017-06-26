@@ -16,7 +16,7 @@
             = translate_helper(:customer_saved_address_dialog_title)
       .modal-body
         .address-form#provider-address-form
-          = render 'addresses/new_form', :prefix=>'provider', address: ProviderCommonAddress.new(provider: @provider)
+          = render 'addresses/new_provider_common_address_form', :prefix=>'provider_common_address', address: ProviderCommonAddress.new(provider: @provider)
 
 :javascript
   $(function() {
@@ -39,7 +39,7 @@
     $("body").on('ajax:success', '.address-search', function(evt, data, status, xhr){
       if (data && data.hasOwnProperty('id')) {
         $('#addAddressDialog').modal('hide');
-        show_alert('Address was successfully created.', 'info');
+        window.location.href = "#{addresses_provider_path(current_provider)}";
       } else {
         showAddressValidationErrors(this, data);
       }

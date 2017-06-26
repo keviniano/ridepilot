@@ -6,7 +6,7 @@ class Provider < ActiveRecord::Base
   
   serialize :fields_required_for_run_completion, Array
 
-  has_many :addresses, :dependent => :nullify
+  has_many :addresses, class_name: 'ProviderCommonAddress', :dependent => :nullify
   has_many :device_pools, :dependent => :destroy
   has_many :drivers, :dependent => :destroy
   has_many :monthlies, :dependent => :destroy

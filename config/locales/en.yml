@@ -769,6 +769,7 @@ en:
   show_provider_address_heading: "Addresses"
   show_provider_search_addresses: "Search addresses:"
   address_results_name_column: "Name"
+  address_results_type_column: "Type"
   address_results_building_name_column: "Building Name"
   no_addresses_yet: "No addresses yet."
   search_for_address: "Search for an address above."
@@ -858,6 +859,9 @@ en:
   customer_trip_summary_for: "Trips for "
   view_customer_trip_summary: "Trip Summary"
   customer_trip_summary_instructions: "Double clicking each trip below to clone a new trip"
+  address_group: 'Address Group'
+  address_group_label: 'Type'
+
   #reports
   service_performed: "Service Performed"
   odometer_reading: "Odometer Reading"
