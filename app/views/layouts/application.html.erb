@@ -23,7 +23,7 @@
           <a href=<%= user_path(current_user)%>><%= current_user.display_name %></a> 
           <span class="separator">|</span> <%= link_to translate_helper("change_password"), show_change_password_path, :class=>'change-password' %>
           <span class="separator">|</span>
-          <%= link_to translate_helper("log_out_link_text"), destroy_user_session_path, method: :delete %>
+          <%= link_to translate_helper("log_out_link_text"), destroy_user_session_path(locale: I18n.default_locale), method: :delete %>
           <span class="separator">|</span>
           Logged in to 
           <% if @provider_map.size > 1 %>
