@@ -763,6 +763,7 @@ en:
   provider_index_name: "Name"
   provider_index_users: "Users"
   provider_index_details: "Details"
+  provider_index_active: "Active?"
   new_provider_link_text: "New Provider"
   show_provider_heading: "Provider: %{provider}"
   edit_provider_heading: "Edit Provider: %{provider}"
