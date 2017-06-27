@@ -757,7 +757,7 @@ en:
   provider_form_scheduling: "Scheduling"
   provider_form_run_tracking: "Run Tracking"
   provider_form_trip_entry_from_runs: "Allow trip entry from runs page"
-  provider_form_fields_required_for_run_completion: "Fields required for a run to be considered valued"
+  provider_form_fields_required_for_run_completion: "Fields required for a run to be considered completed"
   provider_form_submit: "Submit"
   provider_index_heading: "Providers"
   provider_index_name: "Name"
