@@ -27,12 +27,11 @@ class Ability
       for role in user.roles
         can :read, Provider, :id => role.provider.id
         if role.admin?
-          can :manage, Provider do |p|
-            p.active? && p.id == role.provider_id
-          end
+          can :manage, role.provider
         end
         
         cannot :create, Provider
+        cannot :index, Provider
       end
     end
 
