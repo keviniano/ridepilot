@@ -226,4 +226,11 @@ namespace :ridepilot do
     Customer.unscoped.where.not(inactivated_date: nil).update_all(active: false)
     puts 'Finished inactive customer data migration'
   end
+
+  desc 'Migrate existing provider common address with default type'
+  task :migrate_provider_common_addresses => :environment do
+    default_group_id = AddressGroup.default_address_group.try(:id)
+    ProviderCommonAddress.unscoped.type_unknown.update_all(address_group_id: default_group_id) if default_group_id
+    puts 'Finished migration'
+  end
 end

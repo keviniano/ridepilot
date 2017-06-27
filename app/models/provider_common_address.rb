@@ -5,6 +5,8 @@ class ProviderCommonAddress < Address
   validates :address_group_id, presence: true
   validates :name, presence: true
 
+  scope :type_unknown, -> { where(address_group_id: nil) }
+
   #validates :provider, presence: true
 
   def self.load_addresses(filename, provider) 
