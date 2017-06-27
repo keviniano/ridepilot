@@ -1,5 +1,10 @@
 class AddressGroup < ActiveRecord::Base
-  belongs_to :provider
 
-  scope :by_provider, -> (provider) { where(provider: provider) }
+  validates :name, uniqueness: { case_insensitive: true }, presence: true
+
+  UNKNOWN_TYPE = 'Needs Update'
+
+  def self.default_address_group
+    find_by_name UNKNOWN_TYPE
+  end
 end

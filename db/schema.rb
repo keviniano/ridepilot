@@ -39,12 +39,9 @@ ActiveRecord::Schema.define(version: 20170625200421) do
 
   create_table "address_groups", force: true do |t|
     t.string   "name"
-    t.integer  "provider_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  add_index "address_groups", ["provider_id"], :name => "index_address_groups_on_provider_id"
 
   create_table "address_upload_flags", force: true do |t|
     t.boolean  "is_loading",          default: false

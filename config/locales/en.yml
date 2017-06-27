@@ -861,6 +861,7 @@ en:
   customer_trip_summary_instructions: "Double clicking each trip below to clone a new trip"
   address_group: 'Address Group'
   address_group_label: 'Type'
+  new_provider_common_address_dialog_title: "New Address"
 
   #reports
   service_performed: "Service Performed"

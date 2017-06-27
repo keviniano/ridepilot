@@ -57,6 +57,13 @@ namespace :ridepilot do
     puts 'Finished seeding eligibilities'
   end
 
+  desc 'Seed address groups'
+  task :seed_address_groups => :environment do
+    seed_file = File.join(Rails.root, 'db', 'tasks', 'seed_address_groups.rb')
+    load(seed_file) if File.exist?(seed_file)
+    puts 'Finished seeding'
+  end
+
   desc 'Update lookup configs for ethnicities'
   task :update_ethnicity_lookup_config => :environment do
     config = LookupTable.find_by_name('provider_ethnicities')

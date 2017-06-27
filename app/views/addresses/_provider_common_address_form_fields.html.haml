@@ -3,8 +3,8 @@
 = hidden_field_tag :lat, address.latitude, class: 'address_lat'
 = hidden_field_tag :lon, address.longitude, class: 'address_lon'
 %li.selfclear
-  = form.label :address_group, translate_helper("address_group_label")
-  = form.select :address_group, AddressGroup.by_provider(current_provider).pluck(:name, :id), { :include_blank => true }, { class: 'address_group', required: true }
+  = form.label :address_group_id, translate_helper("address_group_label")
+  = form.select :address_group_id, AddressGroup.pluck(:name, :id), { :include_blank => true }, { class: 'address_group', required: true }
 %li.selfclear
   = form.label :name, translate_helper("address_name")
   = form.text_field :name, maxlength: 30, class: 'form-control'
@@ -42,8 +42,16 @@
 = render 'addresses/google_place_autocomplete_js' if prefix != 'pickup'
 
 :javascript
-  $('#provider_address_group').selectize({
-    create: true,
-    dropdownParent: 'body'
+  $('#provider_common_address_address_group_id').selectize({
+    dropdownParent: 'body',
+    create: function(input, callback) {
+      $.post("#{address_groups_path(format: :json)}", {
+          address_group: {
+            name: input
+          }
+        }, function(obj) {
+          callback({text: obj.name, value: obj.id});
+        });
+    }
   });
 

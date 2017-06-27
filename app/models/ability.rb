@@ -77,6 +77,8 @@ class Ability
       can :manage, Role do |r|
         r.provider_id == provider.id && !r.system_admin?
       end
+      can :manage, ProviderCommonAddress
+      can :manage, AddressGroup
     else
       can :read, User, :roles => {:provider_id => provider.id}
       can :manage, user # User can manage themselves

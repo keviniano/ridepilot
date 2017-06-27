@@ -171,6 +171,8 @@ Rails.application.routes.draw do
     end
     get "trip_address_autocomplete" => "addresses#trippable_autocomplete"
 
+    resources :address_groups
+
     resources :device_pools, :except => [:index, :show] do
       resources :device_pool_drivers, :only => [:create, :destroy]
     end

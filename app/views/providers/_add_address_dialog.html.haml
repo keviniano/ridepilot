@@ -13,7 +13,7 @@
             = translate_helper(:cancel)
         .modal-title{:style => "text-align:left;"}
           %strong
-            = translate_helper(:customer_saved_address_dialog_title)
+            = translate_helper(:new_provider_common_address_dialog_title)
       .modal-body
         .address-form#provider-address-form
           = render 'addresses/new_provider_common_address_form', :prefix=>'provider_common_address', address: ProviderCommonAddress.new(provider: @provider)
