@@ -12,6 +12,7 @@ class Ability
     can :read, FundingSource
     can :read, Region
     can :read, DriverRequirementTemplate
+    can :read, VehicleRequirementTemplate
     can :read, VehicleMaintenanceScheduleType
     can :read, VehicleMaintenanceSchedule
 
@@ -71,6 +72,7 @@ class Ability
       can :manage, VehicleWarranty, :vehicle => {:provider_id => provider.id}
       can :load,   Address
       can :manage, DriverRequirementTemplate, :provider_id => provider.id
+      can :manage, VehicleRequirementTemplate, :provider_id => provider.id
       can :manage, VehicleMaintenanceScheduleType, :provider_id => provider.id
       can :manage, VehicleMaintenanceSchedule, :vehicle_maintenance_schedule_type => { :provider_id => provider.id}
       can :manage, Role do |r|

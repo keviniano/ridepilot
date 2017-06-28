@@ -1,6 +1,6 @@
 class DriverRequirementTemplatesController < ApplicationController
   load_and_authorize_resource except: [:create]
-  before_action :guard_system_template_permission
+  before_action :guard_system_template_permission, except: [:create]
 
   def index
     if params[:provider_id].blank?
@@ -21,6 +21,12 @@ class DriverRequirementTemplatesController < ApplicationController
 
   def create
     @driver_requirement_template = DriverRequirementTemplate.new template_params
+
+    if @driver_requirement_template.provider_id.blank?
+      authorize! :manage, :system_driver_requirement_template
+    else
+      authorize! :manage, @driver_requirement_template
+    end
 
     if @driver_requirement_template.save
       redirect_to driver_requirement_template_path(@driver_requirement_template, provider_id: @driver_requirement_template.provider_id)

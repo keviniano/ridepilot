@@ -1,6 +1,6 @@
 class VehicleRequirementTemplatesController < ApplicationController
   load_and_authorize_resource except: [:create]
-  before_action :guard_system_template_permission
+  before_action :guard_system_template_permission, except: [:create]
 
   def index
     if params[:provider_id].blank?
@@ -21,6 +21,12 @@ class VehicleRequirementTemplatesController < ApplicationController
 
   def create
     @vehicle_requirement_template = VehicleRequirementTemplate.new template_params
+
+    if @vehicle_requirement_template.provider_id.blank?
+      authorize! :manage, :system_vehicle_requirement_template
+    else
+      authorize! :manage, @vehicle_requirement_template
+    end
 
     if @vehicle_requirement_template.save
       redirect_to vehicle_requirement_template_path(@vehicle_requirement_template, provider_id: @vehicle_requirement_template.provider_id)
