@@ -12,9 +12,6 @@
         %tr
           %th= translate_helper("vehicle_maintenance_schedule_type_name")
       %tbody
-        - if @vehicle_maintenance_schedule_types.empty?
-          %td= translate_helper(:no_vehicle_maintenance_schedule_type)
-        - else
-          = render partial: 'vehicle_maintenance_schedule_type', collection: @vehicle_maintenance_schedule_types
+        = render partial: 'vehicle_maintenance_schedule_type', collection: @vehicle_maintenance_schedule_types
 
 = render 'shared/modal_dialog', modal_id: "modal-dialog" 

@@ -59,7 +59,7 @@ class VehicleMaintenanceCompliancesController < ApplicationController
   def update
     params = build_new_documents(vehicle_maintenance_compliance_params)
 
-    was_incomplete = @vehicle_maintenance_compliance.complete?
+    was_incomplete = !@vehicle_maintenance_compliance.complete?
     if @vehicle_maintenance_compliance.update(params)
       @is_newly_completed = was_incomplete && @vehicle_maintenance_compliance.complete?
       respond_to do |format|
@@ -93,6 +93,9 @@ class VehicleMaintenanceCompliancesController < ApplicationController
     # @vehicle_maintenance_compliance.document_associations.build
     @vehicle_maintenance_schedule_type = if !params[:vehicle_maintenance_schedule_type_id].blank? 
       VehicleMaintenanceScheduleType.find_by_id(params[:vehicle_maintenance_schedule_type_id])
+    elsif !params[:schedule_id].blank?
+      schedule = VehicleMaintenanceSchedule.find_by_id params[:schedule_id]
+      schedule.vehicle_maintenance_schedule_type if schedule
     else
       @vehicle.vehicle_maintenance_schedule_type || @vehicle_maintenance_compliance.vehicle_maintenance_schedule.try(:vehicle_maintenance_schedule_type)
     end
