@@ -32,9 +32,9 @@ class Vehicle < ActiveRecord::Base
   has_many :vehicle_maintenance_compliances, dependent: :delete_all, inverse_of: :vehicle
 
   validates :provider, presence: true
-  validates :name, presence: true, uniqueness: { :case_sensitive => false, scope: :provider, message: "should be unique" }
-  validates :license_plate, uniqueness: { :case_sensitive => false, scope: :provider, message: "should be unique" }, allow_nil: true, allow_blank: true
-  validates :vin, uniqueness: { :case_sensitive => false, scope: :provider, message: "should be unique" }, length: {is: 17},
+  validates :name, presence: true, uniqueness: { :case_sensitive => false, scope: :provider, message: "should be unique", conditions: -> { where(deleted_at: nil) } }
+  validates :license_plate, uniqueness: { :case_sensitive => false, scope: :provider, message: "should be unique", conditions: -> { where(deleted_at: nil) } }, allow_nil: true, allow_blank: true
+  validates :vin, uniqueness: { :case_sensitive => false, scope: :provider, message: "should be unique", conditions: -> { where(deleted_at: nil) } }, length: {is: 17},
     format: {with: /\A[^ioq]*\z/i}, allow_nil: true, allow_blank: true
   validates_date :registration_expiration_date, allow_blank: true
   validates :seating_capacity, numericality: { only_integer: true, greater_than: 0 }

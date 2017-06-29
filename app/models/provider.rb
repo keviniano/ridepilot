@@ -49,7 +49,7 @@ class Provider < ActiveRecord::Base
   # default value of eligible_age
   DEFAULT_ELIGIBLE_AGE = 65
   
-  validates :name, :uniqueness => { :case_sensitive => false }, :length => { :minimum => 2 }
+  validates :name, :uniqueness => { :case_sensitive => false, conditions: -> { where(deleted_at: nil)} }, :length => { :minimum => 2 }
   validates_numericality_of :oaa3b_per_ride_reimbursement_rate,               :greater_than => 0, :allow_blank => true
   validates_numericality_of :ride_connection_per_ride_reimbursement_rate,     :greater_than => 0, :allow_blank => true
   validates_numericality_of :trimet_per_ride_reimbursement_rate,              :greater_than => 0, :allow_blank => true
