@@ -233,4 +233,24 @@ namespace :ridepilot do
     ProviderCommonAddress.unscoped.type_unknown.update_all(address_group_id: default_group_id) if default_group_id
     puts 'Finished migration'
   end
+
+  desc "Move documents in production to new path due to paperclip storage option changes"
+  task :move_production_documents => :environment do
+    Document.find_each do |attachment|
+      file_name = attachment.document_file_name
+      unless file_name.blank?
+        ext_name = File.extname(file_name)
+
+        legacy_filename = File.join(
+          File.dirname(attachment.document.path),
+          attachment.document.hash_key,
+          ext_name
+        )
+
+        if File.exist? legacy_filename
+          File.rename(legacy_filename, attachment.document.path)
+        end
+      end
+    end
+  end
 end

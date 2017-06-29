@@ -138,10 +138,11 @@ class Provider < ActiveRecord::Base
     old_vendor_list = vendor_list
     new_vendor_list = documents.build(description: "Approved Vendor List", document: file)
     if new_vendor_list.valid?
-      documents.delete(old_vendor_list) if old_vendor_list
-      return self.save
+      old_vendor_list.delete if old_vendor_list
+      new_vendor_list.save
+      documents.reload
     else
-      documents.delete(new_vendor_list)
+      documents.reload
       return false
     end
   end
