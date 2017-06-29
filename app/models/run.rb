@@ -21,7 +21,6 @@ class Run < ActiveRecord::Base
   #     updated_at
   #     lock_version
   FIELDS_FOR_COMPLETION = [
-    :name,
     :unpaid_driver_break_time,
     :paid,
   ].freeze
