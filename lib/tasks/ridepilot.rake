@@ -178,7 +178,8 @@ namespace :ridepilot do
       verification_question_incorrect_answer: "That answer is not correct. Please try again or contact your administrator to reset your password.",
       customer_inactive_for_trip_date: "is not active on the trip scheduled date.",
       vehicle_maintenance_compliances_heading: "Preventive Maintenance Logs (PM)",
-      provider_form_fields_required_for_run_completion: "Fields required for a run to be considered completed"
+      provider_form_fields_required_for_run_completion: "Fields required for a run to be considered completed",
+      cancel_run: "Cancel"
     }
 
     en_locale = Locale.find_by_name 'en'
