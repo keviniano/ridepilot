@@ -28,5 +28,15 @@
     $("#<%= modal_id %>-submit").on("click", function(){
       $('#<%= modal_id %> .modal-body form').submit();
     });
+
+    $("body").on('ajax:send', "#<%= modal_id %> form", function() {
+      console.log('request sent');
+      $("#<%= modal_id %>-submit").attr('disabled', 'disabled');
+    });
+
+    $("body").on('ajax:complete', "#<%= modal_id %> form", function() {
+      console.log('request completed');
+      $("#<%= modal_id %>-submit").removeAttr('disabled');
+    });
   });
 <% end %>
