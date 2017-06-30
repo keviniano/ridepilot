@@ -152,7 +152,7 @@ class RepeatingRun < ActiveRecord::Base
   # Determines if any daily runs overlap with this run and have the same name and provider
   def daily_name_uniqueness
     if provider.runs                      # same provider
-        .where(name: name)                # same name
+        .where("lower(name) = ?", name.try(:to_s).downcase)  # same name
         .conflicts_with_schedule(self)    # schedule covers the run's date
         .present?
       errors.add(:name,  "should be unique by day and by provider among daily runs")
@@ -163,7 +163,7 @@ class RepeatingRun < ActiveRecord::Base
   # of any other repeating run with the same provider and name
   def repeating_name_uniqueness
     if provider.repeating_runs          # same provider
-        .where(name: name)              # same name
+        .where("lower(name) = ?", name.try(:to_s).downcase)  # same name
         .conflicts_with_schedule(self)  # conflicting schedule
         .present?
       errors.add(:name,  "should be unique by day and by provider among repeating runs")

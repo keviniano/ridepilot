@@ -214,7 +214,7 @@ class Run < ActiveRecord::Base
   def daily_name_uniqueness
     if provider.runs      # same provider
         .for_date(date)     # same date
-        .where(name: name)  # same name
+        .where("lower(name) = ?", name.try(:to_s).downcase)  # same name
         .other_than(self)   # not the same run
         .present?
       errors.add(:name,  "should be unique by day and by provider among daily runs")
@@ -226,7 +226,7 @@ class Run < ActiveRecord::Base
   def repeating_name_uniqueness
     return true if provider.scheduler_window_covers?(date)
     if provider.repeating_runs    # same provider
-        .where(name: name)          # same name
+        .where("lower(name) = ?", name.try(:to_s).downcase)          # same name
         .not_the_parent_of(self)    # not the parent repeating run
         .schedule_occurs_on(date)   # repeating run schedule occurs on this run's date
         .present?
