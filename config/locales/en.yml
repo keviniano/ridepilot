@@ -159,6 +159,7 @@ en:
   funding_authorization_number_contact_info: 'Contact Info'
   add_funding_authorization_number: 'Add'
   add_funding_authorization_number_dialog_title: 'Add Funding Authorization Number'
+  customer_comments_panel: "Customer Comments"
   customer_comments: 'Comments'
   view_customer_comments_report: 'View Customer Comments Report'
   

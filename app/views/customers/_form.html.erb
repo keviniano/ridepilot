@@ -50,6 +50,7 @@
     <%= render 'eligibility_panel', f: f, edit_mode: edit_mode %>
     <%= render 'providers_panel', f: f, edit_mode: edit_mode %>
     <%= render 'donations_panel', f: f, edit_mode: edit_mode  %>
+    <%= render 'comments_panel', f: f, edit_mode: edit_mode %>
     <%= render 'others_panel', f: f, edit_mode: edit_mode %>
     <% if edit_mode == :show %>
       <% logs = TrackerActionLog.for(@customer).order(created_at: :desc) %>

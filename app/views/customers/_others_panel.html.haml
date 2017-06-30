@@ -10,13 +10,3 @@
         = f.label :message, translate_helper(:customer_message) 
       .col-sm-9
         = f.text_area :message, class: 'form-control'
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :comments, translate_helper(:customer_comments) 
-      .col-sm-9
-        = f.text_area :comments, class: 'form-control'
-    - if edit_mode == :show
-      .pull-right
-        = link_to translate_helper(:view_customer_comments_report), 
-            customer_comments_report_customer_path(@customer),
-            class: "btn action-button"
