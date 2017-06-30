@@ -5,7 +5,7 @@ class Document < ActiveRecord::Base
   
   has_attached_file :document
   
-  validates :description, presence: true
+  #validates :description, presence: true
   # validates :documentable, presence: true
   validates_attachment_presence :document
   validates_attachment_content_type :document, content_type: [

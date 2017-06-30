@@ -24,7 +24,7 @@ module DocumentAssociableController
     # Build new documents as appropriate
     params[:documents_attributes].each do |i, doc|
       unless doc[:id].present?
-        if doc[:document].present? && doc[:description].present? && doc[:_destroy].to_i.zero?
+        if doc[:document].present? && doc[:_destroy].to_i.zero?
           @documents_present = true      
           model_instance.build_document(
             document: doc[:document], 
