@@ -4,6 +4,7 @@ class Customer < ActiveRecord::Base
   include PublicActivity::Common
 
   before_validation :generate_uuid_token, on: :create
+  before_update :ada_changed
 
   acts_as_paranoid # soft delete
 
@@ -19,6 +20,9 @@ class Customer < ActiveRecord::Base
 
   has_many   :eligibilities, through: :customer_eligibilities
   has_many   :customer_eligibilities
+
+  has_many   :ada_questions, through: :customer_ada_questions
+  has_many   :customer_ada_questions
 
   # profile photo
   has_one  :photo, class_name: 'Image', as: :imageable, dependent: :destroy, inverse_of: :imageable
@@ -323,6 +327,20 @@ class Customer < ActiveRecord::Base
     end
   end
 
+  def edit_ada_questions(ada_question_params)
+    return if !ada_question_params
+
+    ada_question_params.each do |question_id, data|
+      question = AdaQuestion.find_by_id question_id
+      next unless question
+      item = customer_ada_questions.where(ada_question: question).first_or_create
+    
+      answer = data["answer"] == 'true' ? true : (data["answer"] == 'false' ? false: nil)
+
+      item.update_attributes answer: answer
+    end
+  end
+
   def age_eligible?
     provider.try(:check_age_eligible, age_in_years)
   end
@@ -352,6 +370,13 @@ class Customer < ActiveRecord::Base
 
   def set_defaults
     self.active = true if self.active.nil?
+  end
+
+  def ada_changed
+    if self.ada_eligible_changed?
+      # once ada_eligible is changed, clear ada questions if not ada_eligible
+      customer_ada_questions.clear unless ada_eligible?
+    end
   end
 
 end

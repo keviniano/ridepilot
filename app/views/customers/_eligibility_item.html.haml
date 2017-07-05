@@ -10,4 +10,4 @@
     .col-sm-4.control-label{id: "#{item.code}_ineligible_label", for: "eligibility_#{item.code}_ineligible_reason"}
       = translate_helper(:ineligible_reason)
     .col-sm-8
-      = text_area_tag "eligibilities[#{item.code}][ineligible_reason]", ineligible_reason, class: 'form-control', id: "eligibility_#{item.code}_ineligible_reason"
+      = text_area_tag "eligibilities[#{item.code}][ineligible_reason]", ineligible_reason, class: 'form-control ineligible-reason-text', id: "eligibility_#{item.code}_ineligible_reason"
