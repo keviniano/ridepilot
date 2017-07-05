@@ -142,6 +142,7 @@ group :integration, :qa, :production do
   gem 'rails_12factor'
   gem 'unicorn'
   gem 'rack-timeout'
+  gem 'wkhtmltopdf-binary'
 end
 
 group :development do
