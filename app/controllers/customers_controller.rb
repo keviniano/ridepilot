@@ -148,6 +148,7 @@ class CustomersController < ApplicationController
         edit_travel_trainings
         edit_funding_authorization_numbers
         edit_eligibilities
+        edit_ada_questions
         format.html { redirect_to(@customer, :notice => 'Customer was successfully created.') }
         format.xml  { render :xml => @customer, :status => :created, :location => @customer }
       else
@@ -237,6 +238,7 @@ class CustomersController < ApplicationController
         edit_travel_trainings
         edit_funding_authorization_numbers
         edit_eligibilities
+        edit_ada_questions
         format.html { redirect_to(@customer, :notice => 'Customer was successfully updated.') }
         format.xml  { head :ok }
       else
@@ -283,6 +285,7 @@ class CustomersController < ApplicationController
     params.require(:customer).permit(
       :gender,
       :ada_eligible,
+      :ada_ineligible_reason,
       :birth_date,
       :default_funding_source_id,
       :service_level_id,
@@ -417,6 +420,10 @@ class CustomersController < ApplicationController
 
   def edit_eligibilities
     @customer.edit_eligibilities params[:eligibilities]
+  end
+
+  def edit_ada_questions
+    @customer.edit_ada_questions params[:ada_questions]
   end
 
 end

@@ -254,4 +254,21 @@ namespace :ridepilot do
       end
     end
   end
+
+  desc 'Remove outdated eligibilities'
+  task :remove_outdated_eligibilities => :environment do
+    ada_elig = Eligibility.find_by_code 'ada_eligible'
+    if ada_elig
+      CustomerEligibility.where(eligibility: ada_elig).each do |el|
+        customer = el.customer
+        next unless customer
+        customer.ada_eligible = el.eligible 
+        customer.ada_ineligible_reason = el.ineligible_reason
+        customer.save(validate: false)
+      end
+    end
+
+    Eligibility.where(code: ['age_eligible', 'ada_eligible']).delete_all
+    puts 'Finished cleanup'
+  end
 end

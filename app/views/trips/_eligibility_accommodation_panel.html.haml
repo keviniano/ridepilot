@@ -27,17 +27,4 @@
     .customer-eligibilities
       - if @customer
         %h4.col-sm-12= translate_helper('customer_eligibilities')
-        - yes_label = translate_helper('yes')
-        - if @customer.age_eligible?
-          .form-group.col-sm-12
-            .col-sm-3
-              = translate_helper("age_eligible")
-            .col-sm-9
-              = yes_label
-
-        - @customer.customer_eligibilities.eligible.includes(:eligibility).references(:eligibility).each do |elig|
-          .form-group.col-sm-12
-            .col-sm-3
-              = elig.eligibility.description
-            .col-sm-9
-              = yes_label
+        = render 'customers/view_customer_eligibilities'

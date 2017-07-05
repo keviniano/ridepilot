@@ -7,8 +7,6 @@ class Eligibility < ActiveRecord::Base
   has_many :customers, through: :customer_eligibilities
   has_many :customer_eligibilities
 
-  AGE_ELIGIBLE = 'age_eligible'
-
   def self.by_provider(provider)
     hidden_ids = HiddenLookupTableValue.hidden_ids self.table_name, provider.try(:id)
     where.not(id: hidden_ids)
