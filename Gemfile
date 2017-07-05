@@ -135,6 +135,9 @@ gem 'public_activity'
 # new relic for app monitoring
 gem 'newrelic_rpm'
 
+# Printing
+gem 'wicked_pdf'
+
 group :integration, :qa, :production do 
   gem 'rails_12factor'
   gem 'unicorn'
