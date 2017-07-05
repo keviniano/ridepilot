@@ -12,10 +12,6 @@
     description: 'Low Income'
   }, 
   {
-    code: 'ada_eligible',
-    description: 'ADA Eligible'
-  }, 
-  {
     code: 'nemt_eligible',
     description: 'Medicaid'
   }

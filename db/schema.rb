@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170625200421) do
+ActiveRecord::Schema.define(version: 20170705152843) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,6 +36,15 @@ ActiveRecord::Schema.define(version: 20170625200421) do
   add_index "activities", ["owner_id", "owner_type"], :name => "index_activities_on_owner_id_and_owner_type"
   add_index "activities", ["recipient_id", "recipient_type"], :name => "index_activities_on_recipient_id_and_recipient_type"
   add_index "activities", ["trackable_id", "trackable_type"], :name => "index_activities_on_trackable_id_and_trackable_type"
+
+  create_table "ada_questions", force: true do |t|
+    t.integer  "provider_id"
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ada_questions", ["provider_id"], :name => "index_ada_questions_on_provider_id"
 
   create_table "address_groups", force: true do |t|
     t.string   "name"
@@ -120,6 +129,17 @@ ActiveRecord::Schema.define(version: 20170625200421) do
     t.string   "title"
   end
 
+  create_table "customer_ada_questions", force: true do |t|
+    t.integer  "customer_id"
+    t.integer  "ada_question_id"
+    t.boolean  "answer"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "customer_ada_questions", ["ada_question_id"], :name => "index_customer_ada_questions_on_ada_question_id"
+  add_index "customer_ada_questions", ["customer_id"], :name => "index_customer_ada_questions_on_customer_id"
+
   create_table "customer_address_types", force: true do |t|
     t.string   "name"
     t.string   "code"
@@ -177,6 +197,7 @@ ActiveRecord::Schema.define(version: 20170625200421) do
     t.date     "inactivated_end_date"
     t.text     "active_status_changed_reason"
     t.text     "comments"
+    t.text     "ada_ineligible_reason"
   end
 
   add_index "customers", ["address_id"], :name => "index_customers_on_address_id"
