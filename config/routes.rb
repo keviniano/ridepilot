@@ -56,6 +56,7 @@ Rails.application.routes.draw do
         get :customer_comments_report
         post :inactivate
         post :reactivate
+        get :get_eligibilities_for_trip
       end
     end
 

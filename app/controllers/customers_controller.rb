@@ -12,6 +12,9 @@ class CustomersController < ApplicationController
     render :json => @customer ? @customer.trip_related_data : {}
   end
 
+  def get_eligibilities_for_trip
+  end
+
   def found
     if params[:customer_id].blank?
       redirect_to search_customers_path( :term => params[:customer_name] )
