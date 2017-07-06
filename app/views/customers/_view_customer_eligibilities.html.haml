@@ -1,26 +1,27 @@
-- yes_label = translate_helper('yes')
-- if @customer.age_eligible?
-  .form-group.col-sm-12
-    .col-sm-7.control-label
-      %b= translate_helper(:age_eligible)
-    .col-sm-5
-      %span.pull-right= yes_label
-- if @customer.ada_eligible?
-  .form-group.col-sm-12
-    .col-sm-7.control-label
-      %b= translate_helper(:ada_eligible)
-    .col-sm-5
-      %span.pull-right= yes_label
-  %fieldset.ada-questions.col-sm-10.pull-right
-    - @customer.customer_ada_questions.eligible.includes(:ada_question).references(:ada_question).each do |question|
-      .form-group
-        .col-sm-9.control-label
-          = question.ada_question.name
-        .col-sm-3
-          %span.pull-right= yes_label
-- @customer.customer_eligibilities.eligible.includes(:eligibility).references(:eligibility).each do |elig|
-  .form-group.col-sm-12
-    .col-sm-7.control-label
-      %b= elig.eligibility.description
-    .col-sm-5
-      %span.pull-right= yes_label
+- if @customer
+  - yes_label = translate_helper('yes')
+  - if @customer.age_eligible?
+    .form-group.col-sm-12
+      .col-sm-7.control-label
+        %b= translate_helper(:age_eligible)
+      .col-sm-5
+        %span.pull-right= yes_label
+  - if @customer.ada_eligible?
+    .form-group.col-sm-12
+      .col-sm-7.control-label
+        %b= translate_helper(:ada_eligible)
+      .col-sm-5
+        %span.pull-right= yes_label
+    %fieldset.ada-questions.col-sm-10.pull-right
+      - @customer.customer_ada_questions.eligible.includes(:ada_question).references(:ada_question).each do |question|
+        .form-group
+          .col-sm-9.control-label
+            = question.ada_question.name
+          .col-sm-3
+            %span.pull-right= yes_label
+  - @customer.customer_eligibilities.eligible.includes(:eligibility).references(:eligibility).each do |elig|
+    .form-group.col-sm-12
+      .col-sm-7.control-label
+        %b= elig.eligibility.description
+      .col-sm-5
+        %span.pull-right= yes_label
