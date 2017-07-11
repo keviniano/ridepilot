@@ -279,7 +279,7 @@ class TripsController < ApplicationController
       format.html
       format.js  { @remote = true; render :json => {:form => render_to_string(:partial => 'form')}, :content_type => "text/json" }
       format.pdf do
-        render pdf: "#{@trip.id}"   # Excluding ".pdf" extension.
+        render pdf: "#{@trip.id}", footer: { right: '[page] of [topage]' }   # Excluding ".pdf" extension.
       end
     end
   end

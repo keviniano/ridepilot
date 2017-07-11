@@ -1,0 +1,12 @@
+thead { display: table-header-group; }
+tfoot { display: table-row-group; }
+tr { page-break-inside: avoid !important; }
+.page-break {
+    display:block;
+    clear:both;
+    page-break-before:always;
+}
+
+div.alwaysbreak { page-break-before: always; }
+div.nobreak:before { clear:both; }
+div.nobreak { page-break-inside: avoid; }
