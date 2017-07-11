@@ -15,7 +15,7 @@ class UsersController < ApplicationController
     authorize! :edit, @provider
     
     @user = User.only_deleted.find_by_username(params[:user][:username])
-    @is_user_deleted = @user.try(:deleted_at).present?
+    @is_user_deleted = @user.try(:deleted?)
     if !@is_user_deleted
       #this user might already be a member of the site, but not of this
       #provider, in which case we ought to just set up the role
