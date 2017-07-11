@@ -1,5 +1,5 @@
 class ProvidersController < ApplicationController
-  load_and_authorize_resource except: [:create, :upload_vendor_list, :remove_vendor_list]
+  load_and_authorize_resource except: [:create, :upload_vendor_list, :remove_vendor_list, :delete_role, :change_role]
   before_action :redirect_to_current_provider, only: [:users, :drivers, :general, :vehicles, :customers, :addresses]
 
   def new
