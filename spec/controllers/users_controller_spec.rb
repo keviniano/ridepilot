@@ -49,7 +49,7 @@ RSpec.describe UsersController, type: :controller do
 
         it "redirects to the current provider" do
           post :create_user, {provider_id: @current_user.current_provider.id, :user => valid_attributes, :role => {:level => 50}}
-          expect(response).to redirect_to(@current_user.current_provider)
+          expect(response).to redirect_to(users_provider_path @current_user.current_provider)
         end
       end
       
@@ -76,7 +76,7 @@ RSpec.describe UsersController, type: :controller do
 
         it "redirects to the current provider" do
           post :create_user, {provider_id: @current_user.current_provider.id, :user => @new_attrs, :role => {:level => 50}}
-          expect(response).to redirect_to(@current_user.current_provider)
+          expect(response).to redirect_to(users_provider_path @current_user.current_provider)
         end
       end
     end
@@ -167,7 +167,7 @@ RSpec.describe UsersController, type: :controller do
 
       it "redirects to the requested user's provider page" do
         put :change_expiration, {id: @user.id, :user => expiration_attributes}
-        expect(response).to redirect_to(provider_path(@user.current_provider))
+        expect(response).to redirect_to(users_provider_path(@user.current_provider))
       end
     end
   end
