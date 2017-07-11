@@ -66,7 +66,7 @@ class UsersController < ApplicationController
         @user.send_reset_password_instructions  if new_user
 
         flash.now[:notice] = "%s has been added and the instructions has been emailed" % @user.email
-        redirect_to provider_path(@provider)
+        redirect_to users_provider_path(@provider)
       else
         user_errors = @user.valid? ? {} : @user.errors.messages
 
@@ -171,7 +171,7 @@ class UsersController < ApplicationController
       end
 
       flash.now[:notice] = "Email changed"
-      redirect_to current_provider
+      redirect_to users_provider_path(current_provider)
     else
       flash.now[:alert] = "Error updating email"
       render :action=>:show_change_email
@@ -189,7 +189,7 @@ class UsersController < ApplicationController
     
     if @user.update_attributes(change_expiration_params)
       flash.now[:alert] = "Expiration set"
-      redirect_to @user.current_provider
+      redirect_to users_provider_path(@user.current_provider)
     else
       flash.now[:alert] = "Error setting expiration"
       render action: :show_change_expiration
@@ -232,7 +232,7 @@ class UsersController < ApplicationController
 
     if !@user.deleted_at
       flash.now[:notice] = TranslationEngine.translate_text(:user_been_restored)
-      redirect_to provider_path(current_provider)
+      redirect_to users_provider_path(current_provider)
     else
       flash.now[:alert] = TranslationEngine.translate_text(:unknown_error)
       redirect_to :back
