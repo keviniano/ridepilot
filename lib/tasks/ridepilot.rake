@@ -179,6 +179,7 @@ namespace :ridepilot do
       customer_inactive_for_trip_date: "is not active on the trip scheduled date.",
       vehicle_maintenance_compliances_heading: "Preventive Maintenance Logs (PM)",
       provider_form_fields_required_for_run_completion: "Fields required for a run to be considered completed",
+      vehicle_maintenance_compliances_empty: "No compliance events exist for this vehicle",
       cancel_run: "Cancel"
     }
 
