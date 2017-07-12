@@ -1367,7 +1367,7 @@ en:
   # Vehicle Maintenance Compliances
   vehicle_maintenance_compliances_heading: "Preventive Maintenance Logs (PM)"
   vehicle_maintenance_compliances_add_link_title: "Add compliance event"
-  vehicle_maintenance_compliances_empty: "No compliance events exist for this driver"
+  vehicle_maintenance_compliances_empty: "No compliance events exist for this vehicle"
   vehicle_maintenance_compliance_delete_confirm: "Are you sure you want to delete this compliance event?"
   vehicle_maintenance_compliance_form_error:
     one: "1 error prohibited this vehicle compliance from being saved"
