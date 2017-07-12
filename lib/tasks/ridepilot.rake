@@ -271,4 +271,42 @@ namespace :ridepilot do
     Eligibility.where(code: ['age_eligible', 'ada_eligible']).delete_all
     puts 'Finished cleanup'
   end
+
+  desc 'Seed user data'
+  task :seed_user_data => :environment do
+    # File format:
+    # first row is header/column names
+    # data row: First Name, Last Name, email
+    csv_file_path = ENV["CSV_PATH"]
+    if csv_file_path
+      begin
+        row_count = 0
+        CSV.foreach(csv_file_path) do |row|
+          row_count += 1
+
+          # skip header 
+          next if row_count == 1
+
+          first_name = row[0]
+          last_name = row[1]
+          email = row[2]
+
+          if email
+            user = User.find_by_email(email)
+            if user
+              user.first_name = first_name
+              user.last_name = last_name
+              user.save(validate: false)
+            end
+          end          
+        end
+
+        puts 'Seeded'
+      rescue Exception
+        puts "file invalid"
+      end
+    else
+      puts "please specifiy file path following: rake ridepilot:seed_user_data CSV_PATH=xxx"
+    end
+  end
 end
