@@ -23,6 +23,7 @@
       var $modalBody = $this.find(".modal-body");
       $modalBody.find(".panel:first").removeClass("panel-primary");
       $modalBody.find(".form-actions").hide();
+      $("#<%= modal_id %>-submit").removeAttr('disabled');
     })
     
     $("#<%= modal_id %>-submit").on("click", function(){
