@@ -19,7 +19,7 @@
       %label
         %input#show_all_compliances{type: 'checkbox'}
           %b= translate_helper(:show_all_compliances)
-  = render 'vehicle_maintenance_compliances_table', vehicle_maintenance_compliances: @vehicle.vehicle_maintenance_compliances.incomplete.limit(3).default_order
+  = render 'vehicle_maintenance_compliances_table', vehicle_maintenance_compliances: @vehicle.vehicle_maintenance_compliances.order(:due_mileage).incomplete.limit(3).default_order
   - unless @readonly
     .panel-footer
       .clearfix
