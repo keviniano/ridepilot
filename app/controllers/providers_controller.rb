@@ -266,7 +266,7 @@ class ProvidersController < ApplicationController
   
   def remove_vendor_list
     @provider = Provider.find(params[:id])
-    authorize! :edit, @provider
+    authorize! :manage, Vehicle
     
     if @provider.remove_vendor_list
       flash[:notice] = "Vendor List Successfully Removed"

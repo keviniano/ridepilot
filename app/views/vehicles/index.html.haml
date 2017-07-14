@@ -39,7 +39,7 @@
             current_provider.vendor_list.document.url,
             class: "form-control btn btn-link",
             target: :blank
-      -if can? :edit, current_provider
+      -if can? :manage, Vehicle
         .col-sm-1
           = link_to remove_vendor_list_provider_path(current_provider), 
               method: :delete,
