@@ -7,7 +7,7 @@ class VehicleCompliancesController < ApplicationController
   respond_to :html, :js
 
   def index
-    @vehicle_compliances = @vehicle.vehicle_compliances
+    @vehicle_compliances = @vehicle.vehicle_compliances.default_order
     @readonly = params[:readonly] == 'true'
 
     if params[:show_past] != 'true'
