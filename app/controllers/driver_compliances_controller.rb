@@ -7,7 +7,7 @@ class DriverCompliancesController < ApplicationController
   respond_to :html, :js
 
   def index
-    @driver_compliances = @driver.driver_compliances
+    @driver_compliances = @driver.driver_compliances.default_order
     @readonly = params[:readonly] == 'true'
 
     if params[:show_past] != 'true'

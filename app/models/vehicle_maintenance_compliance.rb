@@ -20,7 +20,7 @@ class VehicleMaintenanceCompliance < ActiveRecord::Base
   validates :compliance_mileage, presence: { if: -> { self.compliance_date.present? } }, numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_blank: true }
   
   scope :for_vehicle, -> (vehicle_id) { where(vehicle_id: vehicle_id) }
-  scope :default_order, -> { order("due_date IS NULL, due_date DESC, due_mileage DESC") }
+  scope :default_order, -> { order("due_date IS NOT NULL, due_date, due_mileage") }
   
   # NOTE These 2 scopes rely on data from vehicles and runs
   # RADAR change to pure SQL if this routinely operates on large sets
