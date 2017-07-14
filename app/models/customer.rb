@@ -19,10 +19,10 @@ class Customer < ActiveRecord::Base
   has_many   :donations, :dependent => :destroy, inverse_of: :customer
 
   has_many   :eligibilities, through: :customer_eligibilities
-  has_many   :customer_eligibilities
+  has_many   :customer_eligibilities, dependent: :destroy
 
   has_many   :ada_questions, through: :customer_ada_questions
-  has_many   :customer_ada_questions
+  has_many   :customer_ada_questions, dependent: :destroy
 
   # profile photo
   has_one  :photo, class_name: 'Image', as: :imageable, dependent: :destroy, inverse_of: :imageable
