@@ -9,7 +9,7 @@
     - if can? :manage, @driver
       .pull-right
         = link_to translate_helper("driver_documents_add_link_title"), new_driver_document_path(@driver), class: "btn action-button"
-        = link_to translate_helper("delete_driver_button"), @driver, method: :delete, data: { confirm: translate_helper("delete_driver_confirm") }, class: "btn action-button  btn-danger" 
+        = link_to translate_helper("delete_driver_button"), @driver, method: :delete, data: { confirm: translate_helper("delete_driver_confirm") }, class: "btn action-button  btn-danger"  if can?(:delete, @driver)
         = link_to translate_helper("delete_photo"), delete_photo_driver_path(@driver), data: { confirm: translate_helper("delete_photo_confirm") }, class: "btn action-button btn-danger" if !@driver.new_record? && @driver.photo.present?
         = link_to translate_helper("edit_driver_button"), edit_driver_path(@driver), class: "btn action-button"
         - if @driver.permanent_inactivated?
