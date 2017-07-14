@@ -825,6 +825,7 @@ en:
   switch_providers_to_add_device_pool: "<p>You are currently logged in to %{current_provider}.  To create a device pool for %{provider}, please switch providers by using the dropdown menu at the top of this page.</p>"
   currently_available: "Currently Available?"
   driver_paid: "Paid"
+  driver_profile: "Driver Profile"
   volunteer: "Volunteer"
   delete_driver_confirm: "Are you sure?"
   new_driver_link_text: "Create Driver"
