@@ -189,6 +189,15 @@ class TrackerActionLog < PublicActivity::Activity
     customer.create_activity :customer_comments_updated, owner: user
   end
 
+  def self.provider_active_status_changed(provider, user)
+    return if !provider
+
+    provider.create_activity :active_status_changed, owner: user, params: {
+      active: provider.active?,
+      reason: provider.inactivated_reason  || '(not provided)'
+    }  
+  end
+
   private
 
   def self.compare_time_only(time_1, time_2)

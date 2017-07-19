@@ -148,6 +148,20 @@ module TrackerActionLogHelper
       if customer.present?
         "Customer comments updated."
       end
+    when "provider.active_status_changed"
+      provider = log.trackable
+      params = log.parameters || {}
+
+      if provider.present? && !params.blank?
+        if params[:active]
+          msg = "Reactivated"
+        else
+          msg = "Inactivated.<p style='margin: 0px;'><b>Reason: </b></p><div class='col-sm-12'>#{params[:reason]}</div>"
+        end
+
+        msg.html_safe
+      end
     end
+
   end
 end

@@ -1,4 +1,5 @@
 class Provider < ActiveRecord::Base
+  include PublicActivity::Common
   include Operatable
   has_paper_trail
   
