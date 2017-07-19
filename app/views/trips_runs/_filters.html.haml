@@ -13,7 +13,7 @@
           = f.text_field :run_trip_day, :value => format_time_for_listing_day(@run_trip_day), class: 'date-picker form-control', readonly: true
         .col-sm-12#run_filter{style: 'padding: 5px;'}
           = f.label :run_id, translate_helper(:run)
-          = f.select :run_id, options_from_collection_for_select( Run.for_date(@run_trip_day).order(:name), :id, :name, session[:run_id]), {:include_blank => translate_helper(:all) }, { :class => 'form-control' }
+          = f.select :run_id, options_from_collection_for_select( Run.for_provider(current_provider_id).for_date(@run_trip_day).order(:name), :id, :name, session[:run_id]), {:include_blank => translate_helper(:all) }, { :class => 'form-control' }
         .col-sm-12{style: 'padding: 5px;'}
           = f.label :status_id, translate_helper(:status)
           = f.select :status_id, options_for_select( [[translate_helper(:scheduled), 1], [translate_helper(:unscheduled), 2]], session[:status_id]), {:include_blank => translate_helper(:all) }, { :class => 'form-control' }
