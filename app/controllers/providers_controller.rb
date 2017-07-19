@@ -208,7 +208,7 @@ class ProvidersController < ApplicationController
     @provider = Provider.find(params[:id])
     authorize! :edit, @provider
 
-    @provider.inactivate!
+    @provider.inactivate!(params[:provider][:inactivated_reason])
 
     redirect_to @provider
   end
