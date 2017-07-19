@@ -11,7 +11,7 @@ class TripsRunsController < ApplicationController
       session[:trip_result_id] = [TripResult::UNSCHEDULED_ID, TripResult::SHOW_ALL_ID] + TripResult.pluck(:id).uniq
     end
     
-    @runs = Run.for_provider(current_provider_id).order(:name, :date, :actual_start_time)
+    @runs = Run.for_provider(current_provider_id).order(:name, :date, :scheduled_start_time)
     @runs = @runs.where(id: filters_hash[:run_id]) unless filters_hash[:run_id].blank?
     filter_runs
 
@@ -42,7 +42,7 @@ class TripsRunsController < ApplicationController
 
   # Ajax to update Run filter given a new date
   def runs_by_date
-    @runs = Run.for_date(Utility.new.parse_date(params[:run_trip_day])).order(:name)
+    @runs = Run.for_provider(current_provider_id).for_date(Utility.new.parse_date(params[:run_trip_day])).order(:name)
   end
   
   private
