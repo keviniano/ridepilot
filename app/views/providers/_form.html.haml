@@ -84,6 +84,10 @@
           = f.fields_for :mailing_address, @provider.mailing_address do |address_form|
             = render 'addresses/non_geocoding_form_fields', address_form: address_form, readonly: @readonly
 
+      - if @readonly
+        - logs = TrackerActionLog.for(@provider).order(created_at: :desc) 
+        = render 'shared/action_log_panel', logs: logs if logs.any? 
+
       = render 'addresses/google_place_autocomplete_js'
       :javascript
         $(function() {

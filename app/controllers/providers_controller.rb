@@ -209,6 +209,7 @@ class ProvidersController < ApplicationController
     authorize! :edit, @provider
 
     @provider.inactivate!(params[:provider][:inactivated_reason])
+    TrackerActionLog.provider_active_status_changed @provider, current_user
 
     redirect_to @provider
   end
@@ -218,6 +219,7 @@ class ProvidersController < ApplicationController
     authorize! :edit, @provider
 
     @provider.reactivate!
+    TrackerActionLog.provider_active_status_changed @provider, current_user
 
     redirect_to @provider
   end
