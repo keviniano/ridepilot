@@ -5,7 +5,7 @@
     %h3.panel-title
       = translate_helper(:customer_providers_panel)
   .panel-body
-    - if edit_mode == :show
+    - if edit_mode == :show || !can?(:update_authorized_providers, @customer)
       %ul
         - default_provider_name = @customer.provider.try(:name)
         - @customer.authorized_providers.pluck(:name).sort.each do |provider_name|
@@ -16,7 +16,7 @@
           - else
             %li= provider_name
     - else
-      = f.association :authorized_providers, as: :check_boxes, label: false, :item_wrapper_class => 'col-md-12', :label_html => { :class => 'col-md-12', :wrapper => false }
+      = f.association :authorized_providers, collection: Provider.active.order("lower(name)"), as: :check_boxes, label: false, :item_wrapper_class => 'col-md-12', :label_html => { :class => 'col-md-12', :wrapper => false }
 
 :javascript
   $(document).ready(function() {
