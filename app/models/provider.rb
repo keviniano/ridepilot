@@ -96,13 +96,15 @@ class Provider < ActiveRecord::Base
     !inactivated_date
   end
 
-  def inactivate!
+  def inactivate!(reason)
     self.inactivated_date = Date.today 
+    self.inactivated_reason = reason
     self.save(validate: false)
   end
 
   def reactivate!
     self.inactivated_date = nil 
+    self.inactivated_reason = nil
     self.save(validate: false)
   end
 
