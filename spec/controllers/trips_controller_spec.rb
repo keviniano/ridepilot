@@ -242,17 +242,6 @@ RSpec.describe TripsController, type: :controller do
         expect(assigns(:trip)).to be_a(Trip)
         expect(assigns(:trip)).to be_persisted
       end
-
-      context "when responding to :html request" do
-        #TODO: need a context when creating a outbound trip, should expect a ask_for_creating_return_trip_modal_dialog
-        context "when both params[trip][run_id] and params[run_id] are present and equal" do
-          it "redirects to the requested run" do
-            run = create(:run, :provider => @current_user.current_provider)
-            post :create, {:trip => valid_attributes.merge({:run_id => run.id, :direction => :return}), :run_id => run.id}
-            expect(response).to redirect_to(edit_run_path(run))
-          end
-        end
-      end
     end
 
     context "with invalid params" do
