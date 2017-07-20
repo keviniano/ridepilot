@@ -65,7 +65,6 @@ class Provider < ActiveRecord::Base
     # prevent content-type spoofing:
     content_type: {:content_type => /\Aimage/},
     file_name: {:matches => [/png\Z/, /gif\Z/, /jpe?g\Z/], allow_blank: true}
-  validate                  :fields_required_for_run_completion_includes_allowed_values
   # How many days in advance to create subscription trips/runs
   validates_numericality_of :advance_day_scheduling, :greater_than => 0, :allow_blank => true 
   validate  :valid_phone_number
@@ -81,10 +80,6 @@ class Provider < ActiveRecord::Base
 
   def address_upload_flag
     super || AddressUploadFlag.create(provider: self)
-  end
-  
-  def fields_required_for_run_completion_includes_allowed_values
-    errors.add(:fields_required_for_run_completion, "contains invalid attribute values") if fields_required_for_run_completion.is_a?(Array) && (fields_required_for_run_completion.map(&:to_s) - Run::FIELDS_FOR_COMPLETION.map(&:to_s)).any?
   end
 
   # Phase II J.2
