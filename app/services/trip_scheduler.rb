@@ -67,8 +67,8 @@ class TripScheduler
     run_end_time = @run.scheduled_end_time
 
     if run_start_time && run_end_time
-      (to_utc_time_only(@trip.pickup_time) >= to_utc_time_only(run_start_time)) && 
-      (@trip.appointment_time.nil? || to_utc_time_only(@trip.appointment_time) <= to_utc_time_only(run_end_time))
+      (time_portion(@trip.pickup_time) >= time_portion(run_start_time)) && 
+      (@trip.appointment_time.nil? || time_portion(@trip.appointment_time) <= time_portion(run_end_time))
     else
       true
     end
@@ -92,8 +92,8 @@ class TripScheduler
 
   private
 
-  def to_utc_time_only(time)
-    time.utc.strftime("%H%M%S%N") if time
+  def time_portion(time)
+    (time - time.beginning_of_day) if time
   end
 
 end
