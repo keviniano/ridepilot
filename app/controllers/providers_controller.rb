@@ -200,7 +200,7 @@ class ProvidersController < ApplicationController
   
   def change_fields_required_for_run_completion
     if params[:fields_required_for_run_completion]
-      new_fields = params[:fields_required_for_run_completion].select{ |attr| FIELDS_FOR_COMPLETION.include?(attr.try(:to_sym)) }
+      new_fields = params[:fields_required_for_run_completion].select{ |attr| Run::FIELDS_FOR_COMPLETION.include?(attr.try(:to_sym)) }
 
       @provider.update_attribute :fields_required_for_run_completion, new_fields
     end
