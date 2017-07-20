@@ -138,8 +138,10 @@ class CustomersController < ApplicationController
     end
 
     providers = []
-    params[:customer][:authorized_provider_ids].each do |authorized_provider_id|
-      providers.push(Provider.find(authorized_provider_id)) if authorized_provider_id.present?
+    if params[:customer][:authorized_provider_ids].present?
+      params[:customer][:authorized_provider_ids].each do |authorized_provider_id|
+        providers.push(Provider.find(authorized_provider_id)) if authorized_provider_id.present?
+      end
     end
 
     @customer.authorized_providers = (providers << @customer.provider).uniq
@@ -227,8 +229,10 @@ class CustomersController < ApplicationController
     end
 
     providers = []
-    params[:customer][:authorized_provider_ids].each do |authorized_provider_id|
-      providers.push(Provider.find(authorized_provider_id)) if authorized_provider_id.present?
+    if params[:customer][:authorized_provider_ids].present?
+      params[:customer][:authorized_provider_ids].each do |authorized_provider_id|
+        providers.push(Provider.find(authorized_provider_id)) if authorized_provider_id.present?
+      end
     end
     @customer.authorized_providers = (providers << @customer.provider).uniq
 
