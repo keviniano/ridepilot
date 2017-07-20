@@ -91,9 +91,10 @@ class RunsController < ApplicationController
       end
       params[:run][:trips_attributes] = corrected_trip_attributes
     end
-                
+    
+    @run.assign_attributes run_params            
     respond_to do |format|
-      if @run.is_all_valid?(current_provider_id) && @run.update_attributes(run_params)
+      if @run.is_all_valid?(current_provider_id) && @run.save
         format.html { redirect_to @run, :notice => 'Run was successfully updated.' }
         format.xml  { head :ok }
       else
