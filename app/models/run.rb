@@ -287,7 +287,6 @@ class Run < ActiveRecord::Base
   end
   ###
   
-
   def check_provider_fields_required_for_run_completion
     provider.present? && provider.fields_required_for_run_completion.select{ |attr| self[attr].blank? if FIELDS_FOR_COMPLETION.include?(attr.try(:to_sym)) }.empty?
   end
