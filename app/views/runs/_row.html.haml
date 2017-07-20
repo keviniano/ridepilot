@@ -9,6 +9,6 @@
   %td= run.scheduled_start_time.try(:to_s,:time_only)
   %td= run.scheduled_end_time.try(:to_s,:time_only)
   %td= run.vehicle ? run.vehicle.name : translate_helper('no_vehicle')
-  %td= run.driver  ? run.driver.name : translate_helper('no_driver')
+  %td= run.driver  ? run.driver.user_name : translate_helper('no_driver')
   %td= run.complete ? translate_helper('complete') : translate_helper('incomplete')
   %td= reimbursement_cost_for_trips run.provider, run.trips

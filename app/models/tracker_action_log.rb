@@ -117,7 +117,7 @@ class TrackerActionLog < PublicActivity::Activity
           params["Vehicle"] = [old_vehicle.try(:name), run.vehicle.try(:name)] 
         when 'driver_id'
           old_driver = Driver.find_by_id change[0]
-          params["Driver"] = [old_driver.try(:name), run.driver.try(:name)]
+          params["Driver"] = [old_driver.try(:user_name), run.driver.try(:user_name)]
         when 'start_date'
           params["Start Date"] = [change[0].try(:strftime, "%B %d, %Y"), run.start_date.try(:strftime, "%B %d, %Y")]
         when 'end_date'

@@ -22,7 +22,7 @@
         %td
           = run.vehicle ? run.vehicle.name : translate_helper('no_vehicle')
         %td
-          = run.driver  ? run.driver.name : translate_helper('no_driver')
+          = run.driver  ? run.driver.user_name : translate_helper('no_driver')
         %td
           = run.schedule.to_s rescue nil
     

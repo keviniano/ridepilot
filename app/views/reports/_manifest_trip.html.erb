@@ -46,7 +46,7 @@
           <p>
             <%= translate_helper("later_trips") %> at 
             <%= trip.pickup_time.strftime('%l:%M %P') %> with 
-            <%= trip.run ? (trip.run.driver.try(:name) || translate_helper("no_driver")) : "Cab" %>
+            <%= trip.run ? (trip.run.driver.try(:user_name) || translate_helper("no_driver")) : "Cab" %>
           </p>
         <% end %>
       </td>
