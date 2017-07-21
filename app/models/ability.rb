@@ -49,7 +49,7 @@ class Ability
 
     can action,  Address, :provider_id => provider.id
     can action,  Customer, :provider_id => provider.id
-    cannot :update_authorized_providers, Customer # only system admin can
+    cannot :update_authorized_providers, Customer unless can_manage_all# only system admin can
     can action,  DevicePool, :provider_id => provider.id if provider.dispatch?
     can action,  DevicePoolDriver, :provider_id => provider.id
     can :manage,  DevicePoolDriver, :driver_id => user.driver.id if provider.active? && user.driver.present?
