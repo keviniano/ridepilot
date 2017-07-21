@@ -11,7 +11,7 @@ class CustomerAdaQuestion < ActiveRecord::Base
 
   def as_json
     {
-      description: ada_question.name,
+      description: ada_question.try(:name),
       eligible: answer
     }
   end
