@@ -138,8 +138,8 @@ class VehiclesController < ApplicationController
     @vehicle = Vehicle.find(params[:id])
     authorize! :edit, @vehicle
 
-    prev_active_text = @driver.active_status_text
-    prev_reason = @driver.active_status_changed_reason
+    prev_active_text = @vehicle.active_status_text
+    prev_reason = @vehicle.active_status_changed_reason
 
     @vehicle.reactivate!
     TrackerActionLog.vehicle_active_status_changed(@vehicle, current_user, prev_active_text, prev_reason)
