@@ -24,6 +24,7 @@
       - run_id = run.id
       - itins = get_itineraries(run)
       - itins.each do |itin|
+        - trip = itin[:trip]
         %tr.manifest-row{data: {trip_id: itin[:trip_id], id: itin[:id], leg_flag: itin[:leg_flag]}}
           %td
             %input.trip-selected{type: "checkbox"}
@@ -38,7 +39,9 @@
           %td= itin[:comments]
           %td= itin[:result]
           %td= simple_format(itin[:phone].join('<br>')) unless itin[:phone].empty?
-          %td= itin[:driver_notified]
+          %td
+            = form_for trip, url: trip_notify_driver_path(trip), remote: true, method: :patch, html: { class: 'change-trip-driver-notified' } do |f|
+              = f.check_box :driver_notified, :onclick => "$(this).parents('form').submit()"
           %td
             = link_to trip_path(itin[:trip_id], from_dispatch: true, run_id: run_id), style: 'padding-right: 5px;', title: "View details" do 
               %i.fa.fa-external-link

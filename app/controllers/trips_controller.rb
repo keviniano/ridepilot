@@ -161,7 +161,25 @@ class TripsController < ApplicationController
 
     if can? :edit, @trip
       @trip.customer_informed = params[:trip][:customer_informed]
-      if !@trip.save
+      if !@trip.save(validate: false)
+        @message = @trip.errors.full_messages.join(';')
+      end
+    else
+      @message = TranslationEngine.translate_text(:operation_not_authorized)
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def notify_driver
+    @trip = Trip.find(params[:trip_id])
+    @prev_driver_notified = @trip.driver_notified ? true: false
+
+    if can? :edit, @trip
+      @trip.driver_notified = params[:trip][:driver_notified]
+      if !@trip.save(validate: false)
         @message = @trip.errors.full_messages.join(';')
       end
     else

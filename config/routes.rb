@@ -67,6 +67,7 @@ Rails.application.routes.draw do
       post :send_to_cab
       post :turndown
       patch :callback
+      patch :notify_driver
       patch :change_result
 
       member do

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170725191423) do
+ActiveRecord::Schema.define(version: 20170726184037) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -921,6 +921,7 @@ ActiveRecord::Schema.define(version: 20170725191423) do
     t.string   "pickup_address_notes"
     t.string   "dropoff_address_notes"
     t.boolean  "is_stand_by"
+    t.boolean  "driver_notified"
   end
 
   add_index "trips", ["called_back_by_id"], :name => "index_trips_on_called_back_by_id"

@@ -1,0 +1,5 @@
+- if !@message.blank?
+  show_alert_dialog("#{@message}");
+  $('tr[data-trip-id="#{@trip.id}"] .change-trip-driver-notified input[type=checkbox]').val(#{@prev_driver_notified});
+- else
+  $('tr[data-trip-id="#{@trip.id}"] .change-trip-driver-notified input[type=checkbox]').prop("checked", #{@trip.driver_notified});

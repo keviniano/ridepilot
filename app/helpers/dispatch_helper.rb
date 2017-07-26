@@ -7,6 +7,7 @@ module DispatchHelper
 
     run.trips.each do |trip|
       trip_data = {
+        trip: trip,
         trip_id: trip.id,
         is_recurring: trip.repeating_trip_id.present?,
         customer: trip.customer.try(:name),
