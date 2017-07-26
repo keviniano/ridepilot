@@ -4,7 +4,13 @@ class LookupTable < ActiveRecord::Base
   has_paper_trail
 
   def values
-    model.all.order(value_column_name)
+    return [] unless model.present?
+
+    if model.column_names.include? "provider_id"
+      model.where(provider_id: nil).order(value_column_name)
+    else
+      model.all.order(value_column_name)
+    end
   end
 
   def add_value(data)
