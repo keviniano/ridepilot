@@ -53,6 +53,8 @@ class Trip < ActiveRecord::Base
   scope :repeating_based_on, ->(scheduler) { where(repeating_trip_id: scheduler.try(:id)) }
   scope :outbound,           ->() { where(direction: 'outbound') }
   scope :return,             ->() { where(direction: 'return') }
+  scope :driver_notified,    -> { where(driver_notified: true) }
+  scope :driver_not_notified,-> { where("driver_notified is NULL or driver_notified = ?", false) }
 
   scope :standby,            -> { where(is_stand_by: true) }
   scope :scheduled,          -> { where("cab = ? or run_id is not NULL", true) }
@@ -300,13 +302,18 @@ class Trip < ActiveRecord::Base
     if leg.try(:to_s) == '2'
       :return
     else
-      :outbound
+      :outbound 
     end
   end
 
-  # Move past scheduled trips in Standby queue to Unmet Need
+  # Mark past scheduled trips as driver_notified
+  def self.mark_past_scheduled_trips_as_driver_notified!
+    self.prior_to_today.scheduled.not_for_cab.driver_not_notified.update_all(driver_notified: true)
+  end
+
+  # Move past trips in Standby queue to Unmet Need
   def self.move_prior_standby_to_unmet!
-    Trip.prior_to_today.standby.move_to_unmet!
+    self.prior_to_today.standby.move_to_unmet!
   end
 
   def self.move_to_unmet!

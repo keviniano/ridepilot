@@ -18,5 +18,8 @@ namespace :scheduler do
     # Standby -> Unmet Need
     Trip.move_prior_standby_to_unmet!
 
+    # Mark past scheduled trips as driver_notified
+    Trip.mark_past_scheduled_trips_as_driver_notified!
+
   end
 end
