@@ -3,19 +3,62 @@
     %h3.panel-title
       = translate_helper(:number_of_passengers_tracking)
   .panel-body{style: 'padding: 5px;'}
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :number_of_senior_passengers_served, translate_helper("number_of_senior_passengers_tracking_label")
-      .col-sm-9
-        = f.number_field :number_of_senior_passengers_served, min: 0, class: "form-control"
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :number_of_disabled_passengers_served, translate_helper("number_of_disabled_passengers_tracking_label")
-      .col-sm-9
-        = f.number_field :number_of_disabled_passengers_served, min: 0, class: "form-control"
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :number_of_low_income_passengers_served, translate_helper("number_of_low_income_passengers_tracking_label")
-      .col-sm-9
-        = f.number_field :number_of_low_income_passengers_served, min: 0, class: "form-control"
+    - if @customer.try(:id).present?
+      .form-group.col-sm-12.passengers.group_size
+        - if @customer.group
+          .col-sm-3
+            = f.label :group_size, translate_helper("group_size")
+          .col-sm-9
+            = f.text_field :group_size, class: 'form-control col-sm-6 col-md-3'
+        - else
+          .col-sm-3
+            = f.label :guest_count, translate_helper("passengers")
+          .col-sm-9{style: 'padding: 0px;'}
+            .col-sm-6.col-md-3
+              %span.nobreak
+                = f.text_field :guest_count, class: 'form-control'
+                &nbsp;
+                =translate_helper("guests")
+                &nbsp;
+            .col-sm-6.col-md-3
+              %span.nobreak
+                = f.text_field :attendant_count, class: 'form-control'
+                &nbsp;
+                = translate_helper("attendants")
+    - else
+      .form-group.col-sm-12.passengers.group_size
+        = hidden_field_tag "trip_group"
+        .col-sm-3
+          = f.label :group_size, translate_helper("group_size")
+        .col-sm-9
+          = f.text_field :group_size, class: 'form-control'
+      .form-group.col-sm-12.passengers
+        .col-sm-3
+          = f.label :guest_count, translate_helper("passengers")
+        .col-sm-9{style: 'padding: 0px;'}
+          .col-sm-6.col-md-3
+            %span.nobreak
+              = f.text_field :guest_count, class: 'form-control'
+              &nbsp;Guests&nbsp;
+          .col-sm-6.col-md-3
+            %span.nobreak
+              = f.text_field :attendant_count, class: 'form-control'
+              &nbsp;
+              = translate_helper("attendants")
+    - unless @is_repeating_trip          
+      .form-group.col-sm-12
+        .col-sm-3
+          = f.label :number_of_senior_passengers_served, translate_helper("number_of_senior_passengers_tracking_label")
+        .col-sm-9
+          = f.number_field :number_of_senior_passengers_served, min: 0, class: "form-control"
+      .form-group.col-sm-12
+        .col-sm-3
+          = f.label :number_of_disabled_passengers_served, translate_helper("number_of_disabled_passengers_tracking_label")
+        .col-sm-9
+          = f.number_field :number_of_disabled_passengers_served, min: 0, class: "form-control"
+      .form-group.col-sm-12
+        .col-sm-3
+          = f.label :number_of_low_income_passengers_served, translate_helper("number_of_low_income_passengers_tracking_label")
+        .col-sm-9
+          = f.number_field :number_of_low_income_passengers_served, min: 0, class: "form-control"
       

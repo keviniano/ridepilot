@@ -1,7 +1,7 @@
-.panel.panel-primary#trip_parameters_panel
+.panel.panel-primary#useful_info_panel
   .panel-heading
     %h3.panel-title
-      = translate_helper(:trip_parameters)
+      = translate_helper(:trip_useful_info_panel)
   .panel-body{style: 'padding: 5px;'}
     - if !@is_repeating_trip && edit_mode == :show && @trip.is_linked?
       .form-group.col-sm-12
@@ -21,62 +21,12 @@
         .col-sm-9
           = @trip.provider.try(:name)
 
-    -# PICKUP AND APPOINTMENT TIME DATE AND TIME PICKERS
-    - unless @is_repeating_trip
-      .form-group.col-sm-12
-        .col-sm-3
-          = f.label :date, translate_helper("date")
-        .col-sm-9
-          .input-group.datepicker-icon
-            = f.text_field :date,
-              :size => 10,
-              value: format_time_for_listing_day(@trip.date),
-              class: 'datepicker form-control',
-              readonly: true
-            .input-group-btn
-              %button.btn.btn-default{:type => "button"}
-                = image_tag "calendar-clock.png"
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :pickup_time, translate_helper("pickup_time")
-      .col-sm-9
-        = render 'shared/time_inputs', field_name: :pickup_time, time: @trip.pickup_time, f: f
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :appointment_time, translate_helper("appointment_time")
-      .col-sm-9
-        = render 'shared/time_inputs', field_name: :appointment_time, time: @trip.appointment_time, f: f
-    - if edit_mode != :show  # JavaScript for generating date and time pickers
-      = render "shared/date_time_picker_javascript"
-      :javascript
-        $(document).ready(function() {
-          makeDatePickers();
-          makeTimePickers();
-        });
-
     - unless @is_repeating_trip
       .form-group.col-sm-12
         .col-sm-3
           = f.label :direction, translate_helper("trip_direction")
         .col-sm-9
           = @trip.is_return? ? translate_helper("return_trip") : translate_helper("outbound_trip")
-
-    .form-group.col-sm-12.place-picker-div
-      .col-sm-3
-        = f.label :pickup_address_label, translate_helper("pickup_address")
-      .col-sm-9
-        = text_field_tag "pickup_address", @trip.pickup_address.try(:one_line_text) || params[:pickup_address], class: "nearly-full form-control trip-address-picker"
-        - if edit_mode != :show
-          = f.hidden_field :pickup_address_id, class: 'trip_pickup_address_id'
-          = hidden_field_tag 'trip_pickup_google_address', params[:trip_pickup_google_address], class: 'trip_pickup_google_address'
-
-    .form-group.col-sm-12
-      .col-sm-3
-        %label{for:"pickup_address_notes"}
-          = translate_helper("pickup_address_notes")
-      .col-sm-9
-        - @trip.pickup_address_notes ||= @trip.pickup_address.try(:notes)
-        = f.text_area :pickup_address_notes, class: 'full form-control', id: 'pickup_address_notes', maxlength: 30
 
     .form-group.col-sm-12
       = f.fields_for :customer do |c|
@@ -91,23 +41,6 @@
       - if @trip.customer.try(:id).blank?
         %input#trip_customer_attributes_id{type:"hidden", name:"trip[customer_attributes][id]"}
 
-    .form-group.col-sm-12.place-picker-div
-      .col-sm-3
-        = f.label :dropoff_address_label, translate_helper("dropoff_address")
-      .col-sm-9
-        = text_field_tag "dropoff_address", @trip.dropoff_address.try(:one_line_text) || params[:dropoff_address], class: "nearly-full form-control trip-address-picker"
-        - if edit_mode != :show
-          = f.hidden_field :dropoff_address_id, class: 'trip_dropoff_address_id'
-          = hidden_field_tag 'trip_dropoff_google_address', params[:trip_dropoff_google_address], class: 'trip_dropoff_google_address'
-
-    .form-group.col-sm-12
-      .col-sm-3
-        %label{for:"dropoff_address_notes"}
-          = translate_helper("dropoff_address_notes")
-      .col-sm-9
-        - @trip.dropoff_address_notes ||= @trip.dropoff_address.try(:notes)
-        = f.text_area :dropoff_address_notes, class: 'full form-control', id: 'dropoff_address_notes', maxlength: 30
-
     .form-group.col-sm-12
       .col-sm-3
         %label{for:"dropoff_phone"}
@@ -115,75 +48,9 @@
       .col-sm-9
         %input.full.form-control#dropoff_phone{type:"text", size:"30", name:"dropoff_phone", value:"#{format_phone_number(@trip.dropoff_address.try(:phone_number))}", readonly:"readonly"}
 
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :trip_purpose, translate_helper("trip_purpose")
-      .col-sm-9
-        = f.select :trip_purpose_id, @trip_purposes.map { |tp| [tp.name, tp.id] }, {:include_blank => true}, {class: 'form-control'}
-
-
-    - if @customer.try(:id).present?
-      .form-group.col-sm-12.passengers.group_size
-        - if @customer.group
-          .col-sm-3
-            = f.label :group_size, translate_helper("group_size")
-          .col-sm-9
-            = f.text_field :group_size, class: 'form-control col-sm-6 col-md-3'
-        - else
-          .col-sm-3
-            = f.label :guest_count, translate_helper("passengers")
-          .col-sm-9{style: 'padding: 0px;'}
-            .col-sm-6.col-md-3
-              %span.nobreak
-                = f.text_field :guest_count, class: 'form-control'
-                &nbsp;
-                =translate_helper("guests")
-                &nbsp;
-            .col-sm-6.col-md-3
-              %span.nobreak
-                = f.text_field :attendant_count, class: 'form-control'
-                &nbsp;
-                = translate_helper("attendants")
-    - else
-      .form-group.col-sm-12.passengers.group_size
-        = hidden_field_tag "trip_group"
-        .col-sm-3
-          = f.label :group_size, translate_helper("group_size")
-        .col-sm-9
-          = f.text_field :group_size, class: 'form-control'
-      .form-group.col-sm-12.passengers
-        .col-sm-3
-          = f.label :guest_count, translate_helper("passengers")
-        .col-sm-9{style: 'padding: 0px;'}
-          .col-sm-6.col-md-3
-            %span.nobreak
-              = f.text_field :guest_count, class: 'form-control'
-              &nbsp;Guests&nbsp;
-          .col-sm-6.col-md-3
-            %span.nobreak
-              = f.text_field :attendant_count, class: 'form-control'
-              &nbsp;
-              = translate_helper("attendants")
     - if !@is_repeating_trip && edit_mode == :show
       .form-group.col-sm-12
         .col-sm-3
           = f.label :drive_distance, translate_helper("drive_distance")
         .col-sm-9
           = @trip.drive_distance ? pluralize(@trip.drive_distance.round(3), 'mile') : ''
-
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :notes, translate_helper("trip_notes")
-      .col-sm-9
-        = f.text_area :notes, class: 'form-control'
-
-
-:javascript
-  $(function() {
-    // initialize place picker
-    var geocoder_bounds = #{Utility.new.get_provider_bounds(current_provider).try(:to_json) || {}};
-    init_place_picker(
-      ".trip-address-picker",
-      geocoder_bounds
-    );
-  });

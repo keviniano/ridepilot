@@ -1,0 +1,38 @@
+.panel.panel-primary#trip_parameters_panel
+  .panel-heading
+    %h3.panel-title
+      = translate_helper(:trip_notes_panel_title)
+  .panel-body{style: 'padding: 5px;'}
+    .form-group.col-sm-12
+      %label.col-sm-3{for:"customer_private_notes"}
+        = translate_helper("customer_private_notes")
+      .col-sm-9
+        %textarea.form-control#customer_private_notes{name:"customer_private_notes", readonly:"readonly"}
+          = @customer.try :private_notes
+    .form-group.col-sm-12{style: 'display: none;', disabled: 'disabled'}
+      %label.col-sm-3{for:"customer_flag_message"}
+        = translate_helper("customer_flag_message")
+      .col-sm-9
+        %textarea.form-control#customer_flag_message{name:"customer_flag_message", readonly:"readonly"}
+    .form-group.col-sm-12
+      .col-sm-3
+        %label{for:"pickup_address_notes"}
+          = translate_helper("pickup_address_notes")
+      .col-sm-9
+        - @trip.pickup_address_notes ||= @trip.pickup_address.try(:notes)
+        = f.text_area :pickup_address_notes, class: 'full form-control', id: 'pickup_address_notes', maxlength: 30
+
+    .form-group.col-sm-12
+      .col-sm-3
+        %label{for:"dropoff_address_notes"}
+          = translate_helper("dropoff_address_notes")
+      .col-sm-9
+        - @trip.dropoff_address_notes ||= @trip.dropoff_address.try(:notes)
+        = f.text_area :dropoff_address_notes, class: 'full form-control', id: 'dropoff_address_notes', maxlength: 30
+
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :notes, translate_helper("trip_notes")
+      .col-sm-9
+        = f.text_area :notes, class: 'form-control'
+

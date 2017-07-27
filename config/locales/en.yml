@@ -1230,6 +1230,9 @@ en:
   number_of_senior_passengers_tracking_label: "Senior"
   number_of_disabled_passengers_tracking_label: "Disabled"
   number_of_low_income_passengers_tracking_label: "Low Income"
+  required_trip_details_panel: "Trip Essentials"
+  trip_notes_panel_title: "Notes"
+  trip_useful_info_panel: "Useful Info"
   
   # Double booked trips
   double_booked_modal_title: 'Warning: Potential Duplication of Trips'

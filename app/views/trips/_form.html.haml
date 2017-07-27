@@ -27,20 +27,33 @@
     = f.hidden_field :direction
     = hidden_field_tag "trip[outbound_trip_id]", @trip.outbound_trip.try(:id)
 
-  .col-sm-12.col-md-6
-    = render 'trips/customer_panel', f: f, edit_mode: edit_mode
-    = render 'trips/trip_parameters_panel', f: f, edit_mode: edit_mode
-    = render 'trips/tracking_panel', f: f, edit_mode: edit_mode unless @is_repeating_trip
-    = render 'trips/eligibility_accommodation_panel', f: f, edit_mode: edit_mode
-
-  .col-sm-12.col-md-6
-    = render 'repeating_trips/repetition_panel', f: f if @is_repeating_trip
-    = render 'trips/other_panel', f: f
-    - if !@is_repeating_trip && edit_mode != :new
-      = render 'trips/assignment_panel', f: f
-    - if edit_mode == :show
-      - logs = TrackerActionLog.for(@trip).order(created_at: :desc)
-      = render 'shared/action_log_panel', logs: logs if logs.any?
+  - if @is_repeating_trip 
+    .col-sm-12.col-md-6
+      = render 'trips/required_trip_details_panel', f: f, edit_mode: edit_mode
+      = render 'trips/notes_panel', f: f, edit_mode: edit_mode
+      = render 'trips/trip_parameters_panel', f: f, edit_mode: edit_mode
+    .col-sm-12.col-md-6
+      = render 'repeating_trips/repetition_panel', f: f
+      = render 'trips/tracking_panel', f: f, edit_mode: edit_mode 
+      = render 'trips/eligibility_accommodation_panel', f: f, edit_mode: edit_mode
+      = render 'trips/other_panel', f: f
+      - if edit_mode == :show
+        - logs = TrackerActionLog.for(@trip).order(created_at: :desc)
+        - if logs.any?
+          = render 'shared/action_log_panel', logs: logs
+  - else
+    .col-sm-12.col-md-6
+      = render 'trips/required_trip_details_panel', f: f, edit_mode: edit_mode
+      = render 'trips/notes_panel', f: f, edit_mode: edit_mode
+      = render 'trips/trip_parameters_panel', f: f, edit_mode: edit_mode
+    .col-sm-12.col-md-6
+      = render 'trips/tracking_panel', f: f, edit_mode: edit_mode 
+      = render 'trips/eligibility_accommodation_panel', f: f, edit_mode: edit_mode
+      = render 'trips/other_panel', f: f
+      - if edit_mode == :show
+        - logs = TrackerActionLog.for(@trip).order(created_at: :desc)
+        - if logs.any?
+          = render 'shared/action_log_panel', logs: logs
 
 - if edit_mode != :show
   = render 'trips/customer_trip_summary_dialog'

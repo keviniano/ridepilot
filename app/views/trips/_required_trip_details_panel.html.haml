@@ -1,0 +1,79 @@
+.panel.panel-primary#required_fields_panel
+  .panel-heading
+    %h3.panel-title
+      = translate_helper(:required_trip_details_panel)
+  .panel-body{style: 'padding: 5px;'}
+    .form-group.col-sm-12
+      %label.col-sm-3
+        = translate_helper("customer")
+      .col-sm-9{style: 'white-space: nowrap;'}
+        - if @is_repeating_trip
+          = render "trips/customer", :f => f, :trip => @trip, edit_mode: edit_mode, prefix: 'repeating_'
+        - else
+          = render "trips/customer", :f => f, :trip => @trip, edit_mode: edit_mode, prefix: ''
+        
+    -# PICKUP AND APPOINTMENT TIME DATE AND TIME PICKERS
+    - unless @is_repeating_trip
+      .form-group.col-sm-12
+        .col-sm-3
+          = f.label :date, translate_helper("date")
+        .col-sm-9
+          .input-group.datepicker-icon
+            = f.text_field :date,
+              :size => 10,
+              value: format_time_for_listing_day(@trip.date),
+              class: 'datepicker form-control',
+              readonly: true
+            .input-group-btn
+              %button.btn.btn-default{:type => "button"}
+                = image_tag "calendar-clock.png"
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :pickup_time, translate_helper("pickup_time")
+      .col-sm-9
+        = render 'shared/time_inputs', field_name: :pickup_time, time: @trip.pickup_time, f: f
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :appointment_time, translate_helper("appointment_time")
+      .col-sm-9
+        = render 'shared/time_inputs', field_name: :appointment_time, time: @trip.appointment_time, f: f
+    - if edit_mode != :show  # JavaScript for generating date and time pickers
+      = render "shared/date_time_picker_javascript"
+      :javascript
+        $(document).ready(function() {
+          makeDatePickers();
+        });
+
+    .form-group.col-sm-12.place-picker-div
+      .col-sm-3
+        = f.label :pickup_address_label, translate_helper("pickup_address")
+      .col-sm-9
+        = text_field_tag "pickup_address", @trip.pickup_address.try(:one_line_text) || params[:pickup_address], class: "nearly-full form-control trip-address-picker"
+        - if edit_mode != :show
+          = f.hidden_field :pickup_address_id, class: 'trip_pickup_address_id'
+          = hidden_field_tag 'trip_pickup_google_address', params[:trip_pickup_google_address], class: 'trip_pickup_google_address'
+
+    .form-group.col-sm-12.place-picker-div
+      .col-sm-3
+        = f.label :dropoff_address_label, translate_helper("dropoff_address")
+      .col-sm-9
+        = text_field_tag "dropoff_address", @trip.dropoff_address.try(:one_line_text) || params[:dropoff_address], class: "nearly-full form-control trip-address-picker"
+        - if edit_mode != :show
+          = f.hidden_field :dropoff_address_id, class: 'trip_dropoff_address_id'
+          = hidden_field_tag 'trip_dropoff_google_address', params[:trip_dropoff_google_address], class: 'trip_dropoff_google_address'
+
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :trip_purpose, translate_helper("trip_purpose")
+      .col-sm-9
+        = f.select :trip_purpose_id, @trip_purposes.map { |tp| [tp.name, tp.id] }, {:include_blank => true}, {class: 'form-control'}
+
+:javascript
+  $(function() {
+    // initialize place picker
+    var geocoder_bounds = #{Utility.new.get_provider_bounds(current_provider).try(:to_json) || {}};
+    init_place_picker(
+      ".trip-address-picker",
+      geocoder_bounds
+    );
+  });
