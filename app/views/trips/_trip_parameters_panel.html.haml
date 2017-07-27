@@ -27,21 +27,25 @@
         .col-sm-3
           = f.label :date, translate_helper("date")
         .col-sm-9
-          = f.text_field :date,
-            :size => 10,
-            value: format_time_for_listing_day(@trip.date),
-            class: 'date-picker form-control',
-            readonly: true
+          .input-group.datepicker-icon
+            = f.text_field :date,
+              :size => 10,
+              value: format_time_for_listing_day(@trip.date),
+              class: 'datepicker form-control',
+              readonly: true
+            .input-group-btn
+              %button.btn.btn-default{:type => "button"}
+                = image_tag "calendar-clock.png"
     .form-group.col-sm-12
       .col-sm-3
         = f.label :pickup_time, translate_helper("pickup_time")
       .col-sm-9
-        = render 'time_field', field_name: :pickup_time, time: @trip.pickup_time, f: f
+        = render 'shared/time_inputs', field_name: :pickup_time, time: @trip.pickup_time, f: f
     .form-group.col-sm-12
       .col-sm-3
         = f.label :appointment_time, translate_helper("appointment_time")
       .col-sm-9
-        = render 'time_field', field_name: :appointment_time, time: @trip.appointment_time, f: f
+        = render 'shared/time_inputs', field_name: :appointment_time, time: @trip.appointment_time, f: f
     - if edit_mode != :show  # JavaScript for generating date and time pickers
       = render "shared/date_time_picker_javascript"
       :javascript

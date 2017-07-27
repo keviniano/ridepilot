@@ -10,28 +10,32 @@
         .col-sm-3
           = f.label :date, translate_helper("date") 
         .col-sm-9
-          = f.text_field :date, :size => 10, :value => format_time_for_listing_day(@run.date), class: 'date-picker form-control', readonly: true
+          .input-group.datepicker-icon
+            = f.text_field :date, :size => 10, :value => format_time_for_listing_day(@run.date), class: 'form-control datepicker', readonly: true
+            .input-group-btn
+              %button.btn.btn-default{:type => "button"}
+                = image_tag "calendar-clock.png"
     .form-group.col-sm-12
       .col-sm-3
         = f.label :scheduled_start_time, translate_helper("scheduled_start_time")
       .col-sm-9
-        = f.text_field :scheduled_start_time, :size => 8, :value => @run.scheduled_start_time.try(:to_s, :time_only), class: 'time-picker form-control', readonly: true
+        = render 'shared/time_inputs', field_name: :scheduled_start_time, time: @run.scheduled_start_time, f: f
     .form-group.col-sm-12
       .col-sm-3
         = f.label :scheduled_end_time, translate_helper("scheduled_end_time")
       .col-sm-9
-        = f.text_field :scheduled_end_time, :size => 8, :value => @run.scheduled_end_time.try(:to_s, :time_only), class: 'time-picker form-control', readonly: true
+        = render 'shared/time_inputs', field_name: :scheduled_end_time, time: @run.scheduled_end_time, f: f
     - unless @is_repeating_run
       .form-group.col-sm-12
         .col-sm-3
           = f.label :actual_start_time, translate_helper("actual_start_time")
         .col-sm-9
-          = f.text_field :actual_start_time, :size => 8, :value => @run.actual_start_time.try(:to_s, :time_only), class: 'time-picker form-control', readonly: true
+          = render 'shared/time_inputs', field_name: :actual_start_time, time: @run.actual_start_time, f: f
       .form-group.col-sm-12
         .col-sm-3
           = f.label :actual_end_time, translate_helper("actual_end_time")
         .col-sm-9
-          = f.text_field :actual_end_time, :size => 8, :value => @run.actual_end_time.try(:to_s, :time_only), class: 'time-picker form-control', readonly: true
+          = render 'shared/time_inputs', field_name: :actual_end_time, time: @run.actual_end_time, f: f
 
 - if edit_mode != :show 
   = render "shared/date_time_picker_javascript"

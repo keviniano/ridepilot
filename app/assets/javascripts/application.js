@@ -191,7 +191,7 @@ $(function() {
   $('#new_monthly #monthly_start_date, #new_monthly #monthly_end_date, input.datepicker').datepicker({
 		dateFormat: 'D M dd, yy',
     showButtonPanel: true
-  }).css('z-index', 999);
+  }).css('z-index', 9999);
 
   // Support for bootstrap style input groups for datepickers
   $('body').on('click', '.datepicker-icon .btn', function(e) {

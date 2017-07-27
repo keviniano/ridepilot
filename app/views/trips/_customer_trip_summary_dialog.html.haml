@@ -36,9 +36,17 @@
                 = translate_helper('date_range_filter')
             .col-sm-12.date_range
               .col-sm-6{style: 'padding: 0px;'}
-                = text_field_tag :start_date, format_time_for_listing_day(Date.today), class: 'date-picker form-control', readonly: true
+                .input-group.datepicker-icon
+                  = text_field_tag :start_date, format_time_for_listing_day(Date.today), class: 'datepicker form-control', readonly: true
+                  .input-group-btn
+                    %button.btn.btn-default{:type => "button"}
+                      = image_tag "calendar-clock.png"
               .col-sm-6{style: 'padding: 0px 5px;'}
-                = text_field_tag :end_date, nil, class: 'date-picker form-control', readonly: true
+                .input-group.datepicker-icon
+                  = text_field_tag :end_date, nil, class: 'datepicker form-control', readonly: true
+                  .input-group-btn
+                    %button.btn.btn-default{:type => "button"}
+                      = image_tag "calendar-clock.png"
            
           .row.col-sm-12{style: 'padding-top: 20px;'}
             %div

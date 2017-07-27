@@ -10,10 +10,18 @@
         = button_tag  translate_helper(:reset), id: 'resetFilters', class: 'btn action-button', role: 'button'
       .col-sm-12{style: 'padding: 5px;'}
         = f.label :start, translate_helper("from_date")
-        = f.text_field :start, :value => format_time_for_listing_day(@start_pickup_date), class: 'date-picker form-control', readonly: true
+        .input-group.datepicker-icon
+          = f.text_field :start, :value => format_time_for_listing_day(@start_pickup_date), class: 'form-control datepicker', readonly: true
+          .input-group-btn
+            %button.btn.btn-default{:type => "button"}
+              = image_tag "calendar-clock.png"
       .col-sm-12{style: 'padding: 5px;'}
         = f.label :end, translate_helper("to_date")
-        = f.text_field :end, :value => format_time_for_listing_day(@end_pickup_date), class: 'date-picker form-control', readonly: true
+        .input-group.datepicker-icon
+          = f.text_field :end, :value => format_time_for_listing_day(@end_pickup_date), class: 'datepicker form-control', readonly: true
+          .input-group-btn
+            %button.btn.btn-default{:type => "button"}
+              = image_tag "calendar-clock.png"
       .col-sm-12{style: 'padding: 5px;'}
         = render partial: 'trips/weekday_select'
       .col-sm-12{style: 'padding: 5px;'}

@@ -15,7 +15,11 @@
             .col-sm-3
               = f.label :date, translate_helper("travel_training_date")
             .col-sm-9  
-              = f.text_field :date, :value => format_time_for_listing_day(Time.current), class: 'date-picker form-control', required: true,readonly: true
+              .input-group.datepicker-icon
+                = f.text_field :date, :value => format_time_for_listing_day(Time.current), class: 'datepicker form-control', required: true, readonly: true
+                .input-group-btn
+                  %button.btn.btn-default{:type => "button"}
+                    = image_tag "calendar-clock.png"
           .form-group.col-sm-12
             .col-sm-3
               = f.label :comment, translate_helper(:travel_training_comment) 

@@ -32,12 +32,20 @@
                   .col-sm-3
                     %span= translate_helper(:inactivated_start_date)
                   .col-sm-9
-                    = f.text_field :inactivated_start_date, class: 'date-picker form-control', readonly: true, id: 'resource_inactivated_start_date'
+                    .input-group.datepicker-icon
+                      = f.text_field :inactivated_start_date, class: 'datepicker form-control', readonly: true, id: 'resource_inactivated_start_date'
+                      .input-group-btn
+                        %button.btn.btn-default{:type => "button"}
+                          = image_tag "calendar-clock.png"
                 .form-group.col-sm-12
                   .col-sm-3
                     %span= translate_helper(:inactivated_end_date)
                   .col-sm-9
-                    = f.text_field :inactivated_end_date, class: 'date-picker form-control', readonly: true, id: 'resource_inactivated_end_date'
+                    .input-group.datepicker-icon
+                      = f.text_field :inactivated_end_date, class: 'datepicker form-control', readonly: true, id: 'resource_inactivated_end_date'
+                      .input-group-btn
+                        %button.btn.btn-default{:type => "button"}
+                          = image_tag "calendar-clock.png"
             .form-group.col-sm-12{style: 'padding-left: 0px;'}
               .col-sm-3
                 = f.label :active_status_changed_reason, translate_helper(:active_status_change_reason) 
@@ -51,7 +59,7 @@
     makeDatePickers();
 
     if($('#permanent_inactive').is(':checked')) {
-      $( ".date-picker" ).datepicker( "disable" );
+      $( ".datepicker" ).datepicker( "disable" );
     }
 
     $('#permanent_inactive').change(function() {
@@ -59,17 +67,17 @@
       $('#resource_active').val(!is_checked);
 
       if(is_checked) {
-        $('.date-picker').val('');
-        $( ".date-picker" ).datepicker( "disable" );
+        $('.datepicker').val('');
+        $( ".datepicker" ).datepicker( "disable" );
       } else {
-        $( ".date-picker" ).datepicker( "enable" );
+        $( ".datepicker" ).datepicker( "enable" );
       }
     });
 
     $('#activate_resource').click(function() {
       $('#permanent_inactive').prop('checked', false);
       $('#resource_active').val(true);
-      $('.date-picker').val('');
+      $('.datepicker').val('');
       $('#inactivateDialog form').submit();
     });
 
