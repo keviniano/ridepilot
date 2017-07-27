@@ -106,18 +106,17 @@ class TripsRunsController < ApplicationController
     if @target_trips && @target_trips.any?
       @target_run = @target_trips.first.run
       trip_result = TripResult.find_by_id(params[:trip_result_id])
-      if trip_result
-        @target_trips.each do |trip|
-          trip.trip_result = trip_result
-          trip.result_reason = params[:result_reason]
-          trip.save(validate: false)
 
-          trip.post_process_trip_result_changed!(current_user)
-        end
+      @target_trips.each do |trip|
+        trip.trip_result = trip_result
+        trip.result_reason = params[:result_reason]
+        trip.save(validate: false)
 
-        query_trips_runs
-        prepare_unassigned_trip_schedule_options
+        trip.post_process_trip_result_changed!(current_user)
       end
+
+      query_trips_runs
+      prepare_unassigned_trip_schedule_options
     end
   end
 

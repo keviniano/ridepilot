@@ -21,6 +21,9 @@
         =translate_helper(:change_selected_trips_result)
         %span.caret
       %ul.dropdown-menu
+        %li
+          %a{href: '#', 'data-trip-result-id' => "" }
+            No Result (Pending)
         -@trip_results.each do |tr|
           %li
             %a{href: '#', 'data-trip-result-id' => tr[1] }

@@ -222,7 +222,7 @@
     // Handler for changing multiple selected trip results
       $(document).on('click', '.trip_result_option', function() {
         var trip_ids = [];
-        $(this).parents('.panel').find('tbody input:checked').each(function() {
+        $(this).parents('.panel').find('tbody input.trip-selected:checked').each(function() {
           trip_ids.push($(this).parents('tr').data('trip-id'));
         });
 
@@ -350,7 +350,7 @@
       var prev_run_id = run_panel.data('run-id');
       var run_id = $(this).data('status-id');
       var trip_ids = [];
-      run_panel.find('tbody input:checked').each(function() {
+      run_panel.find('tbody input.trip-selected:checked').each(function() {
         trip_ids.push($(this).parents('tr').data('trip-id'));
       });
       if(trip_ids.length > 0) {
@@ -367,7 +367,7 @@
       var run_panel = $(this).parents('.panel');
       var status_id = $(this).data('status-id');
       var trip_ids = [];
-      run_panel.find('tbody input:checked').each(function() {
+      run_panel.find('tbody input.trip-selected:checked').each(function() {
         trip_ids.push($(this).parents('tr').data('trip-id'));
       });
 

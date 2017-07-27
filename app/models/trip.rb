@@ -361,13 +361,16 @@ class Trip < ActiveRecord::Base
   end
 
   def post_process_trip_result_changed!(user = nil)
-    TrackerActionLog.cancel_or_turn_down_trip(self, user) if self.is_cancelled_or_turned_down?
-    self.is_stand_by = false
-    if self.scheduled? && self.is_cancelled_or_turned_down?
-      if self.run.present?
-        self.run = nil
-      elsif self.cab
-        self.cab = false
+    self.is_stand_by = false if self.trip_result.present?
+    if self.is_cancelled_or_turned_down?
+      TrackerActionLog.cancel_or_turn_down_trip(self, user) 
+      
+      if self.scheduled? 
+        if self.run.present?
+          self.run = nil
+        elsif self.cab
+          self.cab = false
+        end
       end
     end
     

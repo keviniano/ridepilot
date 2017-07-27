@@ -3,8 +3,9 @@
     Set trips as
     %i.fa.fa-ellipsis-h
     %span.caret
-  %ul.dropdown-menu    
-    - TripResult.order(:name).pluck(:id, :name).each do |result_id, label|
+  %ul.dropdown-menu  
+    - trip_results = (TripResult.by_provider(current_provider).order(:name).pluck(:id, :name) + [[TripResult::UNSCHEDULED_ID, 'Pending']]).sort_by{|tr| tr[1]}  
+    - trip_results.each do |result_id, label|
       %li
         %a.trip_result_option.non_jump_top{href: '#', data: {trip_result_id: result_id} }
           = label
