@@ -6,6 +6,9 @@ class TrackerActionLog < PublicActivity::Activity
   def self.create_trip(trip, user)
     if trip
       trip.create_activity :created, owner: user 
+      if trip.run.present?
+        TrackerActionLog.trips_added_to_run(trip.run, [trip], user)
+      end
     end
   end
 
@@ -20,6 +23,10 @@ class TrackerActionLog < PublicActivity::Activity
       return_trip.create_activity :return_created, owner: user 
       outbound_trip = return_trip.outbound_trip
       outbound_trip.create_activity :create_return, owner: user if outbound_trip
+
+      if return_trip.run.present?
+        TrackerActionLog.trips_added_to_run(return_trip.run, [return_trip], user)
+      end
     end
   end
 
@@ -196,6 +203,34 @@ class TrackerActionLog < PublicActivity::Activity
       active: provider.active?,
       reason: provider.inactivated_reason  || '(not provided)'
     }  
+  end
+
+  def self.trips_added_to_run(run, trips, user)
+    return if !run || !trips || trips.empty?
+
+    run.create_activity :trip_added, owner: user, params: {
+      count: trips.size
+    } 
+  end
+
+  def self.trips_removed_from_run(run, trips, user)
+    return if !run || !trips || trips.empty?
+
+    run.create_activity :trip_removed, owner: user, params: {
+      count: trips.size
+    }
+  end
+
+  def self.rearrange_trip_itineraries(run, user)
+    return if !run
+
+    run.create_activity :itinerary_rearranged, owner: user
+  end
+
+  def self.cancel_run(run, user)
+    return if !run
+
+    run.create_activity :run_cancelled, owner: user
   end
 
   private

@@ -30,7 +30,11 @@ module DispatchHelper
     end
 
     if run.manifest_order && run.manifest_order.any?
-      itins.sort_by { |itin| run.manifest_order.index(itin[:id]) }
+      itins.sort_by { |itin| 
+        ordinal = run.manifest_order.index(itin[:id]) 
+        # put unindexed itineraries at the bottom
+        ordinal ? "a_#{ordinal}" : "b" 
+      }
     else
       itins.sort_by { |itin| itin[:time] }
     end

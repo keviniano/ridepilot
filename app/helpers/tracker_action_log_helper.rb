@@ -154,12 +154,48 @@ module TrackerActionLogHelper
 
       if provider.present? && !params.blank?
         if params[:active]
-          msg = "Reactivated"
+          msg = "Reactivated."
         else
           msg = "Inactivated.<p style='margin: 0px;'><b>Reason: </b></p><div class='col-sm-12'>#{params[:reason]}</div>"
         end
 
         msg.html_safe
+      end
+    when "run.trip_added"
+      run = log.trackable
+      params = log.parameters || {}
+
+      if run.present?
+        count = params[:count].try(:to_i)
+        if count
+          if count > 1
+            "#{count} trips added."
+          else
+            "1 trip added."
+          end
+        end
+      end
+    when "run.trip_removed"
+      run = log.trackable
+      params = log.parameters || {}
+
+      if run.present?
+        count = params[:count].try(:to_i)
+        if count
+          if count > 1
+            "#{count} trips removed."
+          else
+            "1 trip removed."
+          end
+        end
+      end
+    when "run.itinerary_rearranged"
+      run = log.trackable
+      "Trip itineraries rearranged" if run.present?
+    when "run.run_cancelled"
+      run = log.trackable
+      if run.present?
+        "Run cancelled." 
       end
     end
 

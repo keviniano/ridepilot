@@ -306,7 +306,9 @@ class TripsController < ApplicationController
       when Run::CAB_RUN_ID
         @trip.cab = true
       else 
-        @trip.run_id = status_id if status_id != Run::UNSCHEDULED_RUN_ID
+        if status_id != Run::UNSCHEDULED_RUN_ID
+          @trip.run_id = status_id 
+        end
       end
       
     end
@@ -318,15 +320,15 @@ class TripsController < ApplicationController
         @trip.update_donation current_user, params[:customer_donation].to_f if params[:customer_donation].present?
         TripDistanceCalculationWorker.perform_async(@trip.id) #sidekiq needs to run
         @ask_for_return_trip = true if @trip.is_outbound? && !from_dispatch
+        if @trip.is_return?
+          TrackerActionLog.create_return_trip(@trip, current_user)
+        else
+          TrackerActionLog.create_trip(@trip, current_user)
+        end
         format.html {
           if @ask_for_return_trip
-            TrackerActionLog.create_trip(@trip, current_user)
             render action: :show
           else
-            if @trip.is_return?
-              TrackerActionLog.create_return_trip(@trip, current_user)
-            end
-
             if from_dispatch
               redirect_to trips_runs_path(run_id: params[:run_id]), :notice => 'Trip was successfully created.'
             else

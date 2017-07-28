@@ -29,6 +29,13 @@ class TripsRunsController < ApplicationController
       @scheduler = TripScheduler.new(params[:trip_id], params[:run_id])
       @scheduler.execute
 
+      trip = Trip.find_by_id params[:trip_id]
+      if @prev_run
+        TrackerActionLog.trips_removed_from_run(@prev_run, [trip], current_user)
+      end
+
+      TrackerActionLog.trips_added_to_run(@run, [trip], current_user)
+
       query_trips_runs
       prepare_unassigned_trip_schedule_options
     end
@@ -45,6 +52,7 @@ class TripsRunsController < ApplicationController
         Trip.where(id: @target_trip_ids).move_to_unmet!
       else
         @errors = []
+        assigned_trip_ids = []
         @error_trip_count = 0
         @target_trip_ids.each do |trip_id|
           scheduler = TripScheduler.new(trip_id, @new_status_id)
@@ -53,7 +61,14 @@ class TripsRunsController < ApplicationController
           if scheduler.errors.any?
             @error_trip_count += 1
             @errors += scheduler.errors
+          else
+            assigned_trip_ids << trip_id
           end
+        end
+
+        run = Run.find_by_id @new_status_id
+        if run
+          TrackerActionLog.trips_added_to_run(run, Trip.where(id: assigned_trip_ids), current_user)
         end
 
         @errors.uniq!
@@ -71,6 +86,10 @@ class TripsRunsController < ApplicationController
       @new_status_id = params[:run_id].to_i if params[:run_id]
       unschedule_trips
 
+      if @prev_run
+        TrackerActionLog.trips_removed_from_run(@prev_run, Trip.where(id: @target_trip_ids), current_user)
+      end
+
       query_trips_runs
       prepare_unassigned_trip_schedule_options
     end
@@ -87,7 +106,11 @@ class TripsRunsController < ApplicationController
 
   def cancel_run
     @run = Run.find_by_id params[:run_id]
-    @run.cancel! if @run
+    if @run
+      @run.cancel! 
+      TrackerActionLog.cancel_run(@run, current_user)
+    end
+
 
     query_trips_runs
     prepare_unassigned_trip_schedule_options
@@ -127,6 +150,8 @@ class TripsRunsController < ApplicationController
       new_order = params[:manifest_order].split(',').uniq
       @run.manifest_order = new_order 
       @run.save(validate: false)
+
+      TrackerActionLog.rearrange_trip_itineraries(@run, current_user)
     end
   end
   

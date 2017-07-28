@@ -142,6 +142,11 @@ class RunsController < ApplicationController
   def cancel_multiple
     @runs = Run.where(id: cancel_multiple_params[:run_ids].split(',').map(&:to_i))
     trips_removed = @runs.cancel_all
+    
+    @runs.each do |run|
+      TrackerActionLog.cancel_run(run, current_user)
+    end
+    
     respond_to do |format|
       format.html { redirect_to(runs_path, notice: "#{trips_removed} trips successfully unscheduled from #{@runs.count} runs.")}
     end
