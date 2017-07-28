@@ -18,8 +18,4 @@
             = f.label :appointment_time, translate_helper("appointment_time")
             = render 'shared/time_inputs', field_name: :appointment_time, time: nil, f: f
 
-  = render "shared/date_time_picker_javascript"
-  :javascript
-    $(document).ready(function() {
-      makeTimePickers();
-    });
+  = render "shared/time_inputs_javascript"

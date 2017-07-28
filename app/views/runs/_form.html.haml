@@ -79,3 +79,5 @@
   = render 'shared/hide_invisible_form_fields_js', model_name: "repeatingrun", table_name: 'repeating_runs', provider_id:  current_provider.try(:id) 
 - else
   = render 'shared/hide_invisible_form_fields_js', model_name: "run", table_name: 'runs', provider_id:  current_provider.try(:id) 
+
+= render 'shared/time_inputs_javascript' if edit_mode != :show

@@ -75,7 +75,7 @@ class TripScheduler
       @trip.cab = false
       @trip.is_stand_by = false
       @trip.run = @run
-      @trip.save(validate: false)
+      @errors = @trip.errors.full_messages unless @trip.save
     end
 
   end

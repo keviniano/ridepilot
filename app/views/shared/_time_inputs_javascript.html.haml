@@ -1,0 +1,34 @@
+:javascript
+  $(function() {
+    function update_time(time_field) {
+      var hour = time_field.find('.time_field_hour').val().trim();
+      var min = time_field.find('.time_field_minute').val().trim();
+      var am_pm = time_field.find('.am-pm').text().trim();
+
+      if(hour && parseInt(hour) >= 12) {
+        var adjusted_hour = parseInt(hour);
+        am_pm = 'PM';
+        if(adjusted_hour > 12) {
+          hour =  adjusted_hour - 12;
+        }
+      }
+
+      time_field.find('.time_field_value').val(hour + ":" + min + " " + am_pm);      
+    }
+
+    $(document).on('click', 'button.am-pm', function() {
+      if($(this).attr('data-is-pm') != 'false') {
+        $(this).attr('data-is-pm', 'false');
+        $(this).text('AM');
+      } else {
+        $(this).attr('data-is-pm', 'true');
+        $(this).text('PM');
+      }
+
+      update_time($(this).parents('.time-field'));
+    });
+
+    $(document).on('change', 'input.time_field_hour, input.time_field_minute', function() {
+      update_time($(this).parents('.time-field'));
+    });
+  });
