@@ -263,6 +263,8 @@ class Run < ActiveRecord::Base
 
   # lists incomplete reason
   def incomplete_reason
+    return [] if complete?
+
     reasons = []
 
     unless driver_id
@@ -284,6 +286,14 @@ class Run < ActiveRecord::Base
       elsif extra_field == "unpaid_driver_break_time" && extra_field.nil?
         reasons << "Driver Unpaid Break Time field is not specified"
       end
+    end
+
+    if trips.incomplete.any?
+      reasons << "Has #{trips.incomplete.count} pending trip(s)"
+    end
+
+    if reasons.empty?
+      reasons << "No missing data, please go to run details page to complete it"
     end
 
     reasons

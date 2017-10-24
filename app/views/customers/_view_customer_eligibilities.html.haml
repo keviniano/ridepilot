@@ -23,6 +23,7 @@
             .col-sm-3
               %span.pull-right= yes_label
   - @customer.customer_eligibilities.eligible.includes(:eligibility).references(:eligibility).each do |elig|
+    - next unless elig.eligibility && elig.eligibility.description
     .form-group.col-sm-12
       .col-sm-7.control-label
         %b= elig.eligibility.description

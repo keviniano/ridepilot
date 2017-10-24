@@ -17,40 +17,41 @@
       %td
         %b= "#{@total_vehicle_count} vehicles, #{@total_vehicle_miles} miles"
 
-- @run_dates.each do |date|
-  - next if @report_data[date].blank?
-  %h3= format_date(date)
-  %table.table.table-bordered
-    %thead
-      %tr
-        %th{style: 'width: 200px;'}= translate_helper(:vehicle_form_name_label)
-        %th= translate_helper(:start_odometer)
-        %th= translate_helper(:end_odometer)
-        %th= translate_helper(:mileage)
-        %th= translate_helper(:run_distance_revenue_miles)
-        %th= translate_helper(:run_distance_non_revenue_miles)
-        %th= translate_helper(:number_of_trips)
-    %tbody
-      - @vehicles_basic_data.each do | vehicle_id, vehicle_name |
-        - next if @report_data[date][vehicle_id].blank?
-        - vehicle_data = @report_data[date][vehicle_id]
+- if @run_dates
+  - @run_dates.each do |date|
+    - next if @report_data[date].blank?
+    %h3= format_date(date)
+    %table.table.table-bordered
+      %thead
         %tr
-          %td{style: 'width: 200px;'}= vehicle_name
-          %td= format_float_number vehicle_data[:beginning_mileage]
-          %td= format_float_number vehicle_data[:ending_mileage]
-          %td= format_float_number vehicle_data[:mileage]
-          %td= format_float_number vehicle_data[:revenue_miles_sum]
-          %td= format_float_number vehicle_data[:non_revenue_miles_sum]
-          %td= vehicle_data[:trips_count]
-      %tr
-        %td.text-right{style: 'width: 200px;'}
-          %b= translate_helper(:total)
-        - total_data = @report_data_totals[date]
-        %td
-        %td
-        %td= format_float_number total_data[:mileage]
-        %td= format_float_number total_data[:revenue_miles_sum]
-        %td= format_float_number total_data[:non_revenue_miles_sum]
-        %td= total_data[:trips_count]
+          %th{style: 'width: 200px;'}= translate_helper(:vehicle_form_name_label)
+          %th= translate_helper(:start_odometer)
+          %th= translate_helper(:end_odometer)
+          %th= translate_helper(:mileage)
+          %th= translate_helper(:run_distance_revenue_miles)
+          %th= translate_helper(:run_distance_non_revenue_miles)
+          %th= translate_helper(:number_of_trips)
+      %tbody
+        - @vehicles_basic_data.each do | vehicle_id, vehicle_name |
+          - next if @report_data[date][vehicle_id].blank?
+          - vehicle_data = @report_data[date][vehicle_id]
+          %tr
+            %td{style: 'width: 200px;'}= vehicle_name
+            %td= format_float_number vehicle_data[:beginning_mileage]
+            %td= format_float_number vehicle_data[:ending_mileage]
+            %td= format_float_number vehicle_data[:mileage]
+            %td= format_float_number vehicle_data[:revenue_miles_sum]
+            %td= format_float_number vehicle_data[:non_revenue_miles_sum]
+            %td= vehicle_data[:trips_count]
+        %tr
+          %td.text-right{style: 'width: 200px;'}
+            %b= translate_helper(:total)
+          - total_data = @report_data_totals[date]
+          %td
+          %td
+          %td= format_float_number total_data[:mileage]
+          %td= format_float_number total_data[:revenue_miles_sum]
+          %td= format_float_number total_data[:non_revenue_miles_sum]
+          %td= total_data[:trips_count]
 
 
