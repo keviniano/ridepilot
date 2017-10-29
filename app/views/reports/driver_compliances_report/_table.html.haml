@@ -1,0 +1,57 @@
+- @drivers.each do |driver|
+  %h2{style: "text-decoration: underline;"}= driver.user_name
+  - legal_compliances = @legal_compliances[driver.id]
+  %h4= translate_helper("legal_driver_compliances_heading") 
+  - unless legal_compliances.blank?
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th.col-sm-3= translate_helper("driver_compliance_form_due_date")
+          %th= translate_helper("driver_compliance_form_event")
+          %th.col-sm-3= translate_helper("driver_compliance_form_compliance_date")
+      %tbody
+        - legal_compliances.each do |c|
+          %tr
+            %td= format_date(c.due_date)
+            %td= c.event
+            %td= format_date(c.compliance_date)
+  - else
+    %p No record
+
+  - non_legal_compliances = @non_legal_compliances[driver.id]
+  %h4= translate_helper("driver_compliances_heading")
+  - unless non_legal_compliances.blank?
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th.col-sm-3= translate_helper("driver_compliance_form_due_date")
+          %th= translate_helper("driver_compliance_form_event")
+          %th.col-sm-3= translate_helper("driver_compliance_form_compliance_date")
+      %tbody
+        - non_legal_compliances.each do |c|
+          %tr
+            %td= format_date(c.due_date)
+            %td= c.event
+            %td= format_date(c.compliance_date)
+  - else
+    %p No record
+
+ 
+  - unless @is_summary_report
+    %h4= translate_helper("driver_histories_heading")
+    - driver_histories = @driver_histories[driver.id]
+    - unless driver_histories.blank?
+      %table.table.table-bordered
+        %thead
+          %tr
+            %th.col-sm-3= translate_helper("driver_history_form_event_date")
+            %th= translate_helper("driver_history_form_event")
+        %tbody
+          - driver_histories.each do |c|
+            %tr
+              %td= format_date(c.event_date)
+              %td= c.event
+    - else
+      %p No record
+
+  %hr

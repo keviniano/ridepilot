@@ -20,10 +20,10 @@
             %td= translate_helper(:run_distance_deadhead_from_garage)
             %td= run_distance.deadhead_from_garage.try(:round, 2)
           %tr
-            %td= translate_helper(:run_distance_revenue_miles)
+            %td= "#{translate_helper(:run_distance_revenue_miles)} (approx)"
             %td= run_distance.revenue_miles.try(:round, 2)
           %tr
-            %td= translate_helper(:run_distance_non_revenue_miles)
+            %td= "#{translate_helper(:run_distance_non_revenue_miles)} (approx)"
             %td= run_distance.non_revenue_miles.try(:round, 2)
           %tr
             %td= translate_helper(:run_distance_deadhead_to_garage)

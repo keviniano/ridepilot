@@ -9,7 +9,7 @@
       - @drivers.each do |driver|
         %tr
           %td= driver.user_name
-          %td= driver.inactivated_reason
+          %td= driver.active_status_changed_reason
           %td= format_phone_number(driver.phone_number)
 - else
   %table.table.table-bordered

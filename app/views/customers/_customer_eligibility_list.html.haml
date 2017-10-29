@@ -1,0 +1,38 @@
+- if customer
+  - yes_label = translate_helper('yes')
+  - has_eligible = false
+  - if customer.age_eligible?
+    - has_eligible = true
+    .form-group.col-sm-12
+      .col-sm-7.control-label
+        %b= translate_helper(:age_eligible)
+      .col-sm-5
+        %span.pull-right= yes_label
+  - if customer.ada_eligible?
+    - has_eligible = true
+    .form-group.col-sm-12
+      .col-sm-7.control-label
+        %b= translate_helper(:ada_eligible)
+      .col-sm-5
+        %span.pull-right= yes_label
+    - eligible_ada_questions = customer.customer_ada_questions.eligible
+    - if eligible_ada_questions.any?
+      .ada-questions.col-sm-10.pull-right
+        - eligible_ada_questions.includes(:ada_question).references(:ada_question).each do |question|
+          - next unless question.ada_question
+          .form-group
+            .col-sm-9.control-label
+              = question.ada_question.name
+            .col-sm-3
+              %span.pull-right= yes_label
+  - customer.customer_eligibilities.eligible.includes(:eligibility).references(:eligibility).each do |elig|
+    - next unless elig.eligibility && elig.eligibility.description
+    - has_eligible = true
+    .form-group.col-sm-12
+      .col-sm-7.control-label
+        %b= elig.eligibility.description
+      .col-sm-5
+        %span.pull-right= yes_label
+  - unless has_eligible
+    .form-group.col-sm-12
+      %span (None eligibile)

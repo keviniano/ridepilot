@@ -9,6 +9,7 @@ class Query
   attr_accessor :end_date
   attr_accessor :vehicle_id
   attr_accessor :driver_id
+  attr_accessor :mobility_id
   attr_accessor :trip_display
   attr_accessor :address_group_id
   attr_accessor :report_format
@@ -50,6 +51,9 @@ class Query
       end
       if params["driver_id"]
         @driver_id = params["driver_id"].to_i unless params["driver_id"].blank?
+      end
+      if params["mobility_id"]
+        @mobility_id = params["mobility_id"].to_i unless params["mobility_id"].blank?
       end
       if params["address_group_id"]
         @address_group_id = params["address_group_id"]
@@ -716,7 +720,7 @@ class ReportsController < ApplicationController
     
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
-      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.end_date.strftime('%m/%d/%Y')}"]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
       @runs = Run.for_provider(current_provider_id).for_date_range(@query.start_date, @query.end_date).incomplete.order(:date, "lower(name)")
       @data_by_date = {}
       @runs.each do |run|
@@ -777,7 +781,7 @@ class ReportsController < ApplicationController
     @query = Query.new(query_params)
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
-      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.end_date.strftime('%m/%d/%Y')}"]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
 
       @customers = Customer.active_for_date(Date.today).for_provider(current_provider_id)
       customer_ids = @customers.pluck(:id)
@@ -804,6 +808,32 @@ class ReportsController < ApplicationController
             @customer_trip_sizes[t.customer_id] = t.trip_count
           end
         end
+      end
+    end
+
+    apply_v2_response
+  end
+
+  def customers_report
+    query_params = params[:query] || {}
+    @query = Query.new(query_params)
+    @mobilities = Mobility.by_provider(current_provider).order(:name)
+
+    if params[:query]
+      @report_params = [["Provider", current_provider.name]]
+      
+      active_customers = Customer.for_provider(current_provider_id).active
+      unless @query.mobility_id.blank?
+        @report_params << [["Mobility Device", Mobility.find_by_id(@query.mobility_id).try(:name)]]
+        @customers = active_customers.where(mobility_id: @query.mobility_id)
+      else
+        @customers = active_customers
+      end
+
+      if query_params[:report_type] == 'summary'
+        @is_summary_report = true
+      else
+        
       end
     end
 
@@ -837,6 +867,40 @@ class ReportsController < ApplicationController
     apply_v2_response
   end
 
+  def driver_compliances_report
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    @query = Query.new(query_params)
+    @active_drivers = Driver.for_provider(current_provider_id).active.default_order
+
+    if params[:query]
+      @report_params = [["Provider", current_provider.name]]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
+      
+      unless @query.driver_id.blank?
+        @drivers = Driver.where(id: @query.driver_id)
+      else
+        @drivers = @active_drivers
+      end
+      driver_ids = @drivers.pluck(:id)
+      
+      base_driver_compliances = DriverCompliance.for_driver(driver_ids).due_date_range(@query.start_date, @query.end_date).default_order
+
+      if query_params[:report_type] == 'summary'
+        @is_summary_report = true 
+        # summary report for upcoming events only
+        driver_compliances = base_driver_compliances.incomplete
+      else
+        driver_compliances = base_driver_compliances
+        @driver_histories = DriverHistory.for_driver(driver_ids).event_date_range(@query.start_date, @query.end_date).default_order.group_by{|dh| dh.driver_id}
+      end
+
+      @legal_compliances = driver_compliances.legal.group_by{|dc| dc.driver_id}
+      @non_legal_compliances = driver_compliances.non_legal.group_by{|dc| dc.driver_id}
+    end
+
+    apply_v2_response
+  end
+
   def driver_monthly_service_report
     query_params = params[:query] || {start_date: Date.today.prev_month + 1}
     @query = Query.new(query_params)
@@ -844,7 +908,7 @@ class ReportsController < ApplicationController
 
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
-      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.end_date.strftime('%m/%d/%Y')}"]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
       
       unless @query.driver_id.blank?
         @drivers = Driver.where(id: @query.driver_id)
@@ -874,6 +938,39 @@ class ReportsController < ApplicationController
     apply_v2_response
   end
 
+  def vehicle_report
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    @query = Query.new(query_params)
+    @active_vehicles = Vehicle.for_provider(current_provider_id).active.default_order
+
+    if params[:query]
+      @report_params = [["Provider", current_provider.name]]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
+      
+      unless @query.vehicle_id.blank?
+        @vehicles = Vehicle.where(id: @query.vehicle_id)
+      else
+        @vehicles = @active_vehicles
+      end
+      vehicle_ids = @vehicles.pluck(:id)
+
+      base_compliances = VehicleCompliance.for_vehicle(vehicle_ids).due_date_range(@query.start_date, @query.end_date).default_order
+
+      if query_params[:report_type] == 'summary'
+        @is_summary_report = true
+      else
+        @vehicle_maintenance_compliances = VehicleMaintenanceCompliance.for_vehicle(vehicle_ids).default_order.group_by{|c| c.vehicle_id}
+        @vehicle_warranties = VehicleWarranty.for_vehicle(vehicle_ids).default_order.group_by{|c| c.vehicle_id}
+        @repair_events = VehicleMaintenanceEvent.for_vehicle(vehicle_ids).default_order.group_by{|c| c.vehicle_id}
+      end
+
+      @legal_compliances = base_compliances.legal.group_by{|c| c.vehicle_id}
+      @non_legal_compliances = base_compliances.non_legal.group_by{|c| c.vehicle_id}
+    end
+
+    apply_v2_response
+  end
+
   def vehicle_monthly_service_report
     query_params = params[:query] || {start_date: Date.today.prev_month + 1}
     @query = Query.new(query_params)
@@ -881,7 +978,7 @@ class ReportsController < ApplicationController
 
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
-      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.end_date.strftime('%m/%d/%Y')}"]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
       
       unless @query.vehicle_id.blank?
         @vehicles = Vehicle.where(id: @query.vehicle_id)

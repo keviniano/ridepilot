@@ -12,7 +12,7 @@
   - @run_dates.each do |date|
     - next if @report_data[date].blank?
     = CSV.generate_line([format_date(date)], {:row_sep => nil}).html_safe
-    = CSV.generate_line([translate_helper(:vehicle_form_name_label), translate_helper(:start_odometer), translate_helper(:end_odometer), translate_helper(:mileage), translate_helper(:run_distance_revenue_miles), translate_helper(:run_distance_non_revenue_miles), translate_helper(:number_of_trips)], {:row_sep => nil}).html_safe
+    = CSV.generate_line([translate_helper(:vehicle_form_name_label), translate_helper(:start_odometer), translate_helper(:end_odometer), translate_helper(:mileage), "#{translate_helper(:run_distance_revenue_miles)} (approx)", "#{translate_helper(:run_distance_non_revenue_miles)} (approx)", translate_helper(:number_of_trips)], {:row_sep => nil}).html_safe
     - @vehicles_basic_data.each do | vehicle_id, vehicle_name |
       - next if @report_data[date][vehicle_id].blank?
       - vehicle_data = @report_data[date][vehicle_id]

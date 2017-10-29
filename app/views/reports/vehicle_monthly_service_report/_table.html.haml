@@ -28,8 +28,8 @@
           %th= translate_helper(:start_odometer)
           %th= translate_helper(:end_odometer)
           %th= translate_helper(:mileage)
-          %th= translate_helper(:run_distance_revenue_miles)
-          %th= translate_helper(:run_distance_non_revenue_miles)
+          %th= "#{translate_helper(:run_distance_revenue_miles)} (approx)"
+          %th= "#{translate_helper(:run_distance_non_revenue_miles)} (approx)"
           %th= translate_helper(:number_of_trips)
       %tbody
         - @vehicles_basic_data.each do | vehicle_id, vehicle_name |

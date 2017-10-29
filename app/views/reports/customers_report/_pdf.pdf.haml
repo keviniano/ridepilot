@@ -1,0 +1,3 @@
+- if @customers
+  - @is_pdf = true
+  = render "reports/#{@custom_report.name}/table.html.haml"

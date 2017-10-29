@@ -1,0 +1,41 @@
+- if @customers
+  - @customers.each do |customer|
+    %h2{style: 'text-decoration: underline;'}= customer.name
+    - unless @is_summary_repot
+      %p
+        %b= "Birthdate: "
+        = format_date(customer.birth_date) || "(Not specified)"
+      %p
+        %b= "Phone Number: "
+        - phone_numbers = [format_phone_number(customer.phone_number_1), format_phone_number(customer.phone_number_2)].compact.reject{ |c| c.empty? }
+        - unless phone_numbers.blank?
+          = simple_format phone_numbers.join("<br>")
+        - else
+          (Not provided)
+    
+      %p
+        %b= "Mailing Address: "
+        = customer.address.try(:address_text) || "(Not specified)"
+
+      %p
+        %b= "Funding Source: "
+        = customer.default_funding_source.try(:name) || "(Not specified)"
+
+      %p
+        %b= "Authorized Providers:"
+        = simple_format customer.authorized_providers.pluck(:name).sort.join('<br>')
+
+    %b Mobility Device 
+    %br
+    %p= customer.mobility.try(:name) || '(Not specified)'
+    
+    %b Eligibility 
+    %br
+    - if @is_pdf
+      = render 'customers/customer_eligibility_list.pdf.haml', customer: customer
+    - else
+      .row
+        .col-sm-6
+          = render 'customers/customer_eligibility_list', customer: customer
+
+    %hr

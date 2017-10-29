@@ -1,0 +1,133 @@
+- @vehicles.each do |vehicle|
+  %h2
+    %span{style: "text-decoration: underline;"}= vehicle.name
+    - if !vehicle.active_for_date?(Date.today)
+      %span{style: "font-size: small;"}
+        = "(#{vehicle.active_status_text})"
+  %ul
+    %li
+      %b
+        = "#{translate_helper(:vehicle_form_license_plate_label)}: "
+      = vehicle.license_plate
+    %li
+      %b
+        = "#{translate_helper(:vehicle_form_model_label)}: "
+      = vehicle.model
+    %li
+      %b
+        = "#{translate_helper(:vehicle_form_last_odometer_reading)}: "
+      = number_with_delimiter vehicle.last_odometer_reading
+      mi.
+    - unless @is_summary_report
+      %li
+        %b
+          = "#{translate_helper(:total_mileage)}: "
+        - if vehicle.last_odometer_reading && vehicle.initial_mileage 
+          = number_with_delimiter(vehicle.last_odometer_reading - vehicle.initial_mileage) 
+          mi.
+
+    - if !vehicle.active_for_date?(Date.today)  
+      %li
+        %b
+          = "#{translate_helper(:inactivated_reason)}: "
+  
+        = vehicle.active_status_changed_reason
+
+  - legal_compliances = @legal_compliances[vehicle.id]
+  %h4= translate_helper("legal_vehicle_compliances_heading") 
+  - unless legal_compliances.blank?
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th.col-sm-3= translate_helper("vehicle_compliance_form_due_date")
+          %th= translate_helper("vehicle_compliance_form_event")
+          %th.col-sm-3= translate_helper("vehicle_compliance_form_compliance_date")
+      %tbody
+        - legal_compliances.each do |c|
+          %tr
+            %td= format_date(c.due_date)
+            %td= c.event
+            %td= format_date(c.compliance_date)
+  - else
+    %p No record
+
+  - non_legal_compliances = @non_legal_compliances[vehicle.id]
+  %h4= translate_helper("vehicle_compliances_heading")
+  - unless non_legal_compliances.blank?
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th.col-sm-3= translate_helper("vehicle_compliance_form_due_date")
+          %th= translate_helper("vehicle_compliance_form_event")
+          %th.col-sm-3= translate_helper("vehicle_compliance_form_compliance_date")
+      %tbody
+        - non_legal_compliances.each do |c|
+          %tr
+            %td= format_date(c.due_date)
+            %td= c.event
+            %td= format_date(c.compliance_date)
+  - else
+    %p No record
+
+  - unless @is_summary_report
+    - repair_events = @repair_events[vehicle.id]
+    %h4= translate_helper("vehicle_maintenance_events_heading")
+    - unless repair_events.blank?
+      %table.table.table-bordered
+        %thead
+          %tr
+            %th.col-sm-1= translate_helper("service_date")
+            %th.col-sm-1= translate_helper("invoice_date")
+            %th.col-sm-1= translate_helper("odometer")
+            %th.col-sm-1= translate_helper("vendor_name")
+            %th.col-sm-1= translate_helper("invoice_amount")
+            %th= translate_helper("services_performed")
+        %tbody
+          - repair_events.each do |c|
+            %tr
+              %td= format_date(c.service_date)
+              %td= format_date(c.invoice_date)
+              %td= c.odometer
+              %td= c.vendor_name
+              %td= number_to_currency(c.invoice_amount)
+              %td= c.services_performed
+    - else
+      %p No record
+
+    - vehicle_maintenance_compliances = @vehicle_maintenance_compliances[vehicle.id]
+    %h4= translate_helper("vehicle_maintenance_compliances_heading")
+    - unless vehicle_maintenance_compliances.blank?
+      %table.table.table-bordered
+        %thead
+          %tr
+            %th.col-sm-3= translate_helper("vehicle_maintenance_compliance_form_due_string")
+            %th= translate_helper("vehicle_maintenance_compliance_form_event")
+            %th.col-sm-3= translate_helper("vehicle_maintenance_compliance_form_compliance_date")
+            %th.col-sm-3= translate_helper("vehicle_maintenance_compliance_form_compliance_mileage")
+        %tbody
+          - vehicle_maintenance_compliances.each do |c|
+            %tr
+              %td= due_string c
+              %td= c.event
+              %td= format_date(c.compliance_date)
+              %td= number_with_delimiter c.compliance_mileage unless c.compliance_mileage.blank?
+    - else
+      %p No record
+
+    - vehicle_warranties = @vehicle_warranties[vehicle.id]
+    %h4= translate_helper("vehicle_warranties_heading")
+    - unless vehicle_warranties.blank?
+      %table.table.table-bordered
+        %thead
+          %tr
+            %th.col-sm-3= translate_helper("vehicle_warranty_form_expiration_date")
+            %th= translate_helper("vehicle_warranty_form_description")
+        %tbody
+          - vehicle_warranties.each do |c|
+            %tr
+              %td= format_date(c.expiration_date)
+              %td= c.description
+    - else
+      %p No record
+
+  %hr

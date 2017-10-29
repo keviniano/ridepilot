@@ -1117,6 +1117,7 @@ en:
   mileage: "Mileage"
   license_plate: "License Plate"
   garaged_location: "Garaged Location"
+  total_mileage: "Total Mileage"
   
   #runs
   run_form_error_message:

@@ -1,0 +1,27 @@
+- # common
+= render 'reports/common_csv_header.csv.haml'
+
+- if @customers
+  - @customers.each do |customer|
+    = CSV.generate_line([""], {:row_sep => nil}).html_safe
+    = CSV.generate_line(["Name", customer.name], {:row_sep => nil}).html_safe
+    - unless @is_summary_report
+      = CSV.generate_line(["Birthdate", format_date(customer.birth_date) || "(Not specified)"], {:row_sep => nil}).html_safe
+
+      - phone_numbers = [format_phone_number(customer.phone_number_1), format_phone_number(customer.phone_number_2)].compact.reject{ |c| c.empty? }
+      - phone_number_text = phone_numbers.blank? ? "(Not provided)" : phone_numbers.join("\n")
+      = CSV.generate_line(["Phone Number", phone_number_text], {:row_sep => nil}).html_safe
+
+      = CSV.generate_line(["Mailing Address", customer.address.try(:address_text) || "(Not specified)"], {:row_sep => nil}).html_safe
+
+      = CSV.generate_line(["Funding Source", customer.default_funding_source.try(:name) || "(Not specified)"], {:row_sep => nil}).html_safe
+
+      = CSV.generate_line(["Authorized Providers", customer.authorized_providers.pluck(:name).sort.join("\n")], {:row_sep => nil}).html_safe
+
+    = CSV.generate_line(["Mobility Device", customer.mobility.try(:name) || '(Not specified)'], {:row_sep => nil}).html_safe
+
+    = CSV.generate_line(["Eligibility"], {:row_sep => nil}).html_safe
+    = render 'customers/customer_eligibility_list.csv.haml', customer: customer
+
+
+  

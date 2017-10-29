@@ -9,6 +9,8 @@ class VehicleWarranty < ActiveRecord::Base
   
   scope :expired, -> (as_of: Date.current) { where("expiration_date < ?", as_of) }
   scope :expiring_soon, -> (as_of: Date.current, through: nil) { where(expiration_date: as_of..(through || as_of + 6.days)) }
+  scope :expiration_date_range,  -> (start_date, end_date) { where("expiration_date >= ? and expiration_date < ?", start_date, end_date) }
+  scope :for_vehicle, -> (vehicle_id) { where(vehicle_id: vehicle_id) }
   scope :default_order, -> { order(:expiration_date) }
 
   def expired?

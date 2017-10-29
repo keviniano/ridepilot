@@ -9,6 +9,7 @@ module ComplianceEvent
 
     scope :incomplete, -> { where(compliance_date: nil) }
     scope :complete, -> { where.not(compliance_date: nil) }
+    scope :due_date_range,  -> (start_date, end_date) { where("due_date >= ? and due_date < ?", start_date, end_date) }
   end
   
   def complete?
