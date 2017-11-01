@@ -219,6 +219,12 @@ class Run < ActiveRecord::Base
     self.save(validate: false)
     RunDistanceCalculationWorker.perform_async(self.id)
   end
+
+  def set_incomplete!
+    self.complete = false
+    self.save(validate: false)
+    self.run_distance.destroy if self.run_distance
+  end
   
   # Returns sum of actual run hours across a collection
   def self.total_actual_hours

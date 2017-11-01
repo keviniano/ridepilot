@@ -1,0 +1,23 @@
+#runUncompletionDialog.modal.fade.col-sm-12{:role => "dialog", "aria-hidden" => 'true', :tabindex => "-1", "data-backdrop" => 'static'}
+  .modal-dialog
+    .modal-content
+      = form_for @run, url: uncomplete_run_path(@run) do |f| 
+        .modal-header
+          .pull-right
+            = button_tag translate_helper(:ok), type: :submit, style: "margin-right: 5px;", class: "btn action-button", id: 'uncompleteRun'
+            = button_tag class: 'btn action-button', data: {dismiss: 'modal'} do
+              = translate_helper(:cancel)
+          .modal-title{:style => "text-align:left;"}
+            %strong
+              = translate_helper(:uncomplete_run_dialog_title)
+        .modal-body.row
+          %p.col-sm-12
+            .form-group.col-sm-12
+              = label_tag :uncomplete_reason, translate_helper("uncomplete_reason"), class: "col-md-2 control-label"
+              .col-md-10
+                = f.text_area :uncomplete_reason, class: 'form-control', required: true
+
+:javascript
+  $('#runUncompletionDialog').on('hidden.bs.modal', function() {
+    $('#runUncompletionDialog').remove();
+  });

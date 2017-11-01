@@ -65,7 +65,7 @@ RSpec.describe TripsController, type: :controller do
       let(:customer_id) { create(:customer, :provider => @current_user.current_provider).id }
       before do
         # Time.now is now 
-        Timecop.freeze(Date.today)
+        Timecop.freeze(Date.new(2017, 8 ,1))
 
         pickup_time = DateTime.current.beginning_of_day
         appointment_time = pickup_time + 1.hour

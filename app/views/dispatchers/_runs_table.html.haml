@@ -22,6 +22,9 @@
         %td
           = link_to run.name, '#', data: {run_id: run.id}, class: 'run_name_link non_jump_top', title: 'Click to open manifest'
           .pull-right
+            - if run.complete?
+              %span.label.label-warning
+                Completed
             - if run.repeating_run_id.present?
               %span.label.label-info
                 Recur
@@ -40,12 +43,13 @@
           - if run.repeating_run_id.present?
             = link_to recurring_dispatchers_path(run_id: run.repeating_run_id), style: 'padding-right: 5px;', title: "View Subscription Run Template" do 
               %i.fa.fa-repeat
-          - if can?(:new, Trip)
-            = link_to new_trip_path(from_dispatch: true, run_id: run.id), style: 'padding-right: 5px;', title: "New Trip" do 
-              %i.fa.fa-plus
-          - if can?(:edit, run)
-            = link_to edit_run_path(run, from_dispatch: true), style: 'padding-right: 5px;', title: 'Edit' do 
-              %i.fa.fa-pencil
-          - if can?(:cancel, run)
-            = link_to cancel_run_dispatchers_path(run_id: run.id), title: 'Cancel run', remote: true, data: {confirm: 'Are you sure to cancel this run?'} do 
-              %i.fa.fa-power-off
+          - unless run.complete?
+            - if can?(:new, Trip)
+              = link_to new_trip_path(from_dispatch: true, run_id: run.id), style: 'padding-right: 5px;', title: "New Trip" do 
+                %i.fa.fa-plus
+            - if can?(:edit, run)
+              = link_to edit_run_path(run, from_dispatch: true), style: 'padding-right: 5px;', title: 'Edit' do 
+                %i.fa.fa-pencil
+            - if can?(:cancel, run)
+              = link_to cancel_run_dispatchers_path(run_id: run.id), title: 'Cancel run', remote: true, data: {confirm: 'Are you sure to cancel this run?'} do 
+                %i.fa.fa-power-off

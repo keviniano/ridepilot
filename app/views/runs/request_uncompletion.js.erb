@@ -1,0 +1,7 @@
+<% if @run.complete? %>
+  var $new_form = $("<%= j (render partial: 'run_uncompletion_dialog') %>");
+
+  $('body').append($new_form);
+  $('#runUncompletionDialog').modal('show');
+
+<% end %>

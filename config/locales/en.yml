@@ -1133,6 +1133,7 @@ en:
   no_driver: "No driver"
   complete: "Complete"
   incomplete: "Incomplete"
+  set_as_incomplete: "Set as Incomplete"
   editing_run_heading: "Editing Run: %{run_date}"
   submit_run: "Submit"
   run_index_heading: "Listing runs"
@@ -1174,6 +1175,8 @@ en:
   from_garage_address_label: "From Garage"
   to_garage_address_label: "To Garage"
   complete_run_dialog_title: "Complete Run"
+  uncomplete_run_dialog_title: "Set Run as Incomplete"
+  uncomplete_reason: "Reason"
   
   #shared
   generic_error_message:

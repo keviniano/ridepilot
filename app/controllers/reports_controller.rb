@@ -43,8 +43,8 @@ class Query
         @end_date = convert_date(params, :end_date)
         @before_end_date = @end_date - 1
       else
-        @before_end_date = start_date.next_month - 1
-        @end_date = start_date.next_month
+        @before_end_date = start_date.next_month - 1 if !@before_end_date
+        @end_date = start_date.next_month if !@end_date
       end
       if params["vehicle_id"]
         @vehicle_id = params["vehicle_id"].to_i unless params["vehicle_id"].blank?
@@ -715,7 +715,7 @@ class ReportsController < ApplicationController
   end
 
   def missing_data_report
-    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
     
     if params[:query]
@@ -777,7 +777,7 @@ class ReportsController < ApplicationController
   end
 
   def customer_donation_report
-    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
@@ -868,7 +868,7 @@ class ReportsController < ApplicationController
   end
 
   def driver_compliances_report
-    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
     @active_drivers = Driver.for_provider(current_provider_id).active.default_order
 
@@ -902,7 +902,7 @@ class ReportsController < ApplicationController
   end
 
   def driver_monthly_service_report
-    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
     @active_drivers = Driver.for_provider(current_provider_id).active.default_order
 
@@ -939,7 +939,7 @@ class ReportsController < ApplicationController
   end
 
   def vehicle_report
-    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
     @active_vehicles = Vehicle.for_provider(current_provider_id).active.default_order
 
@@ -972,7 +972,7 @@ class ReportsController < ApplicationController
   end
 
   def vehicle_monthly_service_report
-    query_params = params[:query] || {start_date: Date.today.prev_month + 1}
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
     @active_vehicles = Vehicle.for_provider(current_provider_id).active.default_order
 
@@ -1004,6 +1004,7 @@ class ReportsController < ApplicationController
         @report_data = {}
         @report_data_totals = {}
         @runs.joins(:trips, "left join run_distances on run_distances.run_id = runs.id")
+          .where("trips.trip_result_id is NULL or trips.trip_result_id = ?", TripResult.find_by_code('COMP').try(:id))
           .select(:date, :vehicle_id)
           .select("count(trips.id) as trips_count", "SUM(runs.end_odometer - runs.start_odometer)/ count(trips.id) as mileage")
           .select("min(start_odometer) as beginning_mileage", "max(end_odometer) as ending_mileage")

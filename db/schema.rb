@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171013185208) do
+ActiveRecord::Schema.define(version: 20171031153307) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -845,6 +845,7 @@ ActiveRecord::Schema.define(version: 20171013185208) do
     t.boolean  "cancelled"
     t.integer  "from_garage_address_id"
     t.integer  "to_garage_address_id"
+    t.text     "uncomplete_reason"
   end
 
   add_index "runs", ["deleted_at"], :name => "index_runs_on_deleted_at"

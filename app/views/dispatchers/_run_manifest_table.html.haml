@@ -6,7 +6,8 @@
   %thead
     %tr
       %th
-        %input.master-select-checkbox{type: "checkbox"}
+        - unless run.complete?
+          %input.master-select-checkbox{type: "checkbox"}
       %th= translate_helper(:run_manifest_table_header_action)
       %th= translate_helper(:run_manifest_table_header_customer)
       %th= translate_helper(:run_manifest_table_header_address)
@@ -30,7 +31,8 @@
         - trip = itin[:trip]
         %tr.manifest-row{data: {trip_id: itin[:trip_id], id: itin[:id], leg_flag: itin[:leg_flag], customer_id: trip.customer.try(:id)}}
           %td
-            %input.trip-selected{type: "checkbox"}
+            - unless run.complete?
+              %input.trip-selected{type: "checkbox"}
           %td{style: 'white-space: nowrap;'}
             = itin[:leg_flag] == 1 ? 'PU' : 'DO'
             - is_new = !trip.driver_notified && trip.date == Date.today

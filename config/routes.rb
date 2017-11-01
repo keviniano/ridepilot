@@ -229,6 +229,8 @@ Rails.application.routes.draw do
       member do
         get :append_trips
         get :request_completion
+        get :request_uncompletion
+        patch :uncomplete
         patch :complete
       end
     end

@@ -16,7 +16,10 @@
         .col-sm-3
           = f.label :trip_result, translate_helper("trip_result")
         .col-sm-9
-          = f.select :trip_result_id, @trip_results,  { :include_blank => true }, {class: 'form-control'}
+          - if @trip.run && @trip.run.complete?
+            = @trip.trip_result.try(:name)
+          - else
+            = f.select :trip_result_id, @trip_results,  { :include_blank => true }, {class: 'form-control'}
       .form-group.col-sm-12.result_reason{style: @trip.result_need_reason? ? '' : 'display: none;'}
         .col-sm-3
           = f.label :result_reason, translate_helper("trip_result_reason")

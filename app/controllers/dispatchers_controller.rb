@@ -227,7 +227,7 @@ class DispatchersController < ApplicationController
       @schedule_options += [[Run::UNSCHEDULED_RUN_ID, 'Unscheduled']]
     end
 
-    @schedule_options += @runs.pluck(:id, :name)
+    @schedule_options += @runs.incomplete.pluck(:id, :name)
 
     if session[:unassigned_trip_status_id].try(:to_i) == Run::STANDBY_RUN_ID
       @schedule_options += [[Run::TRIP_UNMET_NEED_ID, 'Unmet Need']] 

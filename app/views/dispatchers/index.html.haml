@@ -207,10 +207,10 @@
       tolerance: 'pointer',
       hoverClass: "drop-zone-active-red",
       over: function(event, ui) {
-        $(".run_trips_panel").droppable("disable");
+        $(".run_trips_panel.ui-droppable").droppable("disable");
       },
       out: function(event, ui) {
-        $(".run_trips_panel").droppable("enable");
+        $(".run_trips_panel.ui-droppable").droppable("enable");
       },
       drop: function(e, ui) {
         $('.drop-zone-active').removeClass('drop-zone-active');
@@ -222,7 +222,7 @@
         }
 
         setTimeout(function() {
-          $(".run_trips_panel").droppable("enable");
+          $(".run_trips_panel.ui-droppable").droppable("enable");
         }, 200);
         
       }

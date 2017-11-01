@@ -1,24 +1,25 @@
 .panel.panel-success.run_trips_panel{id: "run_trips_panel_#{run.id}", data: {run_id: run.id}}
   .panel-heading
     .pull-right{style: 'padding-right: 0px;'}
-      = render 'trip_result_dropdown'
-      = render 'unschedule_trip_dropdown'
-      - if can?(:cancel, run)  
-        %span.dispatch-action
-          = link_to cancel_run_dispatchers_path(run_id: run.id), title: 'Cancel run', style: 'color: white;', remote: true, data: {confirm: 'Are you sure to cancel this run?'} do 
-            %i.fa.fa-power-off
+      - unless run.complete?
+        = render 'trip_result_dropdown'
+        = render 'unschedule_trip_dropdown'
+        - if can?(:cancel, run)  
+          %span.dispatch-action
+            = link_to cancel_run_dispatchers_path(run_id: run.id), title: 'Cancel run', style: 'color: white;', remote: true, data: {confirm: 'Are you sure to cancel this run?'} do 
+              %i.fa.fa-power-off
+        - if can?(:edit, run)
+          %span.dispatch-action
+            = link_to edit_run_path(run, from_dispatch: true), style: 'color: white;', title: 'Edit' do 
+              %i.fa.fa-pencil
+
+        - if can?(:new, Trip)
+          %span.dispatch-action
+            = link_to new_trip_path(from_dispatch: true, run_id: run.id), style: 'color: white;', title: translate_helper("new_trip_link_text") do 
+              %i.fa.fa-plus
       %span.dispatch-action
         = link_to run_path(run, from_dispatch: true), style: 'color: white;', title: "View details" do 
           %i.fa.fa-external-link
-      - if can?(:edit, run)
-        %span.dispatch-action
-          = link_to edit_run_path(run, from_dispatch: true), style: 'color: white;', title: 'Edit' do 
-            %i.fa.fa-pencil
-
-      - if can?(:new, Trip)
-        %span.dispatch-action
-          = link_to new_trip_path(from_dispatch: true, run_id: run.id), style: 'color: white;', title: translate_helper("new_trip_link_text") do 
-            %i.fa.fa-plus
       %span.panel-close.dispatch-action{title: 'Close'}
         %i.fa.fa-remove
       %span.panel-expand-collapse.dispatch-action{title: 'Collapse/expand'}
@@ -26,56 +27,60 @@
     %h3.panel-title.text-center
       .pull-left
         = run.name
+        - if run.complete?
+          %span.label.label-warning
+            Completed
       %span.run_summary{style: 'font-size: small;'}
         = simple_format run_summary(run)
   .panel-body
     = render 'dispatchers/run_manifest_table', run: run, trips: run.trips
 
-:javascript
-  $("#run_trips_panel_#{run.id}").droppable({
-    tolerance: 'pointer',
-    hoverClass: "drop-zone-active",
-    over: function(e, ui) {
-      $("#run_trips_panel_#{run.id}").addClass("drop-zone-active");
-    },
-    drop: function(e, ui) {
-      var source_panel = ui.draggable.parents('.panel');
-      var prev_run_id = source_panel.data('run-id');
-      var trip_id = null;
-      if(prev_run_id) {
-        trip_id = ui.draggable.data('trip-id');
-      } else {
-        trip_id = ui.draggable.parents('tr').data('trip-id');
-      }
-      var run_id = #{run.id};
-      if(prev_run_id == run_id) {
-        setTimeout(function() {
-          var new_manifest_order = [];
-          source_panel.find('table tr.manifest-row').each(function(tr) {
-            new_manifest_order.push($(this).data('id'));
-          });
-          // same run, itinerary sequence change
-          var leg_flag = ui.draggable.data('leg-flag');
-          var itin_id = ui.draggable.data('id');
-          current_itin_index = new_manifest_order.indexOf(itin_id);
+- unless run.complete?
+  :javascript
+    $("#run_trips_panel_#{run.id}").droppable({
+      tolerance: 'pointer',
+      hoverClass: "drop-zone-active",
+      over: function(e, ui) {
+        $("#run_trips_panel_#{run.id}").addClass("drop-zone-active");
+      },
+      drop: function(e, ui) {
+        var source_panel = ui.draggable.parents('.panel');
+        var prev_run_id = source_panel.data('run-id');
+        var trip_id = null;
+        if(prev_run_id) {
+          trip_id = ui.draggable.data('trip-id');
+        } else {
+          trip_id = ui.draggable.parents('tr').data('trip-id');
+        }
+        var run_id = #{run.id};
+        if(prev_run_id == run_id) {
+          setTimeout(function() {
+            var new_manifest_order = [];
+            source_panel.find('table tr.manifest-row').each(function(tr) {
+              new_manifest_order.push($(this).data('id'));
+            });
+            // same run, itinerary sequence change
+            var leg_flag = ui.draggable.data('leg-flag');
+            var itin_id = ui.draggable.data('id');
+            current_itin_index = new_manifest_order.indexOf(itin_id);
 
-          var is_pickup = (leg_flag == '1');
-          var the_other_leg_flag = (is_pickup ? '2' : '1');
-          other_itin_index = new_manifest_order.indexOf("trip_" + trip_id + "_leg_" + the_other_leg_flag);
-          if(is_pickup && other_itin_index < current_itin_index) {
-            $("#run_trips_panel_" + run_id + " table tbody").sortable('cancel');
-            bootbox.alert('Pickup cannot be scheduled after the dropoff');
-          } else if(!is_pickup && current_itin_index < other_itin_index) {
-            $("#run_trips_panel_" + run_id + " table tbody").sortable('cancel');
-            bootbox.alert('Dropoff cannot be scheduled before the pickup');
-          } else {
-            change_run_manifest_order(run_id, new_manifest_order);
-          }
-          }, 300);
-      } else {
-        schedule_trip(trip_id, run_id, prev_run_id);
+            var is_pickup = (leg_flag == '1');
+            var the_other_leg_flag = (is_pickup ? '2' : '1');
+            other_itin_index = new_manifest_order.indexOf("trip_" + trip_id + "_leg_" + the_other_leg_flag);
+            if(is_pickup && other_itin_index < current_itin_index) {
+              $("#run_trips_panel_" + run_id + " table tbody").sortable('cancel');
+              bootbox.alert('Pickup cannot be scheduled after the dropoff');
+            } else if(!is_pickup && current_itin_index < other_itin_index) {
+              $("#run_trips_panel_" + run_id + " table tbody").sortable('cancel');
+              bootbox.alert('Dropoff cannot be scheduled before the pickup');
+            } else {
+              change_run_manifest_order(run_id, new_manifest_order);
+            }
+            }, 300);
+        } else {
+          schedule_trip(trip_id, run_id, prev_run_id);
+        }
       }
-    }
-  });
+    });
 
-  $("#run_trips_panel_#{run.id} table tbody").sortable();
+    $("#run_trips_panel_#{run.id} table tbody").sortable();

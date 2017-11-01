@@ -56,6 +56,10 @@ class RunsController < ApplicationController
 
   def edit
     setup_run
+
+    if @run.complete?
+      render :show
+    end
   end
 
   def create
@@ -187,6 +191,14 @@ class RunsController < ApplicationController
   end 
 
   def request_completion
+  end
+
+  def request_uncompletion
+  end
+
+  def uncomplete
+    @run.set_incomplete!
+    redirect_to run_path(@run)
   end
 
   def complete
