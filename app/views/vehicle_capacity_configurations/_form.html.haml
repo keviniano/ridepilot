@@ -1,0 +1,26 @@
+- remote ||= false
+= nested_form_for [@vehicle_type, @vehicle_capacity_configuration], 
+    remote: remote,
+    html: {class: "vehicle-capacity-configuration-form"} do |f|
+  - if @vehicle_capacity_configuration.errors.any?
+    .panel.panel-danger
+      .panel-heading= translate_helper("vehicle_capacity_configuration_form_error", count: @vehicle_capacity_configuration.errors.count)
+      .panel-body
+        %ul
+          - @vehicle_capacity_configuration.errors.full_messages.each do |msg|
+            %li= msg
+  .row
+    .col-md-12
+      .panel.panel-primary
+        .panel-body.form-horizontal
+          - CapacityType.by_provider(current_provider).order(:name).each do |ct|
+            = f.fields_for :vehicle_capacities, @vehicle_capacity_configuration.vehicle_capacities.build(capacity_type: ct) do |vc|
+              = vc.hidden_field :capacity_type_id
+              .form-group
+                .col-md-3.control-label
+                  = ct.name
+                .col-md-9
+                  = vc.number_field :capacity, class: "form-control", min: 0
+
+
+  .row.form-actions= f.submit translate_helper("vehicle_capacity_configuration_form_submit"), class: "btn action-button"

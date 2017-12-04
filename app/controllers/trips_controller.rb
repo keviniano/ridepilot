@@ -266,6 +266,7 @@ class TripsController < ApplicationController
 
   def clone
     @trip = @trip.clone_for_future!
+    @is_clone = true
     prep_view
 
     respond_to do |format|
@@ -276,6 +277,7 @@ class TripsController < ApplicationController
   end
 
   def return
+    @is_return = true
     if params[:trip].present?
       @trip = @trip.clone_for_return!(params[:trip][:pickup_time], params[:trip][:appointment_time])
     else
@@ -331,6 +333,8 @@ class TripsController < ApplicationController
         end
       end
     end
+    
+    edit_mobilities
 
     from_dispatch = params[:from_dispatch] == 'true'
 
@@ -367,25 +371,26 @@ class TripsController < ApplicationController
   def check_double_booked
     params = check_double_booked_params
     unless params[:customer_id].blank? || params[:date].blank?
-      @customer = Customer.find(params[:customer_id])
-      double_booked_trips = @customer.trips.for_date(Date.parse(params[:date]))
-        .where.not(id: params[:id]).order(:pickup_time, :appointment_time)
-      double_booked_trips_json = double_booked_trips.map do |trip|
-        {
-          id: trip.id,
-          pickup_time: trip.pickup_time.try(:to_s, :time_only),
-          pickup_address: trip.pickup_address.try(:address_text),
-          appointment_time: trip.appointment_time.try(:to_s, :time_only),
-          dropoff_address: trip.dropoff_address.try(:address_text)
-        }
+      @customer = Customer.find_by_id(params[:customer_id])
+      if @customer
+        double_booked_trips = @customer.trips.for_date(Date.parse(params[:date]))
+          .where.not(id: params[:id]).order(:pickup_time, :appointment_time)
+
+        double_booked_trips_json = double_booked_trips.map do |trip|
+          {
+            id: trip.id,
+            pickup_time: trip.pickup_time.try(:to_s, :time_only),
+            pickup_address: trip.pickup_address.try(:address_text),
+            appointment_time: trip.appointment_time.try(:to_s, :time_only),
+            dropoff_address: trip.dropoff_address.try(:address_text)
+          }
+        end
       end
-    else
-      double_booked_trips_json = []
     end 
       
     respond_to do |format|
       format.js {
-        render json: { trips: double_booked_trips_json }
+        render json: { trips: double_booked_trips_json || [] }
       }
     end
   end
@@ -401,6 +406,9 @@ class TripsController < ApplicationController
     authorize! :manage, @trip
 
     @trip.assign_attributes(trip_params)
+    
+    edit_mobilities
+
     is_address_changed = @trip.pickup_address_id_changed? || @trip.dropoff_address_id_changed?
     is_trip_result_changed = @trip.trip_result_id_changed?
     is_run_disrupted = @trip.run_disrupted_by_trip_changes?
@@ -452,19 +460,18 @@ class TripsController < ApplicationController
       :direction,
       :linking_trip_id,
       :appointment_time,
-      :attendant_count,
       :customer_id,
       :customer_informed,
       :driver_id,
       :dropoff_address_id,
+      :dropoff_address_notes,
       :funding_source_id,
-      :group_size,
-      :guest_count,
       :medicaid_eligible,
       :mileage,
       :mobility_id,
       :notes,
       :pickup_address_id,
+      :pickup_address_notes,
       :pickup_time,
       :provider_id, # We normally wouldn't accept this and would set it manually on the instance, but in this controller we're setting it in the params dynamically
       :cab,
@@ -474,7 +481,6 @@ class TripsController < ApplicationController
       :trip_result_id,
       :result_reason,
       :vehicle_id,
-      :mobility_device_accommodations,
       :number_of_senior_passengers_served,
       :number_of_disabled_passengers_served,
       :number_of_low_income_passengers_served,
@@ -567,6 +573,28 @@ class TripsController < ApplicationController
       new_temp_addr = TempAddress.new(addr_params.select{|x| TempAddress.allowable_params.include?(x)})
       new_temp_addr.the_geom = RGeo::Geographic.spherical_factory(srid: 4326).point(addr_params['lon'].to_f, addr_params['lat'].to_f)
       @trip.dropoff_address = new_temp_addr
+    end
+  end
+
+  def edit_mobilities
+    unless params[:mobilities].blank?
+      mobilities = JSON.parse(params[:mobilities], symbolize_names: true)
+      @trip.ridership_mobilities.delete_all
+
+      sum_by_ridership = {}
+      mobilities.each do |config|
+        ridership_id = config[:ridership_id].to_i
+        capacity = config[:capacity].to_i
+        sum_by_ridership[ridership_id] = 0 if !sum_by_ridership.has_key?(ridership_id)
+        sum_by_ridership[ridership_id] += capacity
+        @trip.ridership_mobilities.build(mobility_id: config[:mobility_id], ridership_id: ridership_id, capacity: capacity)
+      end
+
+      # update space totals
+      @trip.customer_space_count = sum_by_ridership[1].to_i
+      @trip.guest_count = sum_by_ridership[2].to_i
+      @trip.attendant_count = sum_by_ridership[3].to_i
+      @trip.service_animal_space_count = sum_by_ridership[4].to_i
     end
   end
 end

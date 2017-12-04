@@ -1,0 +1,31 @@
+:css
+  #planned_leave_table table tr.odd {
+    background: transparent;
+  }
+
+.table-responsive#planned_leave_table
+  .pull-right
+    - if can?(:edit, leavable)
+      = link_to translate_helper(:new_planned_leave_link_text), new_planned_leave_path(leavable_id: leavable.id, leavable_type: leavable.class.name), remote: true, class: 'btn action-button'
+  %table.table.table-condensed
+    %thead
+      %th= translate_helper(:first_day_of_leave)
+      %th= translate_helper(:last_day_of_leave)
+      %th= translate_helper(:reason_leave)
+      - if can?(:edit, leavable)
+        %th
+
+    %tbody
+      - leavable.planned_leaves.current.each do |leave|
+        = render 'shared/planned_leave_row', leave: leave, leavable: leavable
+
+:javascript
+  $(function() {
+    // fixed table header
+    $('#planned_leave_table table').floatThead({
+      scrollContainer: function($table){
+        return $table.closest('.table-responsive');
+      }
+    });
+
+  });

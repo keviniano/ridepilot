@@ -1,0 +1,27 @@
+%table.table.table-bordered.table-hover.table-condensed.inline-editing-table
+  %thead
+    %tr.report-header
+      %th
+        = translate_helper("mobility")
+      - RidershipMobilityMapping::RIDERSHIP_LIST.each do |ridership_id, ridership_name|
+        %th
+          = ridership_name
+  %tbody
+    - capacity_sum_by_ridership = {1=> 0, 2 => 0, 3 => 0, 4 => 0}
+    - Mobility.by_provider(current_provider).order(:name).each do |mt|
+      %tr{data: {mobility_id: mt.id}}
+        %td= mt.name
+        - RidershipMobilityMapping::RIDERSHIP_LIST.each do |ridership_id, ridership_name|
+          - mc = @ridership_mobility_mappings[[mt.id, ridership_id]]
+          %td.input-column
+            - val = mc && mc.first.try(:capacity) || 0
+            - capacity_sum_by_ridership[ridership_id.to_i] += val
+            %a.editable-cell.editable-number{href:"#", data: {type:"text", ridership_id: ridership_id, mobility_id: mt.id, original_value: val} }
+              = val
+    %tr.total-row
+      %td.text-right= translate_helper(:total_space)
+      - RidershipMobilityMapping::RIDERSHIP_LIST.each do |ridership_id, ridership_name|
+        %td.total-column{data: {ridership_id: ridership_id}}
+          = capacity_sum_by_ridership[ridership_id.to_i]
+
+= render 'trips/ridership_mobility_edit_script'

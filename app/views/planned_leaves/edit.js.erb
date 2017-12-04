@@ -1,0 +1,10 @@
+var $new_form = $("<%= j (render 'form', leavable: @leavable) %>");
+$new_form.find('input.datepicker').datepicker({
+  dateFormat: 'yy-mm-dd', 
+  showButtonPanel: true,
+  minDate: '+0'
+}).css('z-index', 9999);
+
+$('#modal-dialog .modal-body .container-fluid').html($new_form);
+$('#modal-dialog .modal-title').html("<%= j translate_helper('planned_leave_form_edit_heading') %>");
+$('#modal-dialog').modal('show');

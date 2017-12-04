@@ -1,29 +1,60 @@
-- if @customers
+- if @query
+  %h2 Summary
+  %h3 By Mobility Type
+  %table.table.table-bordered
+    %thead
+      %tr
+        %th{style: 'width: 150px;'} Mobility
+        %th Number of Active Customers
+    %tbody
+      - @mobilities.each do |m|
+        %tr
+          %td= m.name
+          %td= @count_by_mobilities[m.id] || 0
+
+  %h3 By Eligibility 
+  %table.table.table-bordered
+    %thead
+      %tr
+        %th{style: 'width: 150px;'} Eligibility
+        %th Number of Active Customers
+    %tbody
+      %tr
+        %td Age
+        %td= @age_eligible_count
+      %tr
+        %td ADA
+        %td= @ada_eligible_count
+      - @eligibilities.each do |e|
+        %tr
+          %td= e.description
+          %td= @count_by_eligibility[e.id] || 0
+
+- if !@is_summary_report && @customers
   - @customers.each do |customer|
-    %h2{style: 'text-decoration: underline;'}= customer.name
-    - unless @is_summary_repot
-      %p
-        %b= "Birthdate: "
-        = format_date(customer.birth_date) || "(Not specified)"
-      %p
-        %b= "Phone Number: "
-        - phone_numbers = [format_phone_number(customer.phone_number_1), format_phone_number(customer.phone_number_2)].compact.reject{ |c| c.empty? }
-        - unless phone_numbers.blank?
-          = simple_format phone_numbers.join("<br>")
-        - else
-          (Not provided)
-    
-      %p
-        %b= "Mailing Address: "
-        = customer.address.try(:address_text) || "(Not specified)"
+    %h3{style: 'text-decoration: underline;'}= customer.name
+    %p
+      %b= "Birthdate: "
+      = format_date(customer.birth_date) || "(Not specified)"
+    %p
+      %b= "Phone Number: "
+      - phone_numbers = [format_phone_number(customer.phone_number_1), format_phone_number(customer.phone_number_2)].compact.reject{ |c| c.empty? }
+      - unless phone_numbers.blank?
+        = simple_format phone_numbers.join("<br>")
+      - else
+        (Not provided)
+  
+    %p
+      %b= "Mailing Address: "
+      = customer.address.try(:address_text) || "(Not specified)"
 
-      %p
-        %b= "Funding Source: "
-        = customer.default_funding_source.try(:name) || "(Not specified)"
+    %p
+      %b= "Funding Source: "
+      = customer.default_funding_source.try(:name) || "(Not specified)"
 
-      %p
-        %b= "Authorized Providers:"
-        = simple_format customer.authorized_providers.pluck(:name).sort.join('<br>')
+    %p
+      %b= "Authorized Providers:"
+      = simple_format customer.authorized_providers.pluck(:name).sort.join('<br>')
 
     %b Mobility Device 
     %br

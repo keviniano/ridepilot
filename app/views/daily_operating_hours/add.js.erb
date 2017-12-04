@@ -1,0 +1,47 @@
+var date = "<%= params[:date_flag] %>";
+var is_all_day = <%= @is_all_day || false %>;
+var is_unavailable = <%= @is_unavailable || false %>;
+var daily_table = $('table.daily_availability');
+var daily_row = daily_table.find("tr[data-date-value=" + date+ "]");
+
+if(is_all_day) {
+  daily_row.find('input.is_unavailable').prop('checked', false);
+  daily_row.find('td.is_filled').removeClass('is_filled');
+  daily_row.find('td.hour_cell').addClass('is_all_day_filled');
+} else if(is_unavailable) {
+  daily_row.find('input.is_all_day').prop('checked', false);
+  daily_row.find('td.is_filled').removeClass('is_filled');
+  daily_row.find('td.is_all_day_filled').removeClass('is_all_day_filled');
+} else {
+  $('#modal-dialog').modal('hide');
+  var has_error = <%= @has_error || false %>;
+  if(has_error) {
+    show_alert_dialog("There is error updating operating hours. Please make sure From Time is earlier than To Time.");
+  } else {
+    daily_row.find('input.is_all_day').prop('checked', false);
+    daily_row.find('input.is_unavailable').prop('checked', false);
+    daily_row.find('td.is_all_day_filled').removeClass('is_all_day_filled');
+    
+    function is_filled(time_flag) {
+      var time_ranges = <%= @time_ranges || [] %>;
+      var range_size = time_ranges.length;
+      var filled = false;
+      for(var i=0; i< range_size; i++) {
+        var time_range = time_ranges[i];
+        if(time_range[0] <= time_flag && time_range[1] > time_flag) {
+          filled = true;
+          break;
+        }
+      }
+
+      return filled;
+    }
+    daily_row.find('td.hour_cell').each(function(){
+      var time_flag = parseFloat($(this).data('time-flag'));
+      if(is_filled(time_flag)) {
+        $(this).addClass('is_filled');
+      }
+    });
+  }
+}
+

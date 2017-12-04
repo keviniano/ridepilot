@@ -10,10 +10,12 @@ class CustomerEligibility < ActiveRecord::Base
   scope :ineligible,  -> { where(eligible: false) }
 
   def as_json
-    {
-      description: eligibility.description,
-      code: eligibility.code,
-      eligible: eligible
-    }
+    if eligibility
+      {
+        description: eligibility.description,
+        code: eligibility.code,
+        eligible: eligible
+      }
+    end
   end
 end

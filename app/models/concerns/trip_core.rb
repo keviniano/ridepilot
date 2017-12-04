@@ -4,6 +4,7 @@ module TripCore
   extend ActiveSupport::Concern
 
   included do
+    after_initialize :set_defaults
     belongs_to :customer, -> { with_deleted }, validate: false
     belongs_to :dropoff_address,  -> { with_deleted }, class_name: "Address"
     belongs_to :funding_source, -> { with_deleted }
@@ -26,7 +27,6 @@ module TripCore
     validates :trip_purpose_id, presence: true
     validates_datetime :pickup_time, presence: true
     validates_datetime :appointment_time, allow_nil: true, on_or_after: :pickup_time, on_or_after_message: "should be no earlier than pickup time"
-    validates :mobility_device_accommodations, numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_blank: true }
 
     accepts_nested_attributes_for :customer
 
@@ -39,11 +39,7 @@ module TripCore
   end
 
   def trip_size
-    if customer.try(:group)
-      group_size
-    else
-      guest_count + attendant_count + 1
-    end
+    (customer_space_count || 1) + guest_count.to_i + attendant_count.to_i + service_animal_space_count.to_i
   end
 
   def trip_count
@@ -55,5 +51,14 @@ module TripCore
   end
 
   module ClassMethods
+  end
+
+  private
+
+  def set_defaults
+    self.customer_space_count = 1 if self.respond_to?(:customer_space_count) && self.customer_space_count.nil?
+    self.guest_count = 0 if self.respond_to?(:guest_count) && self.guest_count.nil?
+    self.attendant_count = 0 if self.respond_to?(:attendant_count) && self.attendant_count.nil?
+    self.service_animal_space_count = 0 if self.respond_to?(:service_animal_space_count) && self.service_animal_space_count.nil?
   end
 end

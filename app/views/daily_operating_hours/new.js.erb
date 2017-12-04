@@ -1,0 +1,5 @@
+var $new_form = $("<%= j (render 'shared/add_new_operating_hour_form', is_daily: true) %>");
+
+$('#modal-dialog .modal-body .container-fluid').html($new_form);
+$('#modal-dialog .modal-title').html("<%= j translate_helper('operating_hour_form_new_heading') %>");
+$('#modal-dialog').modal('show');

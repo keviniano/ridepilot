@@ -1,0 +1,16 @@
+- edit_mode = :edit if !defined? edit_mode
+.panel.panel-primary.trip_mobility_panel#trip_mobility_panel
+  .panel-heading
+    %h3.panel-title
+      = translate_helper(:trip_mobility_panel)
+  .panel-body{style: 'padding: 5px;'}
+    - if edit_mode == :show
+      = render 'trips/ridership_mobility_listing'
+    - else
+      = render 'trips/ridership_mobility_edit'
+    .form-group.col-sm-12
+      %label.col-sm-3{for:"mobility_notes"}
+        = translate_helper("trip_mobility_notes")
+      .col-sm-9
+        %textarea.form-control#mobility_notes{rname:"mobility_notes", readonly:"readonly"}
+          = @customer.try :mobility_notes

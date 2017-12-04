@@ -138,6 +138,9 @@ gem 'newrelic_rpm'
 # Printing
 gem 'wicked_pdf'
 
+# In-line editing
+gem 'bootstrap-editable-rails'
+
 group :integration, :qa, :production do 
   gem 'rails_12factor'
   gem 'unicorn'

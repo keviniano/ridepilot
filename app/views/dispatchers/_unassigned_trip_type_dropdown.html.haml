@@ -11,7 +11,7 @@
     %b{style: 'color: pink;'}
       = options[unassigned_trip_status_id]
     %span.caret
-  %ul.dropdown-menu
+  %ul.dropdown-menu.pull-right  
     - options.each do |status_id, label|
       %li
         %a.unassigned_trip_type.non_jump_top{href: '#', data: {status_id: status_id} }

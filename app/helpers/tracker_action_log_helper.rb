@@ -28,6 +28,20 @@ module TrackerActionLogHelper
 
         msg.html_safe
       end
+    when "run.completed"
+      run = log.trackable
+      if run.present?
+        completer = (log.owner ? log.owner.try(:name) : 'the system')
+        "Run completed by #{completer}.".html_safe
+      end
+    when "run.uncompleted"
+      run = log.trackable
+      if run.present?
+        completer = (log.owner ? log.owner.try(:name) : 'the system')
+        params = log.parameters || {}
+        reason = params[:reason].blank? ? '(Not provided.)' : params[:reason]
+        "Run marked as incomplete by #{completer}. <br>Reason: #{reason}".html_safe
+      end
     when "trip.create_return"
       return_trip = log.trackable.try(:return_trip)
       if return_trip.present?
@@ -43,14 +57,14 @@ module TrackerActionLogHelper
       trip = log.trackable
       if trip.present?
         params = log.parameters || {}
-        reason = params[:reason].blank? ? 'Not provided.' : params[:reason]
+        reason = params[:reason].blank? ? '(Not provided.)' : params[:reason]
         "Trip was cancelled (#{params[:trip_result]}). <br>Reason: #{reason}".html_safe
       end
     when "trip.trip_turned_down"
       trip = log.trackable
       if trip.present?
         params = log.parameters || {}
-        reason = params[:reason].blank? ? 'Not provided.' : params[:reason]
+        reason = params[:reason].blank? ? '(Not provided.)' : params[:reason]
         "Trip was Turned Down. <br>Reason: #{reason}".html_safe
       end
     when "repeating_trip.subscription_created"
@@ -94,7 +108,7 @@ module TrackerActionLogHelper
       params = log.parameters || {}
       mileage = params[:mileage]
       if vehicle.present? && mileage.try(:size) == 2 # [old_val, new_val]
-        reason = params[:reason].blank? ? 'Not provided.' : params[:reason]
+        reason = params[:reason].blank? ? '(Not provided.)' : params[:reason]
         if mileage[1].blank?
           "Initial mileage was removed (<b>was:<> #{mileage[0]}). <br><b>Reason:</b> #{reason}".html_safe
         else

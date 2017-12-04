@@ -1,0 +1,55 @@
+:css
+  table {
+    border: none;
+  }
+
+  table th {
+    background: white;
+    color: black;
+    border-top: 2px black solid;
+    border-bottom: 2px black solid;
+  }
+
+  tr.odd {
+    background: white;
+  }
+
+  @media print {
+    table td, table th{
+      border: none;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+  }
+  
+  p {
+    line-height: normal;
+  }
+
+  table td, table th {
+    padding: 4px;
+  }
+
+.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
+  - @runs.each_with_index do |run, index|
+    .page-break{style: (index == 0 ? "page-break-before: auto;" : "")}
+    .row
+      .col-xs-6{style: 'font-size: 18px; font-weight: bold; padding-left: 0px;'}
+        .col-sm-12{style: 'padding-left: 0px;'}
+          = "#{translate_helper('driver_manifest_date')}: #{run.date.strftime('%A')}"
+        .col-sm-12{style: 'padding-left: 0px;'}
+          = format_date(run.date)
+      .col-xs-6{style: 'padding-right: 0px;'}
+        .pull-right
+          - if @is_pdf
+            = wicked_pdf_image_tag "/uta_logo.png", height:40, width:151
+          - else
+            %img{src: "/uta_logo.png", height:40, width:151}
+          
+    %br  
+    = render "reports/manifest/run#{@is_pdf ? '.html.haml' : ''}", run: run
+
+
+       

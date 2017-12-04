@@ -16,14 +16,13 @@ class Trip < ActiveRecord::Base
   belongs_to :outbound_trip, class_name: 'Trip', foreign_key: :linking_trip_id
   belongs_to :repeating_trip
   has_one    :donation
+  has_many   :ridership_mobilities, class_name: "TripRidershipMobility", foreign_key: :host_id, dependent: :destroy
 
   delegate :label, to: :run, prefix: :run, allow_nil: true
   delegate :code, :name, to: :trip_result, prefix: :trip_result, allow_nil: true
 
   validates :mileage, numericality: {greater_than: 0, allow_blank: true}
   validate :driver_is_valid_for_vehicle
-  validate :vehicle_has_open_seating_capacity
-  validate :vehicle_has_mobility_device_capacity
   validate :completable_until_trip_appointment_day
   validate :provider_availability
   validate :return_trip_later_than_outbound_trip
@@ -32,9 +31,9 @@ class Trip < ActiveRecord::Base
   validate :fit_run_schedule
 
   scope :after,              -> (pickup_time) { where('pickup_time > ?', pickup_time.utc) }
-  scope :after_today,        -> { where('CAST(pickup_time AS date) > ?', Date.today.in_time_zone.utc) }
-  scope :today_and_prior,    -> { where('CAST(pickup_time AS date) <= ?', Date.today.in_time_zone.utc) }
-  scope :prior_to_today,     -> { where('CAST(pickup_time AS date) < ?', Date.today.in_time_zone.utc) }
+  scope :after_today,        -> { where('pickup_time > ?', Date.today.end_of_day) }
+  scope :today_and_prior,    -> { where('pickup_time <= ?', Date.today.end_of_day) }
+  scope :prior_to_today,     -> { where('pickup_time < ?', Date.today.beginning_of_day) }
   scope :during,             -> (pickup_time, appointment_time) { 
                                   where('NOT ((pickup_time < ? AND appointment_time < ?) OR (pickup_time > ? AND appointment_time > ?))', 
                                   pickup_time.utc, appointment_time.utc, pickup_time.utc, appointment_time.utc) }
@@ -69,12 +68,7 @@ class Trip < ActiveRecord::Base
     'pickup_time',
     'appointment_time',
     'pickup_address_id',
-    'dropoff_address_id',
-    'mobility_id',
-    'guest_count',
-    'attendant_count',
-    'group_size',
-    'mobility_device_accommodations'
+    'dropoff_address_id'
   ]
 
   def self.attributes_can_disrupt_run
@@ -207,12 +201,14 @@ class Trip < ActiveRecord::Base
     cloned_trip.outbound_trip = nil
     cloned_trip.direction = :outbound
 
+    cloned_trip.ridership_mobilities = self.ridership_mobilities.has_capacity.collect{|m| m.dup}
+
     cloned_trip
   end
 
   def clone_for_return!(pickup_time_str = nil, appointment_time_str = nil)
 
-    return_trip = self.dup
+    return_trip = self.dup 
     return_trip.direction = :return
     return_trip.pickup_address = self.dropoff_address
     return_trip.dropoff_address = self.pickup_address
@@ -227,6 +223,9 @@ class Trip < ActiveRecord::Base
     return_trip.drive_distance = nil
     return_trip.trip_result = nil
     return_trip.result_reason = nil
+
+    return_trip.ridership_mobilities = self.ridership_mobilities.has_capacity.collect{|m| m.dup}
+
     return_trip
   end
 
@@ -308,9 +307,9 @@ class Trip < ActiveRecord::Base
     end
   end
 
-  # Mark past scheduled trips as driver_notified
+  # Mark scheduled trips (for past and today) as driver_notified
   def self.mark_past_scheduled_trips_as_driver_notified!
-    self.prior_to_today.scheduled.not_for_cab.driver_not_notified.update_all(driver_notified: true)
+    self.today_and_prior.scheduled.not_for_cab.driver_not_notified.update_all(driver_notified: true)
   end
 
   # Move past trips in Standby queue to Unmet Need
@@ -395,26 +394,6 @@ class Trip < ActiveRecord::Base
     # but the driver for the run is not the driver selected for the trip
     if self.run.try(:driver_id).present? && self.driver_id.present? && self.run.driver_id.to_i != self.driver_id.to_i
       errors.add(:driver_id, TranslationEngine.translate_text(:driver_is_valid_for_vehicle_validation_error))
-    end
-  end
-
-  # Check if the run's vehicle has open capacity at the time of this trip
-  # TODO: refactor needed to deal with re-arranging pickup and dropoff orders from different trip
-  def vehicle_has_open_seating_capacity
-    if run.try(:vehicle_id).present? && pickup_time.present? && appointment_time.present?
-      vehicle_open_seating_capacity = run.vehicle.try(:open_seating_capacity, pickup_time, appointment_time, ignore: self)
-      no_enough_capacity = !vehicle_open_seating_capacity ||  vehicle_open_seating_capacity < trip_size
-      errors.add(:base, TranslationEngine.translate_text(:vehicle_has_open_seating_capacity_validation_error)) if no_enough_capacity
-    end
-  end
-
-  # Check if the run's vehicle has enough mobility accommodations at the time of this trip
-  # TODO: refactor needed to deal with re-arranging pickup and dropoff orders from different trip
-  def vehicle_has_mobility_device_capacity
-    if mobility_device_accommodations && run.try(:vehicle_id).present? && pickup_time.present? && appointment_time.present?
-      vehicle_mobility_capacity = run.vehicle.try(:open_mobility_device_capacity, pickup_time, appointment_time, ignore: self)
-      no_enough_capacity = !vehicle_mobility_capacity ||  vehicle_mobility_capacity < mobility_device_accommodations
-      errors.add(:base, TranslationEngine.translate_text(:vehicle_has_mobility_device_capacity_validation_error)) if no_enough_capacity
     end
   end
 

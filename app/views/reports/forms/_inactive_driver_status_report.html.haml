@@ -1,3 +1,11 @@
 = form_for @query, :url=>url_for(:action=>:inactive_driver_status_report), :html=>{:method=>:get} do |f| 
   %fieldset
-    = render 'reports/forms/v2_reports/common_controls', has_multiple_report_types: true, f: f
+    %label
+      = "#{translate_helper(:report_format)}:"
+      = f.select :report_format, options_for_select([['HTML', 'html'],['CSV', 'csv'],['PDF', 'pdf']], @query.report_format || 'html')
+
+    %label
+      = "#{translate_helper(:report_type)}:"
+      = f.select :report_type, options_for_select([['Permanent Inactive Drivers Report', 'perm_inacitve'],['Temporary Inactive Drivers Report', 'detail']], @query.report_type || 'temp_inactive')
+
+    = f.submit translate_helper("run"), class: 'btn action-button'

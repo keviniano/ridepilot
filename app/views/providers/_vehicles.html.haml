@@ -1,13 +1,3 @@
-- capacity_type_table = ProviderLookupTable.find_by_name('capacity_types')
-- if capacity_type_table
-  %h2.section-header
-    = translate_helper("configure_provider_capacity_types")
-    - if CapacityType.by_provider(current_provider).empty?
-      %span.badge
-        0
-  = link_to translate_helper("provider_capacity_types_link_text"), provider_lookup_table_path(capacity_type_table), target: '_blank'
-  %hr
-
 %h2.section-header
   = translate_helper("configure_provider_vehicle_types")
   - if VehicleType.for_provider(current_provider_id).empty?

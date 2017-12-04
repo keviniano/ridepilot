@@ -254,12 +254,12 @@ module ApplicationHelper
           class_name = "overdue-danger"
           warning_msg = "Inactive for the run date. "
         elsif run.scheduled_start_time && run.scheduled_end_time
-          unless driver.available_between?(run.date.wday, run.scheduled_start_time, run.scheduled_end_time)
+          unless driver.available_between?(run.date, run.scheduled_start_time, run.scheduled_end_time)
             class_name = "overdue-danger"
             warning_msg += "Unavailable for the whole run time range. "
           end
         elsif 
-          unless driver.available?(run.date.wday)
+          unless driver.available?(run.date)
             class_name = "overdue-danger"
             warning_msg += "Unavailable for the run time. "
           end

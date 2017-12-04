@@ -1,0 +1,146 @@
+<% if @customer %>
+  $('.customer-eligibilities').show();
+
+  $('.customer-eligibility-details').html("<%= j(render 'customers/view_customer_eligibilities') %>");
+<% else %>
+  $('.customer-eligibilities').hide();
+<% end %>
+
+$('.trip_mobility_panel').html("<%= j(render 'trips/mobility_panel', edit_mode: :edit) %>");
+
+// Following code is to re-enable inline-editing in mobility configuration
+$.fn.editable.defaults.mode = 'inline';
+
+// function to process new value (Tab, Enter, or Click away)
+function processCell(editableCell, isNotesCell, newValue, keyCode) {
+  //if not notes, then identify empty cell and use 0 as the value
+  if(!isNotesCell && (newValue == "" || newValue == "Empty")) {
+    newValue = 0;
+  }
+  // if the cell is not for notes, then check if number exist before proceeding
+  if ((isNotesCell || ( !isNotesCell && $.isNumeric(newValue) )) && (keyCode === 9 || keyCode == 13 || keyCode == 100)) {
+    
+    if($.isNumeric(newValue)) {
+      newValue = parseInt(newValue);
+    }
+    editableCell.trigger('save', {
+      newValue: newValue,
+      keyCode: keyCode
+    });
+  }
+}
+
+// initialize cells with x-editable to provide in-line editing function
+// number cells
+$('.editable-number').editable({
+  tpl: '<input type="number" min="0" step="1" required>',
+  disabled: false,
+  savenochange: true,
+  showbuttons: false,
+  clear: false,
+  onblur: 'submit',
+  send: 'never'
+});
+
+// select all text when editable input shows up so to speed up input
+$('.editable-cell').on('shown', function(e, editable) {
+  setTimeout( function() {
+    editable.input.$input.select();
+  }, 100 );
+});
+
+// click an editable cell to bring up editable-input
+$('.editable-cell:not(.editable-disabled)').closest('td').click(function() {
+  var that = this;
+  setTimeout(function() {
+    $(that).find('.editable-cell').editable('show');
+    }, 100);
+});
+
+// if the cell is editable enabled, show up editable input when it gets focus
+$('.editable-cell:not(.editable-disabled)').focus(function() {
+  $(this).editable('show');
+});
+
+// prevent clicking a[href='#'] jump to page top
+$('a.editable-cell').click(function(e) {
+  e.preventDefault();
+});
+
+// prevent backspace key from navigating back
+$(document).on("keydown", function (e) {
+  if (e.which === 8 && !$(e.target).is("input, textarea")) {
+      e.preventDefault();
+  }
+});
+
+// click away cell editor, save and process new value
+$('.editable-cell').on('hidden', function(e, reason) {
+  if(reason === 'save') {
+    var newValue = $(this).text();
+
+    var keyCode = 100; // dummy key code for clicking away
+    var newValue = $(this).text();
+    var editableCell = $(this).closest('td').find('.editable-cell');
+    var isNotesCell = editableCell.hasClass('editable-notes');
+    
+    processCell(editableCell, isNotesCell, newValue, keyCode)
+  } 
+});
+
+// capture key events: Tab key to nav to next cell, Enter key to nav to the cell in next row but same column
+$(document).on("keydown", '.editable-input input', function (e) {
+  var keyCode = e.which;
+  if(keyCode != 9 && keyCode != 13) {
+    return;
+  }
+  var newValue = $(this).val();
+  var editableCell = $(this).closest('td').find('.editable-cell');
+  var isNotesCell = editableCell.hasClass('editable-notes');
+  
+  processCell(editableCell, isNotesCell, newValue, keyCode)
+});
+
+function getColTotal(ridership_id) {
+  var total = 0;
+  var selector = '.editable-number' +
+    '[data-ridership-id="' + ridership_id + '"]';
+  
+  $(selector).each(function() {
+    total += parseInt($(this).text());
+  }); 
+
+  return total;
+}
+
+$('.editable-number').on('save', function(e, params) {
+  params = params || {};
+
+  // only allow Tab or Enter key
+  if(!params.keyCode) {
+    return false;
+  }
+
+  var newValue = params.newValue;
+  if(!$.isNumeric(newValue)) {
+    newValue = 0;
+  }
+  var isChanged = (newValue != parseInt($(this).data('original-value')));
+  $(this).editable('setValue', newValue);
+
+  if(isChanged) {
+    // update total
+    var ridership_id = $(this).data('ridership-id');
+    var col_sum = getColTotal(ridership_id);
+    $('.total-column[data-ridership-id=' + ridership_id + ']').text(col_sum);
+  }
+
+  var that = this;
+  setTimeout(function() {
+    if(!isChanged) {
+      $(that).removeClass('editable-unsaved');
+    }
+  });
+});
+
+$('.editable-number[data-original-value!=0]').addClass('editable-unsaved');

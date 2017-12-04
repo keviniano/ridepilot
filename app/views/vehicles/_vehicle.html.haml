@@ -2,6 +2,10 @@
   - vehicle_overdue_check = get_vehicle_warnings(vehicle)
   %td{class: vehicle_overdue_check[:class_name], title: vehicle_overdue_check[:tips] }
     = link_to_if can?(:read, vehicle), vehicle.name, vehicle
+    .pull-right
+      - unless vehicle.vehicle_type
+        %span.label.label-info
+          Veh. Type?
   %td
     = vehicle.year
   %td

@@ -50,15 +50,10 @@ RSpec.describe RepeatingTrip do
       expect(@trip.trip_size).to eq 1
     end
 
-    it "accounts for guests and attendants" do
+    it "accounts for guests, attendants and service animal" do
       @trip.guest_count = 1
       @trip.attendant_count = 1
-      expect(@trip.trip_size).to eq 3
-    end
-
-    it "accounts for groups" do
-      @trip.customer = create :customer, group: true
-      @trip.group_size = 4
+      @trip.service_animal_space_count = 1
       expect(@trip.trip_size).to eq 4
     end
   end

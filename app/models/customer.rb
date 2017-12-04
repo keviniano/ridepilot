@@ -24,6 +24,8 @@ class Customer < ActiveRecord::Base
   has_many   :ada_questions, through: :customer_ada_questions
   has_many   :customer_ada_questions, dependent: :destroy
 
+  has_many   :ridership_mobilities, class_name: "CustomerRidershipMobility", foreign_key: :host_id, dependent: :destroy
+
   # profile photo
   has_one  :photo, class_name: 'Image', as: :imageable, dependent: :destroy, inverse_of: :imageable
   accepts_nested_attributes_for :photo
@@ -115,7 +117,7 @@ class Customer < ActiveRecord::Base
       :address_data              => address_data,
       :default_funding_source_id => default_funding_source_id,
       :default_service_level     => service_level_name,
-      :customer_eligibilities    => customer_eligibilities.specified.as_json
+      :customer_eligibilities    => customer_eligibilities.where.not(eligibility_id: nil).specified.as_json
     }
   end
 

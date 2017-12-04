@@ -150,3 +150,49 @@ table.dataTable tbody tr.selected {
   color: white !important;
 }
 
+/* bootstrap x-editable override */
+.editable-unsaved {
+  color: red !important;
+}
+
+.editable-input input{
+  text-align: right;
+  padding: 0px 5px !important;
+  height: 25px !important;
+}
+
+.editable-input input[type=number]::-webkit-inner-spin-button, 
+.editable-input input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.editable-input input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.editable-buttons {
+  display: none !important;
+}
+
+.editable-inline {
+  width: 100% !important;
+}
+
+.editableform .control-group {
+  width: 100% !important;
+}
+
+.editable-input {
+  width: 100% !important;
+}
+
+.editable-input input{
+  width: 100% !important;
+}
+
+.inline-editing-table td.input-column {
+  width: 10%;
+  min-width: 110px;
+}
+

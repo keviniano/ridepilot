@@ -8,6 +8,7 @@ class VehicleTypesController < ApplicationController
   end
 
   def show
+    @capacity_types = CapacityType.by_provider(current_provider).order(:name)
   end
 
   def new

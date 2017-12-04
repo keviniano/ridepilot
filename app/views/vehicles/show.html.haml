@@ -15,6 +15,6 @@
           = link_to translate_helper("reactivate"), reactivate_vehicle_path(@vehicle), method: :post, :class=>'btn action-button', :data => { :confirm => translate_helper(:reactivate_confirmation)}
         - else
           = button_tag :type => 'button', id: 'inactivateVehicle', "data-target" => "#inactivateDialog", "data-toggle" => "modal", :class => "btn action-button" do
-            = @vehicle.inactivated? ? translate_helper(:activate) : translate_helper(:inactivate)
+            = !@vehicle.active_for_date?(Date.today) ? translate_helper(:activate) : translate_helper(:inactivate)
 = render partial: "form"
 = render 'shared/date_range_inactivate_dialog', resource: @vehicle, inactivation_url: inactivate_vehicle_path(@vehicle)

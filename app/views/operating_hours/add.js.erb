@@ -1,0 +1,49 @@
+var day_of_week = "<%= params[:date_flag] %>";
+var is_all_day = <%= @is_all_day || false %>;
+var is_unavailable = <%= @is_unavailable || false %>;
+var recur_table = $('table.recur_availability');
+var recur_row = recur_table.find("tr[data-date-value=" + day_of_week+ "]");
+
+if(is_all_day) {
+  recur_row.find('input.is_unavailable').prop('checked', false);
+  recur_row.find('td.is_filled').removeClass('is_filled');
+  recur_row.find('td.hour_cell').addClass('is_all_day_filled');
+} else if(is_unavailable) {
+  recur_row.find('input.is_all_day').prop('checked', false);
+  recur_row.find('td.is_filled').removeClass('is_filled');
+  recur_row.find('td.is_all_day_filled').removeClass('is_all_day_filled');
+} else {
+  $('#modal-dialog').modal('hide');
+  var has_error = <%= @has_error || false %>;
+  if(has_error) {
+    show_alert_dialog("There is error updating operating hours. Please make sure From Time is earlier than To Time.");
+  } else {
+    recur_row.find('input.is_all_day').prop('checked', false);
+    recur_row.find('input.is_unavailable').prop('checked', false);
+    recur_row.find('td.is_all_day_filled').removeClass('is_all_day_filled');
+    
+    function is_filled(time_flag) {
+      var time_ranges = <%= @time_ranges || [] %>;
+      var range_size = time_ranges.length;
+      var filled = false;
+      for(var i=0; i< range_size; i++) {
+        var time_range = time_ranges[i];
+        if(time_range[0] <= time_flag && time_range[1] > time_flag) {
+          filled = true;
+          break;
+        }
+      }
+
+      return filled;
+    }
+    recur_row.find('td.hour_cell').each(function(){
+      var time_flag = parseFloat($(this).data('time-flag'));
+      if(is_filled(time_flag)) {
+        $(this).addClass('is_filled');
+      }
+    });
+  }
+}
+
+$('table#daily_availability_table').floatThead('destroy');
+$('table#daily_availability_table').replaceWith("<%= j (render 'shared/availability_table', is_daily: true, operatable: @operatable) %>");

@@ -1,0 +1,24 @@
+:ruby
+  @ridership_mobility_mappings = @customer.ridership_mobilities.group_by{|c|[c.mobility_id, c.ridership_id]}
+
+- edit_mode = :edit if !defined? edit_mode
+.panel.panel-primary#customer_mobility_panel
+  .panel-heading
+    %h3.panel-title
+      = translate_helper(:customer_mobility_panel)
+  .panel-body{style: 'padding: 5px;'}
+    - if edit_mode == :show
+      = render 'customers/ridership_mobility_listing'
+    - else
+      = render 'customers/ridership_mobility_edit'
+
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :mobility_id, translate_helper(:customer_default_mobility) 
+      .col-sm-9
+        = f.collection_select :mobility_id, @mobilities, :id, :name, {include_blank: true},  {class: 'form-control'}
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :mobility_notes, translate_helper(:mobility_notes) 
+      .col-sm-9
+        = f.text_field :mobility_notes, class: 'form-control'

@@ -42,40 +42,6 @@ RSpec.describe Vehicle, type: :model do
     expect(vehicle.valid?).to be_truthy
   end
 
-  it "requires seating_capacity to be an integer > 0" do
-    vehicle = build :vehicle, seating_capacity: nil
-    expect(vehicle.valid?).to be_falsey
-    expect(vehicle.errors.keys).to include :seating_capacity
-
-    vehicle.seating_capacity = 0
-    expect(vehicle.valid?).to be_falsey
-    expect(vehicle.errors.keys).to include :seating_capacity
-
-    vehicle.seating_capacity = 1.2
-    expect(vehicle.valid?).to be_falsey
-    expect(vehicle.errors.keys).to include :seating_capacity
-
-    vehicle.seating_capacity = 1
-    expect(vehicle.valid?).to be_truthy
-  end
-
-  it "requires mobility_device_accommodations to be an integer >= 0" do
-    vehicle = build :vehicle, mobility_device_accommodations: nil
-    expect(vehicle.valid?).to be_falsey
-    expect(vehicle.errors.keys).to include :mobility_device_accommodations
-
-    vehicle.mobility_device_accommodations = -1
-    expect(vehicle.valid?).to be_falsey
-    expect(vehicle.errors.keys).to include :mobility_device_accommodations
-
-    vehicle.mobility_device_accommodations = 1.2
-    expect(vehicle.valid?).to be_falsey
-    expect(vehicle.errors.keys).to include :mobility_device_accommodations
-
-    vehicle.mobility_device_accommodations = 0
-    expect(vehicle.valid?).to be_truthy
-  end
-
   it "requires an ownership of either 'agency' or 'volunteer', or blank" do
     vehicle = build :vehicle, ownership: nil
     expect(vehicle.valid?).to be_truthy
@@ -179,98 +145,6 @@ RSpec.describe Vehicle, type: :model do
       expect {
         @vehicle.destroy
       }.to change(Document, :count).by(-3)
-    end
-  end
-  
-  describe "tracking seating capacity" do
-    before do
-      @vehicle = create :vehicle, seating_capacity: 8
-      @run = create :run, vehicle: @vehicle
-
-      @start_time = Time.zone.parse("14:30")
-      @end_time   = Time.zone.parse("15:30")
-      
-      @starts_before_start_ends_before_end = create :trip, run: @run, pickup_time: @start_time - 15.minutes, appointment_time: @end_time
-      @starts_after_start_ends_after_end   = create :trip, run: @run, pickup_time: @start_time,              appointment_time: @end_time + 15.minutes
-      @starts_after_start_ends_before_end  = create :trip, run: @run, pickup_time: @start_time,              appointment_time: @end_time
-      @starts_before_start_ends_after_end  = create :trip, run: @run, pickup_time: @start_time - 15.minutes, appointment_time: @end_time + 15.minutes
-    end
-    
-    it "returns the maximum seating_capacity when no qualifying trips are present" do
-      Trip.destroy_all
-      expect(@vehicle.open_seating_capacity @start_time, @end_time).to eq 8
-    end
-    
-    it "assumes a minimum or 1 passenger per qualifying trip" do
-      expect(@vehicle.open_seating_capacity @start_time, @end_time).to eq 4
-    end
-
-    it "accounts for trip guests and attendants" do
-      @starts_before_start_ends_before_end.update_attributes guest_count: 1, attendant_count: 1
-      expect(@vehicle.open_seating_capacity @start_time, @end_time).to eq 2
-    end
-
-    it "doesn't care about trips that start and end before the start_time" do
-      create :trip, run: @run, pickup_time: @start_time - 15.minutes, appointment_time: @start_time
-      expect(@vehicle.open_seating_capacity @start_time, @end_time).to eq 4
-    end
-
-    it "doesn't care about trips that start and end after the end_time" do
-      create :trip, run: @run, pickup_time: @end_time, appointment_time: @end_time + 15.minutes
-      expect(@vehicle.open_seating_capacity @start_time, @end_time).to eq 4
-    end
-
-    it "doesn't care about trips for other vehicles" do
-      create :trip, pickup_time: @start_time, appointment_time: @end_time
-      expect(@vehicle.open_seating_capacity @start_time, @end_time).to eq 4
-    end
-    
-    it "can accept an optional trip or set of trips to ignore" do
-      expect(@vehicle.open_seating_capacity @start_time, @end_time, ignore: @starts_before_start_ends_before_end).to eq 5
-    end
-  end
-
-  describe "tracking mobility device capacity" do
-    before do
-      @vehicle = create :vehicle, mobility_device_accommodations: 8
-      @run = create :run, vehicle: @vehicle
-
-      @start_time = Time.zone.parse("14:30")
-      @end_time   = Time.zone.parse("15:30")
-      
-      @starts_before_start_ends_before_end = create :trip, run: @run, pickup_time: @start_time - 15.minutes, appointment_time: @end_time, mobility_device_accommodations: 1
-      @starts_after_start_ends_after_end   = create :trip, run: @run, pickup_time: @start_time,              appointment_time: @end_time + 15.minutes, mobility_device_accommodations: 1
-      @starts_after_start_ends_before_end  = create :trip, run: @run, pickup_time: @start_time,              appointment_time: @end_time, mobility_device_accommodations: 1
-      @starts_before_start_ends_after_end  = create :trip, run: @run, pickup_time: @start_time - 15.minutes, appointment_time: @end_time + 15.minutes, mobility_device_accommodations: 1
-    end
-    
-    it "returns the maximum mobility_device_accommodations when no qualifying trips are present" do
-      Trip.destroy_all
-      expect(@vehicle.open_mobility_device_capacity @start_time, @end_time).to eq 8
-    end
-
-    it "accounts for trip mobility device count" do
-      @starts_before_start_ends_before_end.update_attributes mobility_device_accommodations: 2
-      expect(@vehicle.open_mobility_device_capacity @start_time, @end_time).to eq 3
-    end
-
-    it "doesn't care about trips that start and end before the start_time" do
-      create :trip, run: @run, pickup_time: @start_time - 15.minutes, appointment_time: @start_time
-      expect(@vehicle.open_mobility_device_capacity @start_time, @end_time).to eq 4
-    end
-
-    it "doesn't care about trips that start and end after the end_time" do
-      create :trip, run: @run, pickup_time: @end_time, appointment_time: @end_time + 15.minutes
-      expect(@vehicle.open_mobility_device_capacity @start_time, @end_time).to eq 4
-    end
-
-    it "doesn't care about trips for other vehicles" do
-      create :trip, pickup_time: @start_time, appointment_time: @end_time
-      expect(@vehicle.open_mobility_device_capacity @start_time, @end_time).to eq 4
-    end
-    
-    it "can accept an optional trip or set of trips to ignore" do
-      expect(@vehicle.open_mobility_device_capacity @start_time, @end_time, ignore: @starts_before_start_ends_before_end).to eq 5
     end
   end
 end

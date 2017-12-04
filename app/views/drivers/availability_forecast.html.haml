@@ -1,0 +1,38 @@
+
+:css
+  .panel-expand-collapse {
+    cursor: pointer;
+  }
+
+= render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'drivers'
+.col-sm-12{style: 'padding-left: 0px; padding-right: 0px;'}
+  .col-sm-4.col-lg-3{style: 'padding-left: 0px;'}
+    = render 'availability_forecast_table'
+  .col-sm-8.col-lg-9{style: 'padding-left: 0px; padding-right: 0px;'}
+    = render 'daily_availability_summary_view', date: @default_date
+
+:javascript
+  $(function() {
+    function collapse_panel(panel) {
+      panel.find('.panel-body').slideUp();
+      panel.find('.panel-expand-collapse').addClass('panel-collapsed');
+      panel.find('.panel-expand-collapse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    }
+
+    function expand_panel(panel) {
+      panel.find('.panel-body').slideDown();
+      panel.find('.panel-expand-collapse').removeClass('panel-collapsed');
+      panel.find('.panel-expand-collapse i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    }
+
+    $(document).on('click', '.panel-heading span.panel-expand-collapse', function(e){
+      var $this = $(this);
+      var panel = $this.parents('.panel');
+      var is_collapsed = false;
+      if(!$this.hasClass('panel-collapsed')) {
+        collapse_panel(panel);     
+      } else {
+        expand_panel(panel);
+      }
+    });
+  });

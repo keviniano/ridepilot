@@ -1,0 +1,6 @@
+$('#modal-dialog').modal('hide');
+$('#planned_leave_table').floatThead('destroy');
+$('#planned_leave_table').replaceWith("<%= j (render 'shared/planned_leaves_table', leavable: @leavable) %>");
+
+$('table#daily_availability_table').floatThead('destroy');
+$('table#daily_availability_table').replaceWith("<%= j (render 'shared/availability_table', is_daily: true, operatable: @leavable) %>");

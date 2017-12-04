@@ -26,6 +26,13 @@
       .col-md-10
         = f.text_field :vin, class: "form-control", disabled: @readonly
     .form-group
+      = f.label :vehicle_type_id, translate_helper("vehicle_form_vehicle_type_label"), class: "col-md-2 control-label"
+      .col-md-10
+        = f.collection_select :vehicle_type_id, VehicleType.for_provider(current_provider_id).default_order, :id, :name, { include_blank: true }, { class: "form-control", disabled: @readonly }
+        .vehicle-capacity-configurations
+          - if @vehicle.vehicle_type && @vehicle.vehicle_type.vehicle_capacity_configurations.any?
+            = render 'vehicle_capacity_configurations/list', vehicle_capacity_configurations: @vehicle.vehicle_type.vehicle_capacity_configurations
+    .form-group
       = f.label :reportable, translate_helper("vehicle_form_reportable_label"), class: "col-md-2 control-label"
       .col-md-10
         = f.select :reportable, [["Yes", "true"], ["No", "false"]], {:selected => @vehicle.reportable.to_s }, class: "form-control", disabled: @readonly
@@ -46,3 +53,18 @@
         %p.form-control-static
           = number_with_delimiter @vehicle.last_odometer_reading
           mi.
+
+- if !@readonly
+  :javascript
+    $(function() {
+      $('#vehicle_vehicle_type_id').change(function() {
+        var new_type_id = $(this).val();
+        if(new_type_id) {
+          $.ajax({
+            url: "#{list_vehicle_type_vehicle_capacity_configurations_path('xxx')}".replace('xxx', new_type_id)
+          });
+        } else {
+          $(".vehicle-capacities").html("");
+        }
+      });
+    });

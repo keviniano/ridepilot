@@ -51,20 +51,6 @@ RSpec.describe Run, type: :model do
       
     end
     
-    it 'validates driver availability against repeating runs' do
-      
-      invalid_run_same_driver = build(:run, :tomorrow, :scheduled_morning, driver: repeating_run_c.driver)
-      valid_run_diff_day = build(:run, :next_week, :scheduled_morning, driver: repeating_run_c.driver)
-      valid_run_diff_time = build(:run, :tomorrow, :scheduled_afternoon, driver: repeating_run_c.driver)
-      valid_run_diff_driver = build(:run, :tomorrow, :scheduled_morning)
-      
-      expect(invalid_run_same_driver.valid?).to be false
-      expect(valid_run_diff_day.valid?).to be true
-      expect(valid_run_diff_time.valid?).to be true
-      expect(valid_run_diff_driver.valid?).to be true
-      
-    end
-    
     it 'validates vehicle availability against other daily runs' do
       
       invalid_run_same_vehicle = build(:run, :tomorrow, :scheduled_morning, vehicle: run_a.vehicle)

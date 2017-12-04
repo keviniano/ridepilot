@@ -1,0 +1,16 @@
+%table.table.table-bordered.table-hover.table-condensed.inline-editing-table
+  %thead
+    %tr.report-header
+      %th
+        = translate_helper("mobility")
+      - RidershipMobilityMapping::RIDERSHIP_LIST.each do |riderhsip_id, ridership_name|
+        %th
+          = ridership_name
+  %tbody
+    - Mobility.by_provider(current_provider).order(:name).each do |mt|
+      %tr{data: {mobility_id: mt.id}}
+        %td= mt.name
+        - RidershipMobilityMapping::RIDERSHIP_LIST.each do |riderhsip_id, ridership_name|
+          - mc = @ridership_mobility_mappings[[mt.id, riderhsip_id]]
+          %td.input-column
+            = mc && mc.first.try(:capacity) || 0

@@ -1,0 +1,194 @@
+- editable = can? :manage, MobilityCapacity
+
+.col-sm-12{style: 'padding: 10px;'}
+  %h2= translate_helper(:mobility_capacities_link_text)
+  %span= translate_helper(:mobility_capacities_edit_notes)
+  - if editable
+    .pull-right{style: 'padding-bottom: 5px;'}
+      %button.btn.btn-primary#save_capacities
+        = translate_helper("save_mobility_capacities")
+      = link_to translate_helper("back"), mobility_capacities_path, class: "btn action-button"
+  %table.table.table-bordered.table-hover.table-condensed.inline-editing-table#mobility_capacities_table
+    %thead
+      %tr.report-header
+        %th
+          = translate_helper("mobility")
+        - @capacity_types.pluck(:name).each do |ct_name|
+          %th
+            = ct_name
+    %tbody
+      - @mobility_types.each do |mt|
+        %tr{data: {mobility_id: mt.id}}
+          %td= mt.name
+          - @capacity_types.pluck(:id).each do |ct_id|
+            - mc = @mobility_capacity_mappings[[mt.id, ct_id]]
+            %td.input-column
+              - val = mc && mc.first.try(:capacity) || 0
+              %a.editable-cell.editable-number{href:"#", data: {type:"text", capacity_type_id: ct_id, mobility_id: mt.try(:id), original_value: val} }
+                = val
+
+:javascript
+  $(function() {
+    $.fn.editable.defaults.mode = 'inline';
+
+    // function to process new value (Tab, Enter, or Click away)
+    function processCell(editableCell, isNotesCell, newValue, keyCode) {
+      //if not notes, then identify empty cell and use 0 as the value
+      if(!isNotesCell && (newValue == "" || newValue == "Empty")) {
+        newValue = 0;
+      }
+      // if the cell is not for notes, then check if number exist before proceeding
+      if ((isNotesCell || ( !isNotesCell && $.isNumeric(newValue) )) && (keyCode === 9 || keyCode == 13 || keyCode == 100)) {
+        
+        if($.isNumeric(newValue)) {
+          newValue = parseInt(newValue);
+        }
+        editableCell.trigger('save', {
+          newValue: newValue,
+          keyCode: keyCode
+        });
+      }
+    }
+
+    // initialize cells with x-editable to provide in-line editing function
+    // number cells
+    $('.editable-number').editable({
+      tpl: '<input type="number" min="0" step="1" required>',
+      disabled: !(#{editable}),
+      savenochange: true,
+      showbuttons: false,
+      clear: false,
+      onblur: 'submit',
+      send: 'never'
+    });
+
+    // select all text when editable input shows up so to speed up input
+    $('.editable-cell').on('shown', function(e, editable) {
+      setTimeout( function() {
+        editable.input.$input.select();
+      }, 100 );
+    });
+
+    // click an editable cell to bring up editable-input
+    $('.editable-cell:not(.editable-disabled)').closest('td').click(function() {
+      var that = this;
+      setTimeout(function() {
+        $(that).find('.editable-cell').editable('show');
+        }, 100);
+    });
+
+    // if the cell is editable enabled, show up editable input when it gets focus
+    $('.editable-cell:not(.editable-disabled)').focus(function() {
+      $(this).editable('show');
+    });
+
+    // prevent clicking a[href='#'] jump to page top
+    $('a.editable-cell').click(function(e) {
+      e.preventDefault();
+    });
+
+    // prevent backspace key from navigating back
+    $(document).on("keydown", function (e) {
+      if (e.which === 8 && !$(e.target).is("input, textarea")) {
+          e.preventDefault();
+      }
+    });
+
+    // click away cell editor, save and process new value
+    $('.editable-cell').on('hidden', function(e, reason) {
+      if(reason === 'save') {
+        var newValue = $(this).text();
+
+        var keyCode = 100; // dummy key code for clicking away
+        var newValue = $(this).text();
+        var editableCell = $(this).closest('td').find('.editable-cell');
+        var isNotesCell = editableCell.hasClass('editable-notes');
+        
+        processCell(editableCell, isNotesCell, newValue, keyCode)
+      } 
+    });
+
+    // capture key events: Tab key to nav to next cell, Enter key to nav to the cell in next row but same column
+    $(document).on("keydown", '.editable-input input', function (e) {
+      var keyCode = e.which;
+      if(keyCode != 9 && keyCode != 13) {
+        return;
+      }
+      var newValue = $(this).val();
+      var editableCell = $(this).closest('td').find('.editable-cell');
+      var isNotesCell = editableCell.hasClass('editable-notes');
+      
+      processCell(editableCell, isNotesCell, newValue, keyCode)
+    });
+
+    $(document).on("keydown", '.editable-input input', function (e) {
+    });
+
+    // if there are unsaved changes, alert user when leaving page
+    $(window).bind('beforeunload', function(e){
+      if($('#mobility_capacities_table .editable-unsaved').length > 0) {
+        return "There are unsaved changes in the report.";
+      } else {
+        e = null; // not trigger leave page alert
+      }
+    });
+
+    $('.editable-number').on('save', function(e, params) {
+      params = params || {};
+
+      // only allow Tab or Enter key
+      if(!params.keyCode) {
+        return false;
+      }
+
+      var newValue = params.newValue;
+      if(!$.isNumeric(newValue)) {
+        newValue = 0;
+      }
+      var isChanged = (newValue != parseInt($(this).data('original-value')));
+      $(this).editable('setValue', newValue);
+
+      var that = this;
+      setTimeout(function() {
+        if(!isChanged) {
+          $(that).removeClass('editable-unsaved');
+        }
+      });
+    });
+
+    // serialize existing numbers to save
+    function getCapacities() {
+      var data = {};
+      $('.editable-number').each(function() {
+        var mobility_id = $(this).data('mobility-id');
+        var capacity_type_id = $(this).data('capacity-type-id');
+        var value = parseInt($(this).text());
+        if(!$.isNumeric(value)) {
+          value = 0;
+        }
+
+        if(!data[mobility_id]) {
+          data[mobility_id] = {};
+        }
+
+        data[mobility_id][capacity_type_id] = value;
+      });
+
+      return data;
+    }
+
+    // save button
+    $('#save_capacities').click(function(e) {
+      if($('#mobility_capacities_table .editable-unsaved').length == 0) {
+        // no changes
+        window.location.href = "#{mobility_capacities_path}";
+      } else {
+        $.ajax({
+          url: "#{batch_update_mobility_capacities_path}",
+          method: 'post',
+          data: { capacities: getCapacities()}
+        });
+      }
+    });
+  
+  })

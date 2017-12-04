@@ -1,0 +1,87 @@
+:ruby
+  day_of_week = date.wday
+
+  @runs = Run.for_provider(current_provider_id).for_date(date).reorder("lower(name)")
+  @total_assigned_runs = @runs.where.not(driver_id: nil)
+  
+  drivers = Driver.for_provider(current_provider_id)
+
+  available_operating_hours = OperatingHour.where(is_unavailable: false).joins("inner join drivers on drivers.id = operating_hours.operatable_id and operating_hours.operatable_type = 'Driver'")
+
+  available_daily_operating_hours = DailyOperatingHour.where(is_unavailable: false).joins("inner join drivers on drivers.id = daily_operating_hours.operatable_id and daily_operating_hours.operatable_type = 'Driver'")
+
+  unavailable_daily_operating_hours = DailyOperatingHour.unavailable.joins("inner join drivers on drivers.id = daily_operating_hours.operatable_id and daily_operating_hours.operatable_type = 'Driver'")
+
+  on_leave_drivers = PlannedLeave.joins("inner join drivers on drivers.id = planned_leaves.leavable_id and planned_leaves.leavable_type = 'Driver'")
+
+  active_drivers = drivers.active_for_date(date)
+  driver_ids = active_drivers.pluck(:id)
+
+  @total_on_leave_driver_ids = on_leave_drivers.leave_on_date(date).where(leavable_id: driver_ids).pluck(:leavable_id).uniq
+
+  @total_available_driver_ids = (available_operating_hours.for_day_of_week(day_of_week).where(operatable_id: driver_ids).pluck(:operatable_id) + available_daily_operating_hours.for_date(date).where(operatable_id: driver_ids).pluck(:operatable_id) - unavailable_daily_operating_hours.for_date(date).where(operatable_id: driver_ids).pluck(:operatable_id)).uniq - @total_on_leave_driver_ids
+
+  @total_available_drivers = Driver.where(id: @total_available_driver_ids).default_order
+
+  @total_assigned_run_count = @total_assigned_runs.size
+  @total_assigned_driver_count = @total_assigned_runs.pluck(:driver_id).uniq.size
+  @total_unassigned_run_count = @runs.where(driver_id: nil).size
+  has_unassigned_run = @total_unassigned_run_count > 0
+
+  @total_available_driver_count = @total_available_driver_ids.size
+  @total_unassigned_available_driver_count = @total_available_driver_count - @total_assigned_driver_count
+  lack_driver = @total_unassigned_run_count > @total_unassigned_available_driver_count
+
+  @total_on_leave_driver_count = @total_on_leave_driver_ids.size
+
+  # get lists of drivers available for a run
+  @drivers_available_for_runs = {}
+  @runs.pluck(:id, :name, :scheduled_start_time, :scheduled_end_time).each do |r|
+    @drivers_available_for_runs[r[0]] = [] unless @drivers_available_for_runs.has_key?(r[0])
+    @total_available_drivers.each do |d|
+      if d.available_between?(date, r[2].strftime('%H:%M'), r[3].strftime('%H:%M')) 
+        @drivers_available_for_runs[r[0]] << {
+          id: d.id,
+          run_name: r[1],
+          name: d.user_name
+        } 
+      end
+    end
+  end
+
+:css
+  .lack_drivers, .has_unassigned_run {
+    padding: 10px;
+  }
+
+  table th {
+    background: transparent;
+    color: black;
+  }
+
+  table th, table td {
+    white-space: nowrap !important;
+  }
+
+  #main {
+    z-index: 11000 !important;
+  }
+
+.col-sm-12#daily_availability_forecast_view{style: 'padding: 0px;'}
+  %h4
+    = "Availability for #{date.strftime('%A, %B %d, %Y')}"
+  - if lack_driver
+    .col-sm-12.lack_drivers
+      Driver resources appear insufficient to handle all runs
+  - elsif has_unassigned_run
+    .col-sm-12.has_unassigned_run
+      There are runs without driver assigned
+  .col-sm-12{style: 'padding: 0px; margin-top: 10px;'}
+    = render 'availability_forecast_run_view'
+  .col-sm-12{style: 'padding: 0px;'}
+    = render 'availability_forecast_driver_view', date: date
+
+:javascript
+  $(function() {
+    $('.driver_availability_forecast_table tr[data-date-value=' + "#{date}" + ']').addClass('in_view');
+  });

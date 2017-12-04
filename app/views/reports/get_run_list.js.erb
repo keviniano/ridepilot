@@ -1,0 +1,2 @@
+$('select.run_multipe_dropdown')[0].sumo.unload();
+$('select.run_multipe_dropdown').replaceWith("<%= j (render 'reports/forms/run_multiple_dropdown', runs: @all_runs, selected_runs: @all_runs) %>");

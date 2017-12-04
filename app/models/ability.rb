@@ -5,6 +5,7 @@ class Ability
     can_manage_all = false
 
     can :read, Mobility
+    can :read, MobilityCapacity
     can :read, TripPurpose
     can :read, TripResult
     can :read, ServiceLevel
@@ -29,6 +30,8 @@ class Ability
         can :read, Provider, :id => role.provider.id
         if role.admin?
           can :manage, role.provider
+          can :manage, VehicleType, :provider_id => role.provider_id
+          can :manage, VehicleCapacityConfiguration
         end
         
         cannot :create, Provider

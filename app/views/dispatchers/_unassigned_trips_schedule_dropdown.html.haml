@@ -3,7 +3,7 @@
     Assign to
     %i.fa.fa-ellipsis-h
     %span.caret
-  %ul.dropdown-menu{style: 'max-height: 200px; overflow-y: auto;'}    
+  %ul.dropdown-menu.pull-right{style: 'max-height: 200px; overflow-y: auto;'}    
     - @schedule_options.each do |status_id, label|
       %li
         %a.schedule_trip.non_jump_top{href: '#', data: {status_id: status_id} }

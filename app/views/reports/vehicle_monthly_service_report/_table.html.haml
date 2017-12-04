@@ -4,18 +4,31 @@
     %tr
       %th= translate_helper(:vehicle_form_name_label)
       %th= translate_helper(:mileage)
+      %th= translate_helper(:number_of_trips)
+      %th= translate_helper(:total_passengers)
+      %th= translate_helper(:total_hours_driven)
 
   %tbody
     - @service_vehicles.each do |vehicle|
       %tr
         %td{style: 'width: 200px;'}= vehicle.name
-        %td= @miles_by_vehicle[vehicle.id]
+        %td= @miles_by_vehicle[vehicle.id].to_f
+        %td= @trips_count[vehicle.id].to_i
+        %td= @passengers_count[vehicle.id].to_i
+        - vehicle_hours = @vehicle_hours[vehicle.id]
+        %td= format_float_number(vehicle_hours.to_f / 3600.0)
           
     %tr
       %td.text-right{style: 'width: 200px;'}
-        %b= translate_helper("total")
+        %b= translate_helper("total") + " (#{@total_vehicle_count.to_i} vehicles)"
       %td
-        %b= "#{@total_vehicle_count} vehicles, #{@total_vehicle_miles} miles"
+        %b= @total_vehicle_miles.to_f
+      %td
+        %b= @total_trips_count.to_i
+      %td  
+        %b= @total_passengers_count.to_i
+      %td  
+        %b= format_float_number(@total_vehicle_hours)
 
 - if @run_dates
   - @run_dates.each do |date|

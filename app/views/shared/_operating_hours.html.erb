@@ -14,7 +14,7 @@
                 <p class="form-control-static">
                   <% if hours.nil? or hours.is_unavailable? %>
                     <%= translate_helper("operating_hours_unavailable") %>
-                  <% elsif hours.is_24_hours? %>
+                  <% elsif hours.is_all_day? %>
                     <%= translate_helper("operating_hours_24_hours") %>
                   <% else %>
                     <%= translate_helper("operating_hours_open") %>
@@ -33,7 +33,7 @@
                 </div>
                 <div class="col-sm-4">
                   <%= label_tag "hours-#{day_value}-open-24", class: "radio-inline" do %>
-                    <%= radio_button_tag "hours[#{day_value}]", 'open24', (hours.present? and hours.is_24_hours?), id: "hours-#{day_value}-open-24", class: "hours-#{day_value}", disabled: @readonly %>
+                    <%= radio_button_tag "hours[#{day_value}]", 'open24', (hours.present? and hours.is_all_day?), id: "hours-#{day_value}-open-24", class: "hours-#{day_value}", disabled: @readonly %>
                     <%= translate_helper("operating_hours_24_hours") %>
                   <% end %>
                 </div>

@@ -1,0 +1,7 @@
+$('#modal-dialog').modal('hide');
+var $new_row = $("<%= j (render 'shared/planned_leave_row', leave: @planned_leave, leavable: @leavable) %>").hide();
+$('#planned_leave_table tr[data-id=' + "<%= @planned_leave.id %>" + ']').slideUp('fast').replaceWith($new_row);
+$new_row.slideDown('slow');
+
+$('table#daily_availability_table').floatThead('destroy');
+$('table#daily_availability_table').replaceWith("<%= j (render 'shared/availability_table', is_daily: true, operatable: @leavable) %>");

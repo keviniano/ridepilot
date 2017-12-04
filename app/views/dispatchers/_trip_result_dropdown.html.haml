@@ -3,7 +3,7 @@
     Set trips as
     %i.fa.fa-ellipsis-h
     %span.caret
-  %ul.dropdown-menu  
+  %ul.dropdown-menu.pull-right  
     - trip_results = (TripResult.by_provider(current_provider).order(:name).pluck(:id, :name) + [[TripResult::UNSCHEDULED_ID, 'Pending']]).sort_by{|tr| tr[1]}  
     - trip_results.each do |result_id, label|
       %li

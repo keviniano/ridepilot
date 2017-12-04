@@ -1,6 +1,6 @@
 %tr{class:"vehicle_type-#{vehicle_type.id}"}
   %td
     %span.form-control-static
-      = link_to vehicle_type.name, polymorphic_path([vehicle_type, VehicleCapacity])
+      = link_to vehicle_type.name, vehicle_type_path(vehicle_type)
     = link_to "X", polymorphic_path(vehicle_type), method: :delete, remote: true, data: { confirm: translate_helper("vehicle_type_delete_confirm") }, class: "btn btn-danger btn-sm pull-right" if can?(:delete, vehicle_type)
     = link_to translate_helper(:edit), polymorphic_path(vehicle_type, action: :edit), remote: true, class: "btn btn-primary btn-sm pull-right" if can?(:edit, vehicle_type)

@@ -1,0 +1,17 @@
+= form_for @query, :url=>url_for(:action=>:cancellations_report), :html=>{:method=>:get} do |f| 
+  %fieldset
+    = f.date_select  :start_date, :order => [:month,:day,:year] rescue nil
+    = translate_helper("through") 
+    = f.date_select  :before_end_date, :order => [:month,:day,:year] rescue nil
+    = f.label :customer_id, "#{translate_helper(:customer)}:"
+    = f.collection_select :customer_id, @active_customers, :id, :name, {include_blank: 'All'}
+
+    %label
+      = "#{translate_helper(:report_format)}:"
+      = f.select :report_format, options_for_select([['CSV', 'csv']], @query.report_format || 'csv')
+
+    %label
+      = "#{translate_helper(:report_type)}:"
+      = f.select :report_type, options_for_select([['Summary Report', 'summary'],['Detailed Report', 'detail']], @query.report_type || 'summary')
+
+    = f.submit translate_helper("run"), class: 'btn action-button'

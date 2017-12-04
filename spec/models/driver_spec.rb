@@ -51,52 +51,47 @@ RSpec.describe Driver, type: :model do
     expect(unassigned).to include driver_2
   end
 
-  it "can generate a hash of the driver's operating hours" do
-    driver = create :driver
-    hours = create :operating_hours, operatable: driver, day_of_week: 0, start_time: "01:00", end_time: "02:00"
-    expect(driver.hours_hash[0]).to eql hours
-  end
-
   describe "available?" do
     before do
       @driver = create :driver
       @day_of_week = 0
+      @date = Date.today.sunday
       @time_of_day = "15:30"
     end
 
-    it "returns true if no operating hours are defined" do
-      expect(@driver.available?).to be_truthy
+    it "returns false if no operating hours are defined" do
+      expect(@driver.available?).to be_falsey
     end
 
     it "returns false if operating hours are defined, but not for that day" do
-      create :operating_hours, operatable: @driver, day_of_week: @day_of_week + 1
-      expect(@driver.available?(@day_of_week, @time_of_day)).to be_falsey
+      create :operating_hour, operatable: @driver, day_of_week: @day_of_week 
+      expect(@driver.available?(@date + 1.day, @time_of_day)).to be_falsey
     end
 
     it "returns true if the driver is available 24 hours" do
-      create :operating_hours, operatable: @driver, day_of_week: @day_of_week, start_time: "00:00", end_time: "00:00"
-      expect(@driver.available?(@day_of_week, @time_of_day)).to be_truthy
+      create :operating_hour, operatable: @driver, day_of_week: @day_of_week, is_all_day: true
+      expect(@driver.available?(@date, @time_of_day)).to be_truthy
     end
 
     it "returns false if the driver is not available that day" do
-      create :operating_hours, operatable: @driver, day_of_week: @day_of_week, start_time: nil, end_time: nil
-      expect(@driver.available?(@day_of_week, @time_of_day)).to be_falsey
+      create :operating_hour, operatable: @driver, day_of_week: @day_of_week, is_unavailable: true
+      expect(@driver.available?(@date, @time_of_day)).to be_falsey
     end
 
     it "can check against regular hours" do
-      hours = create :operating_hours, operatable: @driver, day_of_week: @day_of_week, start_time: "12:00", end_time: "16:00"
-      expect(@driver.available?(@day_of_week, @time_of_day)).to be_truthy
+      hours = create :operating_hour, operatable: @driver, day_of_week: @day_of_week, start_time: "12:00", end_time: "16:00"
+      expect(@driver.available?(@date, @time_of_day)).to be_truthy
 
       hours.update_attributes end_time: "15:00"
-      expect(@driver.available?(@day_of_week, @time_of_day)).to be_falsey
+      expect(@driver.available?(@date, @time_of_day)).to be_falsey
     end
 
     it "can check against irregular hours" do
-      hours = create :operating_hours, operatable: @driver, day_of_week: @day_of_week, start_time: "12:00", end_time: "00:30"
-      expect(@driver.available?(@day_of_week, @time_of_day)).to be_truthy
+      hours = create :operating_hour, operatable: @driver, day_of_week: @day_of_week, start_time: "12:00", end_time: "00:30"
+      expect(@driver.available?(@date, @time_of_day)).to be_truthy
 
       hours.update_attributes start_time: "16:00"
-      expect(@driver.available?(@day_of_week, @time_of_day)).to be_falsey
+      expect(@driver.available?(@date, @time_of_day)).to be_falsey
     end
   end
 

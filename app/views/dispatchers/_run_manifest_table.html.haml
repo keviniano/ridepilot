@@ -1,7 +1,14 @@
+:ruby
+  @capacity_types_hash = CapacityType.by_provider(current_provider).order(:name).pluck(:id,:name).to_h
+
 :css
   .new-trip-badge {
     background-color: red;
   }
+  .capacity_warning {
+    background-color: yellow;
+  }
+
 %table.table.table-striped.table-bordered.run-manifest-table{style: 'max-height: 300px; overflow-y: auto;'}
   %thead
     %tr
@@ -12,9 +19,8 @@
       %th= translate_helper(:run_manifest_table_header_customer)
       %th= translate_helper(:run_manifest_table_header_address)
       %th= translate_helper(:run_manifest_table_header_scheduled_time)
-      %th= translate_helper(:run_manifest_table_header_eta)
-      %th= translate_helper(:run_manifest_table_header_occupancy)
-      %th= translate_helper(:run_manifest_table_header_fare)
+      - @capacity_types_hash.each do |c_id, c_name|
+        %th= c_name
       %th= translate_helper(:run_manifest_table_header_comments)
       %th= translate_helper(:run_manifest_table_header_trip_result)
       %th= translate_helper(:run_manifest_table_header_customer_phone)
@@ -25,6 +31,7 @@
       %tr
         %td{colspan: 14}= translate_helper(:empty_trips)
     - else
+      - vehicle_cannot_accommodate_warning = translate_helper(:vehicle_cannot_accommodate_warning)
       - run_id = run.id
       - itins = get_itineraries(run)
       - itins.each do |itin|
@@ -39,6 +46,10 @@
             %span.badge.new-trip-badge{style: (is_new ? "" : "display: none;")}
               New
 
+            - if trip.ridership_mobilities.has_capacity.empty?
+              %span.label.label-danger
+                Mobility?
+
             .pull-right
               - if itin[:is_recurring]
                 %span.label.label-info
@@ -46,9 +57,8 @@
           %td= itin[:customer]
           %td= itin[:address]
           %td= format_time_for_listing(itin[:time])
-          %td= itin[:eta]
-          %td= itin[:capacity]
-          %td= itin[:fare]
+          - @capacity_types_hash.each do |c_id, c_name|
+            %td{class: itin[:capacity_warning] ? "capacity_warning" : "", title: itin[:capacity_warning] ? vehicle_cannot_accommodate_warning : ""}= (itin[:occupancy] && itin[:occupancy][c_id].to_i || 0)
           %td= itin[:comments]
           %td
             - if TripResult::CANCEL_CODES_BUT_KEEP_RUN.include?(trip.trip_result.try(:code))

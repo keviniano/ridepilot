@@ -1,52 +1,38 @@
 class OperatingHoursProcessor
-  attr_reader :operatable, :hour_params
+  attr_reader :operatable, :params
 
   def initialize(operatable, params = {})
     @operatable = operatable
-    @hour_params = params
+    @params = params
   end
 
   def process!
-    @hour_params[:hours] ||= {}
-    hours = @operatable.hours_hash
-    if !hours.empty? and hours.length < 7
-      hours.each_pair { |day, h| h.destroy }
-      hours = {}
-    end
-    if hours.empty?
-      (0..6).each do |d|
-        hours[d] = @operatable.operating_hours.new day_of_week: d
-      end
-    end
-    errors = false
-
-    @hour_params[:hours].each_pair do |day, value|
+    has_errors = false
+    if @params[:is_all_day]
+      @operatable.operating_hours.for_day_of_week(@params[:day_of_week]).destroy_all
+      all_day_hour = @operatable.operating_hours.new(day_of_week: @params[:day_of_week])
+      all_day_hour.make_all_day
+      all_day_hour.save
+    elsif @params[:is_unavailable]
+      @operatable.operating_hours.for_day_of_week(@params[:day_of_week]).destroy_all
+      unavailable_hour = @operatable.operating_hours.new(day_of_week: @params[:day_of_week])
+      unavailable_hour.make_unavailable
+      unavailable_hour.save
+    else
       begin
-        day = day.to_i
-        day_hours = hours[day]
-        if day_hours.nil?
-          day_hours = @operatable.operating_hours.new day_of_week: day
-        end
-        case value
-        when 'unavailable'
-          day_hours.make_unavailable
-        when 'open24'
-          day_hours.make_24_hours
-        when 'open'
-          day_hours.start_time = @hour_params[:start_hour][day.to_s]
-          day_hours.end_time = @hour_params[:end_hour][day.to_s]
-        else
-          @operatable.errors.add :operating_hours, 'must be "unavailable", "open24", or "open".'
-          raise ActiveRecord::RecordInvalid.new(@operatable)
-        end
-        day_hours.save!
+        @operatable.operating_hours.for_day_of_week(@params[:day_of_week]).all_day.destroy_all
+        @operatable.operating_hours.for_day_of_week(@params[:day_of_week]).unavailable.destroy_all
+        regular_hour = @operatable.operating_hours.new(day_of_week: @params[:day_of_week])
+        regular_hour.start_time = @params[:start_time]
+        regular_hour.end_time = @params[:end_time]
+        regular_hour.save
       rescue ActiveRecord::RecordInvalid => e
         Rails.logger.debug e.message
-        errors = true
+        has_errors = true
       end
     end
 
-    errors
+    has_errors
   end
 
 end

@@ -1,0 +1,31 @@
+:ruby
+  url = is_daily ? add_daily_operating_hours_path(operatable_id: @operatable.id, operatable_type: @operatable.class.name, date_flag: @date_flag) : add_operating_hours_path(operatable_id: @operatable.id, operatable_type: @operatable.class.name, date_flag: @date_flag)
+= form_for @operating_hour, url: url, remote: true, html: { class: 'new_operating_hour_form' } do |f|
+  .row
+    .form-group.col-sm-12
+      .col-md-3.control-label
+        %label From
+      .col-md-9
+        %select{name: 'start_time'}
+          - @available_times.each do |time|
+            %option{value: "#{time}"}
+              = Time.zone.parse(time).strftime("%l:%M%P")
+
+    .form-group.col-sm-12
+      .col-md-3.control-label
+        %label To
+      .col-md-9
+        %select{name: 'end_time'}
+          - @available_times.each do |time|
+            %option{value: "#{time}"}
+              = Time.zone.parse(time).strftime("%l:%M%P")
+
+:javascript
+  $(function() {
+    $('form.new_operating_hour_form').submit(function() {
+      if($('select[name=start_time]').val() >= $('select[name=end_time]').val()) {
+        bootbox.alert("Please make sure From Time is earlier than To Time.");
+        return false;
+      }
+    });
+  });

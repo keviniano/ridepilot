@@ -1,0 +1,8 @@
+%ul
+  - vehicle_capacity_configurations.each do |config|
+    - capacity_data = config.vehicle_capacities.has_capacity.default_order.joins(:capacity_type).pluck("capacity_types.name", :capacity)
+    - unless capacity_data.blank?  
+      %li
+        - capacity_data.each do |d|
+          %b= "#{d[0]}: "
+          = d[1]

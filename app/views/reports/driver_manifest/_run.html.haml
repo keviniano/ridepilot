@@ -14,7 +14,7 @@
     background: white;
   }
 
-= render 'reports/driver_manifest/run_header', run: run, is_first_run: is_first_run
+= render "reports/driver_manifest/run_header#{@is_pdf ? '.html.haml' : ''}", run: run, is_first_run: is_first_run
 .row
   %table{style: 'font-size: 12pt;'}
     %tr
@@ -25,4 +25,4 @@
     %tbody
       - trip_count = run.trips.order(:pickup_time).count
       - run.trips.order(:pickup_time).each_with_index do |trip, index|
-        = render 'reports/driver_manifest/trip', trip: trip, is_last_trip: (index == trip_count - 1)
+        = render "reports/driver_manifest/trip#{@is_pdf ? '.html.haml' : ''}", trip: trip, is_last_trip: (index == trip_count - 1)

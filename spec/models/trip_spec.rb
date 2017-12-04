@@ -107,50 +107,6 @@ RSpec.describe Trip do
     end
   end
 
-  describe "vehicle open seating capacity validation" do
-    before do
-      @start_time = Time.zone.parse("14:30")
-      @end_time   = Time.zone.parse("15:30")
-
-      @vehicle = create :vehicle, seating_capacity: 1
-      @run = create :run, vehicle: @vehicle
-      @trip = build :trip, run: @run, pickup_time: @start_time, appointment_time: @end_time
-    end
-
-    it "ignores the validation if no run is present" do
-      @trip.run = nil
-      expect(@trip.valid?).to be_truthy
-    end
-
-    it "is valid if there is available seating capacity" do
-      expect(@trip.valid?).to be_truthy
-    end
-
-    it "is not valid if there is not enough seating capacity to accommodate the full size of the trip" do
-      @trip.guest_count = 1
-      expect(@trip.valid?).to be_falsey
-      expect(@trip.errors.keys).to include :base
-
-      @trip.guest_count = 0
-      expect(@trip.valid?).to be_truthy
-    end
-
-    it "doesn't include it's past seat occupancy when checking open capacity on updates" do
-      @trip.save!
-      expect(@trip.valid?).to be_truthy
-    end
-
-    it "is not valid if the seating capacity increases on update beyond what's available" do
-      @trip.save!
-      @trip.guest_count = 1
-      expect(@trip.valid?).to be_falsey
-      expect(@trip.errors.keys).to include :base
-
-      @trip.guest_count = 0
-      expect(@trip.valid?).to be_truthy
-    end
-  end
-
   describe "#trip_size" do
     before do
       @trip = build :trip
@@ -160,15 +116,10 @@ RSpec.describe Trip do
       expect(@trip.trip_size).to eq 1
     end
 
-    it "accounts for guests and attendants" do
+    it "accounts for guests, attendants and service animal" do
       @trip.guest_count = 1
       @trip.attendant_count = 1
-      expect(@trip.trip_size).to eq 3
-    end
-
-    it "accounts for groups" do
-      @trip.customer = create :customer, group: true
-      @trip.group_size = 4
+      @trip.service_animal_space_count = 1
       expect(@trip.trip_size).to eq 4
     end
   end

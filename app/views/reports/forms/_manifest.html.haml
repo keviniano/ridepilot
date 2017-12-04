@@ -1,0 +1,39 @@
+= form_for @query, :url=>url_for(:action=>:manifest), :html=>{:method=>:get} do |f| 
+  %fieldset
+    .date-select{style: 'display: inline-block;'}
+      = f.date_select  :start_date, :order => [:month,:day,:year], :html => {:class => "date-select"} rescue nil
+      = translate_helper("through") 
+      = f.date_select  :before_end_date, :order => [:month,:day,:year], :html => {:class => "date-select"} rescue nil
+    
+    %label
+      = "#{translate_helper(:run)}:"
+      =f.hidden_field :run_ids
+      = render 'reports/forms/run_multiple_dropdown', runs: @all_runs, selected_runs: @runs || @all_runs
+    
+    %label
+      = "#{translate_helper(:report_format)}:"
+      = f.select :report_format, options_for_select([['HTML', 'html'],['PDF', 'pdf']], @query.report_format || 'html')
+
+    = f.submit translate_helper("run"), class: 'btn action-button', id: 'submitReport'
+
+:javascript
+  $(function() {
+    $('form').submit(function() {
+      var run_ids = [];
+      $('select.run_multipe_dropdown option:selected').each(function() {
+        run_ids.push($(this).val());
+      });
+      $('#query_run_ids').val(run_ids.join(','));
+      if(run_ids.length == 0) {
+        bootbox.alert('Please select runs first');
+        return false;
+      }
+    });
+
+    $('.date-select select').change(function() {
+      $('select.run_multipe_dropdown')[0].sumo.disable(); //first disable run dropdown 
+      $.ajax({
+        url: "#{get_run_list_reports_path}?"+ $('#new_query').serialize()
+      });
+    });
+  });

@@ -1,0 +1,59 @@
+%h2= translate_helper(:summary)
+%table.table.table-bordered
+  %thead
+    %tr
+      %th= translate_helper(:passenger_type)
+      %th= translate_helper(:passenger_count)
+
+  %tbody
+    %tr
+      %td Customer
+      %td= @total_customer_count.to_i
+    %tr
+      %td Guest
+      %td= @total_guest_count.to_i
+    %tr
+      %td Attendant
+      %td= @total_attendant_count.to_i
+    %tr
+      %td Service Animal
+      %td= @total_service_animal_count.to_i
+    %tr
+      %td= translate_helper(:total_passengers)
+      %td= "#{@total_passengers_count.to_i} passengers, #{@total_trips_count.to_i} trips"
+
+- if @run_dates
+  - @run_dates.each do |date|
+    - next unless @ride_counts_by_date && @ride_counts_by_date[date].to_i > 0
+    %h3= format_date(date)
+
+    %h4 Mobility
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th{style: 'width: 200px;'} Mobility Type
+          %th Count
+      %tbody
+        - Mobility.by_provider(current_provider).pluck(:id, :name).each do |mobility|
+          - mobility_count = @mobility_counts[[date, mobility[0]]]
+          - next unless mobility_count && mobility_count.to_i > 0
+          %tr
+            %td= mobility[1]
+            %td= mobility_count
+
+    %h4 Ride Counts By Trip Purpose
+    %table.table.table-bordered
+      %thead
+        %tr
+          %th{style: 'width: 200px;'}= translate_helper(:trip_purpose)
+          %th= translate_helper(:number_of_trips)
+      %tbody
+        - TripPurpose.by_provider(current_provider).pluck(:id, :name).each do |tp|
+          - ride_count = @ride_counts_by_trip_purpose[[date, tp[0]]]
+          - next unless ride_count && ride_count.to_i > 0
+          %tr
+            %td= tp[1]
+            %td= ride_count
+
+        
+

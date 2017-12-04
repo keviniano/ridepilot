@@ -1,5 +1,5 @@
 class DriversController < ApplicationController
-  load_and_authorize_resource except: [:create, :delete_photo, :inactivate, :reactivate]
+  load_and_authorize_resource except: [:create, :delete_photo, :inactivate, :reactivate, :availability]
   
   # Load documents through their associated parent
   load_and_authorize_resource :document, through: [:driver]
@@ -63,7 +63,6 @@ class DriversController < ApplicationController
           prev_alt_address.destroy if is_alt_address_blank && prev_alt_address.present?
           prev_emergency_contact.destroy if is_emergency_contact_blank && prev_emergency_contact.present?
           prev_emergency_contact_address.destroy if is_geocoded_address_blank && prev_emergency_contact_address.present?
-          create_or_update_hours!
         end
         redirect_to @driver, notice: 'Driver was successfully updated.'
       rescue ActiveRecord::RecordInvalid => e
@@ -112,7 +111,6 @@ class DriversController < ApplicationController
       begin
         Driver.transaction do
           @driver.save!
-          create_or_update_hours!
         end
         redirect_to @driver, notice: 'Driver was successfully created.'
       rescue ActiveRecord::RecordInvalid => e
@@ -183,6 +181,39 @@ class DriversController < ApplicationController
     redirect_to @driver
   end
 
+  def availability
+    @readonly = true
+    @driver = Driver.find_by_id(params[:id])
+  end
+
+  def availability_forecast
+    @default_date = if params[:date]
+      Date.parse params[:date]
+    elsif session[:date]
+      Date.parse session[:date]
+    else
+      Date.today
+    end
+        
+  end
+
+  def daily_availability_forecast
+    session[:date] = params[:date]
+    @date = Date.parse params[:date]
+  end
+
+  def assign_runs
+  end
+
+  def unassign_runs
+    if @driver
+      @runs = Run.where(id: (params[:run_ids] || "").split(','))
+      if @runs.any?
+        @runs.update_all(driver_id: nil)
+      end
+    end
+  end
+
   private
   
   def prep_edit(readonly: false)
@@ -191,11 +222,6 @@ class DriversController < ApplicationController
     @available_users = @driver.provider.users - User.drivers(@driver.provider)
     @available_users << @driver.user if @driver.user
     @available_users = @available_users.sort_by(&:name_with_username) 
-    
-    @hours = @driver.hours_hash
-
-    @start_hours = OperatingHours.available_start_times
-    @end_hours = OperatingHours.available_end_times
     
     @driver.address ||= @driver.build_address(provider_id: current_provider_id)
     @driver.alt_address ||= @driver.build_alt_address(provider_id: current_provider_id) 
@@ -255,14 +281,6 @@ class DriversController < ApplicationController
       :inactivated_end_date,
       :active_status_changed_reason
     )
-  end
-  
-  def create_or_update_hours!
-    OperatingHoursProcessor.new(@driver, {
-      hours: params[:hours],
-      start_hour: params[:start_hour],
-      end_hour: params[:end_hour]
-      }).process!
   end
 
   def check_blank_alt_address

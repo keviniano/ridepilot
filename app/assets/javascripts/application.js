@@ -38,6 +38,10 @@
 //= require bootstrap-table
 //= require selectize
 //= require verify_client_code
+//= require jquery.sumoselect
+//= require bootstrap-editable
+//= require bootstrap-editable-rails
+//= require jquery.floatThead
 //= require_self
 
 function ISODateFormatToDateObject(str) {

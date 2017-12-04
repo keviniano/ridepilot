@@ -1,0 +1,59 @@
+:css
+  .panel-heading span.panel-expand-collapse {
+    cursor: pointer;
+  }
+
+  table th {
+    background: transparent;
+    color: black;
+  }
+= render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'drivers'
+#page-header.row
+  .col-sm-12.col-md-6
+    %h1
+      = @driver.user_name
+      - if @driver.inactivated?
+        %span{style: 'font-size: small; color: red;'}= @driver.active_status_text
+  .col-sm-12.col-md-6
+    .pull-right
+      = link_to translate_helper("back"), :back, class: "btn action-button"
+
+.row
+  .col-sm-12
+    = render 'recurring_availability_panel'
+  .col-sm-12
+    = render 'daily_availability_panel'
+  .col-sm-12
+    = render 'planned_leaves_panel'
+
+= render 'shared/modal_dialog', modal_id: "modal-dialog" 
+
+:javascript
+  $(function() {
+    function collapse_panel(panel) {
+      panel.find('.panel-body').slideUp();
+      panel.find('.panel-expand-collapse').addClass('panel-collapsed');
+      panel.find('.panel-expand-collapse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    }
+
+    function expand_panel(panel) {
+      panel.find('.panel-body').slideDown();
+      panel.find('.panel-expand-collapse').removeClass('panel-collapsed');
+      panel.find('.panel-expand-collapse i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    }
+
+    $(document).on('click', '.panel-heading span.panel-expand-collapse', function(e){
+      var $this = $(this);
+      var panel = $this.parents('.panel');
+      var is_collapsed = false;
+      if(!$this.hasClass('panel-collapsed')) {
+        collapse_panel(panel);     
+      } else {
+        expand_panel(panel);
+      }
+    });
+
+    collapse_panel($('.daily_availability_panel'));
+    collapse_panel($('.planned_leaves_panel'));
+  });
+  

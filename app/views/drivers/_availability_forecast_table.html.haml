@@ -1,0 +1,152 @@
+:ruby
+  start_day = Date.today
+  days_ahead = current_provider.driver_availability_days_ahead || 30
+  live_days_ahead = current_provider.get_advance_day_scheduling
+
+  # grey out these days
+  provider_unavailable_wdays = current_provider.operating_hours.unavailable.pluck(:day_of_week)
+
+  # runs
+  runs = Run.for_provider(current_provider_id).for_date_range(start_day, start_day + (days_ahead + 1).day)
+  assigned_runs = runs.where.not(driver_id: nil)
+  unassigned_runs = runs.where(driver_id: nil)
+  runs_group_count = runs.group(:date).count
+  assigned_runs_group_count = assigned_runs.group(:date).count
+  unassigned_runs_group_count = unassigned_runs.group(:date).count
+
+  # drivers
+  drivers = Driver.for_provider(current_provider_id)
+  assigned_drivers_group_count = assigned_runs.group(:date).count("distinct driver_id")
+
+  available_operating_hours = OperatingHour.where(is_unavailable: false).joins("inner join drivers on drivers.id = operating_hours.operatable_id and operating_hours.operatable_type = 'Driver'")
+
+  available_daily_operating_hours = DailyOperatingHour.where(is_unavailable: false).joins("inner join drivers on drivers.id = daily_operating_hours.operatable_id and daily_operating_hours.operatable_type = 'Driver'")
+
+  unavailable_daily_operating_hours = DailyOperatingHour.unavailable.joins("inner join drivers on drivers.id = daily_operating_hours.operatable_id and daily_operating_hours.operatable_type = 'Driver'")
+
+  on_leave_drivers = PlannedLeave.joins("inner join drivers on drivers.id = planned_leaves.leavable_id and planned_leaves.leavable_type = 'Driver'")
+
+:css
+  .driver_availability_forecast_table td {
+    border: none !important;
+  }
+  .driver_availability_forecast_table th {
+    background: transparent !important;
+    color: black !important;
+  }
+
+  .driver_availability_forecast_table td.is_live {
+    background-color: #9ddaf3;
+    color: blue;
+  }
+
+  .driver_availability_forecast_table td.out_of_live {
+    background-color: #a6f39d;
+    color: blue;
+  }
+
+  .driver_availability_forecast_table td.disabled {
+    color: gray !important;
+  }
+
+  .driver_availability_forecast_table tr.is_disabled td.number_cell {
+    background-color: lightgray;
+  }
+
+  .driver_availability_forecast_table tr.lack_driver td.number_cell, div.lack_drivers {
+    background-color: #f16969;
+    color: white;
+  }
+
+  .driver_availability_forecast_table tr.has_unassigned_run td.number_cell, div.has_unassigned_run {
+    background-color: yellow;
+  }
+
+  .driver_availability_forecast_table tr.in_view td{
+    border-bottom: 2px solid black !important;
+  }
+
+  .driver_availability_forecast_table tr:not(.is_disabled) td {
+    cursor: pointer;
+  }
+
+  .driver_availability_forecast_table tr.in_view td,
+  .driver_availability_forecast_table tr:not(.is_disabled):hover td{
+    font-style: italic !important;
+    font-weight: bold !important;
+    font-size: larger;
+  }
+
+%h4
+  = translate_helper("driver_availability_forecast")
+.table-responsive{style: 'max-height: 500px; overflow-y: auto;'}
+  %table.table.table-condensed.driver_availability_forecast_table
+    %thead
+      %tr
+        %th{rowspan: 2} Date
+        %th.text-center{colspan: 3} Runs
+        %th.text-center{colspan: 4} Drivers
+      %tr
+        %th Tot.
+        %th As.
+        %th Un.
+        %th Tot.
+        %th As.
+        %th Un.
+        %th Ab.
+    %tbody
+      - days_ahead.times do
+        - day_of_week = start_day.wday
+        - is_provider_unavailable = provider_unavailable_wdays.include?(day_of_week)
+        - is_live = start_day <= (Date.today + live_days_ahead.day)
+        - if is_provider_unavailable
+          %tr.is_disabled{title: "Provider not operating"}
+            %td.disabled{class: is_live ? "is_live" : "out_of_live"}= start_day.strftime('%a %m/%d')
+            %td.number_cell{colspan: 7}
+        - else
+          - active_drivers = drivers.active_for_date(start_day)
+          - driver_ids = active_drivers.pluck(:id)
+          - total_on_leave_driver_ids = on_leave_drivers.leave_on_date(start_day).where(leavable_id: driver_ids).pluck(:leavable_id).uniq
+          - total_available_driver_ids = (available_operating_hours.for_day_of_week(day_of_week).where(operatable_id: driver_ids).pluck(:operatable_id) + available_daily_operating_hours.for_date(start_day).where(operatable_id: driver_ids).pluck(:operatable_id) - unavailable_daily_operating_hours.for_date(start_day).where(operatable_id: driver_ids).pluck(:operatable_id)).uniq - total_on_leave_driver_ids
+
+          - total_assigned_run_count = assigned_runs_group_count[start_day].to_i
+          - total_assigned_driver_count = assigned_drivers_group_count[start_day].to_i
+          - total_unassigned_run_count = unassigned_runs_group_count[start_day].to_i
+          - total_available_driver_count = total_available_driver_ids.size
+          - total_unassigned_available_driver_count = total_available_driver_count - total_assigned_driver_count
+          - has_unassigned_run = total_unassigned_run_count > 0
+          - lack_driver = total_unassigned_run_count > total_unassigned_available_driver_count
+
+          - class_name = lack_driver ? "lack_driver" : (has_unassigned_run ? "has_unassigned_run" : "")
+          - tooltip = lack_driver ? "Not enough drivers" : (has_unassigned_run ? "Has run(s) without driver" : "")
+          %tr{class: class_name, title: tooltip, data: {date_value: start_day}}
+            %td.date_cell{class: is_live ? "is_live" : "out_of_live"}= start_day.strftime('%a %m/%d')
+            %td.number_cell.run_cell= runs_group_count[start_day].to_i
+            %td.number_cell.run_cell= total_assigned_run_count
+            %td.number_cell.run_cell= total_unassigned_run_count
+            %td.number_cell.driver_cell{style: 'border-left: 1px gray solid !important;'}= total_available_driver_count
+            %td.number_cell.driver_cell= total_assigned_driver_count
+            %td.number_cell.driver_cell= total_unassigned_available_driver_count
+            %td.number_cell.driver_cell{style: 'border-left: 1px gray solid !important;'}= total_on_leave_driver_ids.size
+
+        - start_day += 1.day
+
+
+:javascript
+  $(function() {
+    $('.driver_availability_forecast_table').floatThead({
+      scrollContainer: function($table){
+        return $table.closest('.table-responsive');
+      }
+    });
+
+    $('.driver_availability_forecast_table tr:not(.is_disabled) td').click(function(){
+      // load day view
+      $.ajax({
+        url: "#{daily_availability_forecast_drivers_path}",
+        data: {
+          date: $(this).parents('tr').data('date-value')
+        }
+      });
+    });
+  });

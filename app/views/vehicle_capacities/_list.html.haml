@@ -1,5 +1,0 @@
-%ul
-  - vehicle_capacities.default_order.each do | capacity |
-    %li
-      %b= "#{capacity.capacity_type.try(:name)}: "
-      = capacity.capacity

@@ -60,13 +60,13 @@
         / END .panel-body
       / END .panel
       = render 'address_panel', f: f
-      = render 'shared/operating_hours'
-    / END .col-md-6
-    .col-sm-12.col-md-6
+
       - @driver.build_emergency_contact if @driver.emergency_contact.nil?
       = f.fields_for :emergency_contact, @driver.emergency_contact do |contact_form|
         = render 'drivers/emergency_contact_panel', f: contact_form
+    / END .col-md-6
 
+    .col-sm-12.col-md-6
       - if @driver.persisted?
         .panel.panel-primary
           .panel-heading= translate_helper("driver_documents_heading")
@@ -120,20 +120,3 @@
   = render 'shared/readonly_modal_dialog', modal_id: "modal-dialog" 
 - else 
   = render 'shared/modal_dialog', modal_id: "modal-dialog" 
-
-:javascript
-  $(document).ready(function(){
-    function update_hours_enabled(i) {
-      var enabled = $("input#hours-" + i + "-open").is(":checked");
-      $("select#start-hour-" + i).prop('disabled', !enabled);
-      $("select#end-hour-" + i).prop('disabled', !enabled);
-    };
-    
-    // Enable/disable behavior for operating hours on form
-    for (var i = 0; i < 7; ++i) (function(i) {
-      update_hours_enabled(i);
-      $("input.hours-" + i).click(function(e) {
-        update_hours_enabled(i);
-      });
-    })(i);
-  });

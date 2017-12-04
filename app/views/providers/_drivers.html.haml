@@ -1,3 +1,30 @@
+:ruby 
+  hours = []
+  (0..24).each do |hour|
+    hours << [format_hour_label(hour), hour]
+  end
+%h2.section-header#driver_availability_settings= translate_helper("driver_availability_settings")
+- if can? :edit, @provider
+  = form_tag change_driver_availability_settings_provider_path(@provider) do
+    %fieldset
+      %ol.section.one
+        %li
+          = label_tag translate_helper("driver_availability_min_hour")
+          = select_tag "driver_availability_min_hour", options_for_select( hours, @provider.driver_availability_min_hour), name: "provider[driver_availability_min_hour]"
+        %li
+          = label_tag translate_helper("driver_availability_max_hour")
+          = select_tag "driver_availability_max_hour", options_for_select( hours, @provider.driver_availability_max_hour), name: "provider[driver_availability_max_hour]"
+        %li
+          = label_tag translate_helper("driver_availability_interval_min")
+          = select_tag "driver_availability_interval_min", options_for_select( [[30, 30], [60, 60]], @provider.driver_availability_interval_min), name: "provider[driver_availability_interval_min]"
+        %li
+          = label_tag translate_helper("driver_availability_days_ahead")
+          = select_tag "driver_availability_days_ahead", options_for_select( [[30, 30], [45, 45], [60, 60]], @provider.driver_availability_days_ahead), name: "provider[driver_availability_days_ahead]"
+      .actions
+        = submit_tag translate_helper("submit_driver_availability_settings"), class: 'btn action-button'
+%hr
+
+
 %h2.section-header= translate_helper("configure_provider_driver_requirement_templates")
 = link_to translate_helper("provider_driver_requirement_templates_link_text"), driver_requirement_templates_path(provider_id: current_provider_id), target: '_blank'
 %hr

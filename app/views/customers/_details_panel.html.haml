@@ -90,16 +90,6 @@
         = f.select :ethnicity, @ethnicity_names, {include_blank: true}, {class: 'form-control'}
     .form-group.col-sm-12
       .col-sm-3
-        = f.label :mobility_id, translate_helper(:mobility) 
-      .col-sm-9
-        = f.collection_select :mobility_id, @mobilities, :id, :name, {include_blank: true},  {class: 'form-control'}
-    .form-group.col-sm-12
-      .col-sm-3
-        = f.label :mobility_notes, translate_helper(:mobility_notes) 
-      .col-sm-9
-        = f.text_field :mobility_notes, class: 'form-control'
-    .form-group.col-sm-12
-      .col-sm-3
         = f.label :default_service_level, translate_helper(:default_service_level) 
       .col-sm-9
         = f.select :service_level_id, @service_levels, {:include_blank => true}, {class: 'form-control'}

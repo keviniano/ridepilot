@@ -44,6 +44,7 @@ class RepeatingTripsController < ApplicationController
     @trip = RepeatingTrip.new(trip_params)
     process_google_address
     authorize! :manage, @trip
+    edit_mobilities
 
     respond_to do |format|
       if @trip.is_all_valid?(current_provider_id) && @trip.save
@@ -74,6 +75,8 @@ class RepeatingTripsController < ApplicationController
 
     prev_schedule = @trip.schedule
     @trip.assign_attributes(trip_params)
+
+    edit_mobilities
     changes = @trip.changes
     respond_to do |format|
       if @trip.is_all_valid?(current_provider_id) && @trip.save
@@ -137,16 +140,15 @@ class RepeatingTripsController < ApplicationController
   def trip_params
     params.require(:repeating_trip).permit(
       :appointment_time,
-      :attendant_count,
       :customer_id,
       :dropoff_address_id,
+      :dropoff_address_notes,
       :funding_source_id,
-      :group_size,
-      :guest_count,
       :medicaid_eligible,
       :mobility_id,
       :notes,
       :pickup_address_id,
+      :pickup_address_notes,
       :pickup_time,
       :provider_id, # We normally wouldn't accept this and would set it manually on the instance, but in this controller we're setting it in the params dynamically
       :repeats_sundays,
@@ -160,7 +162,6 @@ class RepeatingTripsController < ApplicationController
       :service_level_id,
       :trip_purpose_id,
       :customer_informed,
-      :mobility_device_accommodations,
       :comments,
       :start_date,
       :end_date,
@@ -202,5 +203,27 @@ class RepeatingTripsController < ApplicationController
       @trip.dropoff_address = new_temp_addr
     end
         
+  end
+
+  def edit_mobilities
+    unless params[:mobilities].blank?
+      mobilities = JSON.parse(params[:mobilities], symbolize_names: true)
+      @trip.ridership_mobilities.delete_all
+
+      sum_by_ridership = {}
+      mobilities.each do |config|
+        ridership_id = config[:ridership_id].to_i
+        capacity = config[:capacity].to_i
+        sum_by_ridership[ridership_id] = 0 if !sum_by_ridership.has_key?(ridership_id)
+        sum_by_ridership[ridership_id] += capacity
+        @trip.ridership_mobilities.build(mobility_id: config[:mobility_id], ridership_id: ridership_id, capacity: capacity)
+      end
+
+      # update space totals
+      @trip.customer_space_count = sum_by_ridership[1].to_i
+      @trip.guest_count = sum_by_ridership[2].to_i
+      @trip.attendant_count = sum_by_ridership[3].to_i
+      @trip.service_animal_space_count = sum_by_ridership[4].to_i
+    end
   end
 end

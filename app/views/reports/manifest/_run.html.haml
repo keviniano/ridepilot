@@ -1,0 +1,14 @@
+
+
+= render "reports/manifest/run_header#{@is_pdf ? '.html.haml' : ''}", run: run
+.row
+  %table{style: 'font-size: 12pt; width: 100% !important;'}
+    %tr
+      %th{style: 'border-left: 2px black solid;'}= translate_helper("driver_manifest_p_d") 
+      %th= translate_helper("driver_manifest_client_address") 
+      %th{style: 'text-align: right;'}= translate_helper("run_manifest_table_header_scheduled_time") 
+      %th{style: 'border-right: 2px black solid;'}
+    %tbody
+      - itins = get_itineraries(run)
+      - itins.each_with_index do |itin, index|
+        = render "reports/manifest/itinerary#{@is_pdf ? '.html.haml' : ''}", itinerary: itin

@@ -1,48 +1,5 @@
-:css
-  @media print {
-    table {
-      width: 100% !important;
-    }
-    table td, table th{
-      border: none;
-    }
-
-    .page-break {
-      page-break-before: always;
-    }
-  }
-  
-  p {
-    line-height: normal;
-  }
-
-  table td, table th {
-    padding: 4px;
-  }
-
 = content_for :title, translate_helper("driver_manifest_title") + " #{@date.strftime('%v')}" 
 = render 'custom_report_header'
 
-.col-sm-12.col-md-10.col-md-offset-1.col-lg-8.col-lg-offset-2
-  - prev_driver_id = nil
-  - @runs.each_with_index do |run, index|
-    - is_first_run = (index == 0 || run.driver_id != prev_driver_id)
-    - prev_driver_id = run.driver_id
-    - if is_first_run
-      .page-break{style: (index == 0 ? "page-break-before: auto;" : "")}
-        .row
-          .col-xs-6{style: 'font-size: 18px; font-weight: bold; padding-left: 0px;'}
-            .col-sm-12{style: 'padding-left: 0px;'}
-              = "#{translate_helper('driver_manifest_date')}: #{@date.strftime('%A')}"
-            .col-sm-12{style: 'padding-left: 0px;'}
-              = format_date(@date)
-          .col-xs-6{style: 'padding-right: 0px;'}
-            %img.pull-right{src: "/uta_logo.png", height:40, width:151}
-        .row
-          %h1{style: 'text-align: center;'}
-            %u
-              = translate_helper("driver_manifest_heading")
-        %br  
-    = render 'reports/driver_manifest/run', run: run, is_first_run: is_first_run
-
+= render 'reports/driver_manifest/table'
        

@@ -343,4 +343,40 @@ namespace :ridepilot do
     load(seed_file) if File.exist?(seed_file)
     puts 'Finished seeding supporting version 2 custom reports'
   end
+
+  desc 'Remove provider-specific capacity types'
+  task :remove_provider_speicif_capacity_types => :environment do
+    ct_table = ProviderLookupTable.find_by_name "capacity_types"
+    if ct_table
+      ct_table.delete
+      CapacityType.where.not(provider_id: nil).destroy_all
+    end
+    puts 'Finished removal'
+  end
+
+  desc 'Migrate trip size fields'
+  task :migrate_trip_size_fields => :environment do
+    Trip.where(customer_space_count: nil).update_all(customer_space_count: 1)
+    Trip.where(guest_count: nil).update_all(guest_count: 0)
+    Trip.where(attendant_count: nil).update_all(attendant_count: 0)
+    Trip.where(service_animal_space_count: nil).update_all(service_animal_space_count: 0)
+
+    RepeatingTrip.where(customer_space_count: nil).update_all(customer_space_count: 1)
+    RepeatingTrip.where(guest_count: nil).update_all(guest_count: 0)
+    RepeatingTrip.where(attendant_count: nil).update_all(attendant_count: 0)
+    RepeatingTrip.where(service_animal_space_count: nil).update_all(service_animal_space_count: 0)
+  end
+
+  desc 'Migrate operating hours to update values for is_unavailable and is_all_day fields'
+  task :migrate_operating_hours => :environment do
+    OperatingHour.where("start_time is NULL and end_time is NULL and is_all_day = ?", false).update_all(is_unavailable: true)
+    
+    all_day_ids = []
+    OperatingHour.where.not(is_unavailable: true).pluck(:id, :start_time, :end_time).each do |config|
+      if config[1].try(:to_s, :time_utc) == '00:00:00' and config[2].try(:to_s, :time_utc) == '00:00:00'
+        all_day_ids << config[0]
+      end
+    end
+    OperatingHour.where(id: all_day_ids).update_all(is_all_day: true)
+  end
 end

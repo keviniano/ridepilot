@@ -17,13 +17,18 @@
       %th= translate_helper(:run_table_header_trips)
       %th= translate_helper(:run_table_header_actions)
   %tbody
-    - @runs.each do |run|
+    - @runs.sort_by{|r| [r.scheduled_start_time - r.scheduled_start_time.beginning_of_day, r.name]}.each do |run|
       %tr{data: {run_id: run.id}}
         %td
           = link_to run.name, '#', data: {run_id: run.id}, class: 'run_name_link non_jump_top', title: 'Click to open manifest'
         - vehicle_overdue_check = get_vehicle_warnings(run.vehicle, run)
         %td{class: vehicle_overdue_check[:class_name], title: vehicle_overdue_check[:tips] }
-          = link_to run.vehicle.try(:name), vehicle_path(run.vehicle), target: '_blank' if run.vehicle
+          - if run.vehicle
+            = link_to run.vehicle.try(:name), vehicle_path(run.vehicle), target: '_blank' 
+            .pull-right
+              - unless run.vehicle.vehicle_type
+                %span.label.label-warning
+                  Veh. Type?
         - driver_overdue_check = get_driver_warnings(run.driver, run)
         %td{class: driver_overdue_check[:class_name], title: driver_overdue_check[:tips] }
           = link_to run.driver.try(:user_name), driver_path(run.driver), target: '_blank' if run.driver

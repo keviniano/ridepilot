@@ -105,6 +105,8 @@ en:
   ethnicity: "Ethnicity"
   mobility: "Mobility"
   mobility_notes: "Mobility Notes"
+  customer_default_mobility: "Default Mobility"
+  total_space: "Total"
   medicaid_eligible: "Medicaid Eligible"
   ada_eligible: "ADA Eligibile"
   default_service_level: "Default Service Level"
@@ -319,6 +321,10 @@ en:
   inactivated_end_date: 'End Date'
   active_status_change_reason: 'Reason'
   inactivated_end_date_earlier_than_start_date: 'End Date should be no earlier than Start Date'
+  driver_availability_link_title: 'Show Availability'
+  driver_form_recurring_availability_heading: "Recurring Availability"
+  driver_form_daily_availability_heading: "Daily Availability"
+  driver_form_planned_leaves_heading: "Planned Leaves"
 
   # emergency contact
   driver_form_emergency_contact_heading: 'Emergency Contact'
@@ -392,6 +398,31 @@ en:
   driver_requirement_template_form_error:
     one: "1 error prohibited this requirement from being saved"
     other: "%{count} errors prohibited this requirement from being saved"
+
+  # Driver availability
+  operating_hour_form_new_heading: "New Hours"
+  daily_operating_hour_form_new_heading: "New Hours"
+  planned_leave_form_new_heading: "New Planned Leave"
+  planned_leave_start_date: "Start Date"
+  planned_leave_end_date: "End Date"
+  planned_leave_form_reason: "Reason"
+  planned_leave_form_edit_heading: "Edit Planned Leave"
+  planned_leave_form_error:
+    one: "1 error prohibited this planned leave from being saved"
+    other: "%{count} errors prohibited this planned leave from being saved"
+  first_day_of_leave: "First Day of Leave"
+  last_day_of_leave: "Last Day of Leave"
+  reason_leave: "Reason"
+  new_planned_leave_link_text: "New"
+  driver_availability_settings: "Driver Availability Settings"
+  driver_availability_min_hour: "Availability Chart Start Hour"
+  driver_availability_max_hour: "Availability Chart End Hour"
+  driver_availability_interval_min: "Availability Chart Interval (min)"
+  driver_availability_days_ahead: "Days Ahead to Forecast Availability"
+  submit_driver_availability_settings: "Submit"
+  driver_availability_forecast_link_text: "Availability Forecast"
+  driver_availability_forecast: "Driver Availability Forecast"
+  planned_leave_unassign_driver_warning: "Planned leave within live scheduling window would remove the driver from assigned runs."
 
   # Vehicle compliances
   legal_vehicle_compliances_heading: "Legal Requirements"
@@ -910,6 +941,10 @@ en:
   number_of_runs_completed: "Number of Runs Completed"
   days_worked: "Days Worked"
   number_of_trips: "Number of Trips" 
+  total_passengers: "Total Passengers"
+  total_hours_driven: "Total Hours Driven"
+  passenger_type: "Passenger Type"
+  passenger_count: "Count"
   
   # Approved Vendors List
   vendor_list_download: "Download Approved Vendors List"
@@ -1259,7 +1294,7 @@ en:
   ask_for_creating_return_trip_message: 'Would you like to create a return trip?'
   linking_to: 'Link to'
   trip_form_mobility_device_accommodations_label: 'Mobility Device Count'
-  eligibility_and_accommodation: 'Eligibility and Accommodation'
+  trip_eligibility_panel: 'Eligibility'
   number_of_passengers_tracking: "Number of Passengers Tracking"
   number_of_senior_passengers_tracking_label: "Senior"
   number_of_disabled_passengers_tracking_label: "Disabled"
@@ -1403,6 +1438,7 @@ en:
   vehicle_maintenance_event_delete_confirm: "Are you sure?"
   edit_vehicle_initial_mileage_heading: "Change initial mileage"
   vehicle_form_initial_mileage_change_reason: "Reason"
+  vehicle_cannot_accommodate_warning: "Vehicle cannot accommodate"
 
   #vehicle types
   vehicle_types: "Vehicle Types"
@@ -1422,20 +1458,29 @@ en:
   vehicle_type_form_new_heading: "New Type"
   vehicle_form_edit_heading: "Edit Type"
 
-  #vehicle capacities
-  new_vehicle_capacity_link_text: "New"
+  #vehicle capacity configurations
+  new_vehicle_capacity_configuration_link_text: "New Configuration"
   vehicle_capacity_capacity: "Capacity"
   vehicle_capacity_type: "Type"
-  vehicle_capacity_form_error:
-    one: "1 error prohibited this type from being saved"
+  vehicle_capacity_configuration_form_error:
+    one: "1 error prohibited this configuration from being saved"
     other: "%{count} errors prohibited this from being saved"
-  vehicle_capacity_form_submit: "Submit"
-  vehicle_capacity_delete_confirm: "Are you sure to delete this type?"
-  vehicle_capacity_form_new_heading: "New Type"
-  vehicle_capacity_form_edit_heading: "Edit Type"
-  configure_provider_capacity_types: "Configure Provider Specific Capacity Types"
-  provider_capacity_types_link_text: "Provider-specific Capacity Types"
+  vehicle_capacity_configuration_form_submit: "Submit"
+  vehicle_capacity_configuration_delete_confirm: "Are you sure to delete this configuration?"
+  vehicle_capacity_configuration_form_new_heading: "New Configuration"
+  vehicle_capacity_configuration_form_edit_heading: "Edit Configuration"
+  configure_capacity_types: "Configure Capacity Types"
+  capacity_types_link_text: "Capacity Type Lookup Table"
   capacity_type_label: "Capacity Type"
+  configure_mobility_types: "Configure Mobility Types"
+  mobility_types_link_text: "Mobility Type Lookup Table"
+
+  # mobility capacity mappings
+  mobility_capacities_link_text: "Mapping Mobility Types to Capacity Types"
+  save_mobility_capacities: "Save"
+  mobility_capacities_edit_notes: "Click each number to edit."
+  customer_mobility_panel: "Mobility Configuration"
+  trip_mobility_panel: "Mobility Configuration"
 
   # Vehicle Maintenance Compliances
   vehicle_maintenance_compliances_heading: "Preventive Maintenance Logs (PM)"

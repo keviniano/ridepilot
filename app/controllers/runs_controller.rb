@@ -185,7 +185,7 @@ class RunsController < ApplicationController
     if @driver && date 
       @is_driver_active = @driver.active_for_date?(date)
       if start_time && end_time
-        @is_driver_available = @driver.available_between?(date.wday, start_time.strftime('%H:%M'), end_time.strftime('%H:%M')) 
+        @is_driver_available = @driver.available_between?(date, start_time.strftime('%H:%M'), end_time.strftime('%H:%M')) 
       end
     end
   end 
@@ -197,7 +197,7 @@ class RunsController < ApplicationController
   end
 
   def uncomplete
-    @run.set_incomplete!
+    @run.set_incomplete!(params[:run][:uncomplete_reason], current_user)
     redirect_to run_path(@run)
   end
 
@@ -212,9 +212,19 @@ class RunsController < ApplicationController
       @run.to_garage_address.the_geom = Address.compute_geom(params[:to_garage_address_lat], params[:to_garage_address_lon])
     end
 
-    @run.set_complete!
+    @run.set_complete!(current_user)
 
     redirect_to run_path(@run)
+  end
+
+  def assign_driver
+  end
+
+  def unassign_driver
+    if @run
+      @run.driver_id = nil
+      @run.save(validate: false)
+    end
   end
   
   private

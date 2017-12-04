@@ -20,6 +20,12 @@
       %span.dispatch-action
         = link_to run_path(run, from_dispatch: true), style: 'color: white;', title: "View details" do 
           %i.fa.fa-external-link
+      - if run.trips.any?
+        - manifest_report = CustomReport.find_by_name('manifest')
+        - if manifest_report
+          %span.dispatch-action
+            = link_to url_for(:controller => :reports, :action=>:manifest, id: manifest_report.id, query: {run_id: run.id}, format: :pdf), title: 'Print manifest', style: 'color: white;' do 
+              %i.fa.fa-print
       %span.panel-close.dispatch-action{title: 'Close'}
         %i.fa.fa-remove
       %span.panel-expand-collapse.dispatch-action{title: 'Collapse/expand'}

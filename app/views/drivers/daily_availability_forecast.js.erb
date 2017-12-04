@@ -1,0 +1,2 @@
+$('.driver_availability_forecast_table tr.in_view').removeClass('in_view');
+$('#daily_availability_forecast_view').replaceWith($("<%= j (render 'daily_availability_summary_view', date: @date) %>"));

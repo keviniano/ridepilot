@@ -1,0 +1,6 @@
+- capacity_ids = @capacity_types.pluck(:id)
+- capacities = vehicle_capacity_configuration.vehicle_capacities.pluck(:capacity_type_id, :capacity).to_h
+%tr{class: "vehicle_capacity_configuration_#{vehicle_capacity_configuration.id}"}
+  - capacity_ids.each do |c_id|
+    %td= capacities[c_id]
+  %td= link_to "X", polymorphic_path([vehicle_capacity_configuration.vehicle_type, vehicle_capacity_configuration]), method: :delete, remote: true, data: { confirm: translate_helper("vehicle_capacity_configuration_delete_confirm") }, class: "btn btn-danger btn-sm pull-right" if can?(:delete, vehicle_capacity_configuration)

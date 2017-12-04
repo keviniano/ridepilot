@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171031153307) do
+ActiveRecord::Schema.define(version: 20171128213438) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -239,6 +239,18 @@ ActiveRecord::Schema.define(version: 20171031153307) do
   add_index "customers_providers", ["customer_id", "provider_id"], :name => "index_customers_providers_on_customer_id_and_provider_id"
   add_index "customers_providers", ["customer_id"], :name => "index_customers_providers_on_customer_id"
   add_index "customers_providers", ["provider_id"], :name => "index_customers_providers_on_provider_id"
+
+  create_table "daily_operating_hours", force: true do |t|
+    t.date     "date"
+    t.time     "start_time"
+    t.time     "end_time"
+    t.integer  "operatable_id"
+    t.string   "operatable_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "is_all_day",      default: false
+    t.boolean  "is_unavailable",  default: false
+  end
 
   create_table "device_pool_drivers", force: true do |t|
     t.string   "status"
@@ -523,10 +535,24 @@ ActiveRecord::Schema.define(version: 20171031153307) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "operatable_type"
+    t.boolean  "is_all_day",      default: false
+    t.boolean  "is_unavailable",  default: false
   end
 
   add_index "operating_hours", ["operatable_id", "operatable_type"], :name => "index_operating_hours_on_operatable_id_and_operatable_type"
   add_index "operating_hours", ["operatable_id"], :name => "index_operating_hours_on_operatable_id"
+
+  create_table "planned_leaves", force: true do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.text     "reason"
+    t.integer  "leavable_id"
+    t.string   "leavable_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "planned_leaves", ["leavable_id", "leavable_type"], :name => "index_planned_leaves_on_leavable_id_and_leavable_type"
 
   create_table "provider_lookup_tables", force: true do |t|
     t.string   "caption"
@@ -591,6 +617,10 @@ ActiveRecord::Schema.define(version: 20171031153307) do
     t.integer  "business_address_id"
     t.integer  "mailing_address_id"
     t.string   "admin_name"
+    t.integer  "driver_availability_min_hour",                                                                                                     default: 6
+    t.integer  "driver_availability_max_hour",                                                                                                     default: 22
+    t.integer  "driver_availability_interval_min",                                                                                                 default: 30
+    t.integer  "driver_availability_days_ahead",                                                                                                   default: 30
   end
 
   add_index "providers", ["business_address_id"], :name => "index_providers_on_business_address_id"
@@ -714,6 +744,8 @@ ActiveRecord::Schema.define(version: 20171031153307) do
     t.date     "scheduled_through"
     t.string   "pickup_address_notes"
     t.string   "dropoff_address_notes"
+    t.integer  "customer_space_count"
+    t.integer  "service_animal_space_count"
   end
 
   add_index "repeating_trips", ["customer_id"], :name => "index_repeating_trips_on_customer_id"
@@ -798,6 +830,18 @@ ActiveRecord::Schema.define(version: 20171031153307) do
 
   add_index "reporting_specific_filter_groups", ["filter_group_id"], :name => "index_of_filter_group_on_specific_filter_group"
   add_index "reporting_specific_filter_groups", ["report_id"], :name => "index_of_report_on_specific_filter_group"
+
+  create_table "ridership_mobility_mappings", force: true do |t|
+    t.integer  "ridership_id"
+    t.integer  "mobility_id"
+    t.integer  "capacity"
+    t.string   "type"
+    t.integer  "host_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ridership_mobility_mappings", ["mobility_id"], :name => "index_ridership_mobility_mappings_on_mobility_id"
 
   create_table "roles", force: true do |t|
     t.integer  "user_id"
@@ -973,6 +1017,8 @@ ActiveRecord::Schema.define(version: 20171031153307) do
     t.string   "dropoff_address_notes"
     t.boolean  "is_stand_by"
     t.boolean  "driver_notified"
+    t.integer  "customer_space_count"
+    t.integer  "service_animal_space_count"
   end
 
   add_index "trips", ["called_back_by_id"], :name => "index_trips_on_called_back_by_id"
@@ -1023,6 +1069,14 @@ ActiveRecord::Schema.define(version: 20171031153307) do
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
   add_index "users", ["password_changed_at"], :name => "index_users_on_password_changed_at"
   add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
+
+  create_table "vehicle_capacity_configurations", force: true do |t|
+    t.integer  "vehicle_type_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "vehicle_capacity_configurations", ["vehicle_type_id"], :name => "index_vehicle_capacity_configurations_on_vehicle_type_id"
 
   create_table "vehicle_compliances", force: true do |t|
     t.integer  "vehicle_id"

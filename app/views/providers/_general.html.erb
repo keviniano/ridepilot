@@ -50,7 +50,7 @@
 <% if can? :edit, @provider %>
   <%= form_tag change_advance_day_scheduling_provider_path(@provider) do %>
     <fieldset>
-      <ol class="section fourth">
+      <ol class="section one">
         <li>
           <%= label_tag translate_helper("days_in_advance") %>
           <%= select_tag "advance_day_scheduling", options_for_select( [[7, 7], [14, 14], [21, 21]], @provider.get_advance_day_scheduling), { :onchange => "form.submit();" } %>
@@ -67,7 +67,7 @@
 <% if can? :edit, @provider %>
   <%= form_tag change_run_tracking_provider_path(@provider) do %>
     <fieldset>
-      <ol class="section fourth">
+      <ol class="section one">
         <li>
           <%= label_tag translate_helper("enabled") %>
           <%= select_tag "run_tracking", options_for_select( [["No", false], ["Yes", true]], @provider.run_tracking? ), { :onchange => "form.submit();" } %>
@@ -83,7 +83,7 @@
 <% if can? :edit, @provider %>
   <%= form_tag change_cab_enabled_provider_path(@provider) do %>
     <fieldset>
-      <ol class="section fourth">
+      <ol class="section one">
         <li>
           <%= label_tag translate_helper("enabled") %>
           <%= select_tag "cab_enabled", options_for_select( [["No", false], ["Yes", true]], @provider.try(:cab_enabled?) ), { :onchange => "form.submit();" } %>
@@ -99,7 +99,7 @@
 <% if can? :edit, @provider %>
   <%= form_tag change_scheduling_provider_path(@provider) do %>
     <fieldset>
-      <ol class="section fourth">
+      <ol class="section one">
         <li>
           <%= label_tag translate_helper("enabled") %>
           <%= select_tag "scheduling", options_for_select( [["No", false], ["Yes", true]], @provider.scheduling? ), { :onchange => "form.submit();" } %>

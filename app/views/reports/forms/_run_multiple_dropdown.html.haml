@@ -1,0 +1,39 @@
+:ruby
+  runs_hash = {}
+  runs.pluck(:date, :id, :name).each do |r|
+    date = r[0]
+    runs_hash[date] = [] unless runs_hash.has_key?(date)
+    runs_hash[date] << [r[1], r[2]]
+  end
+
+  select_ids = selected_runs.reorder("").pluck(:id).uniq
+
+:css
+  li.opt label {
+    font-weight: normal;
+  }
+  p.select-all {
+    height: auto !important;
+  }
+  p {
+    line-weight: normal !important;
+  }
+
+%select.run_multipe_dropdown{multiple: 'multiple'}
+  - runs_hash.each do |date, runs|
+    %optgroup{label: format_date(date)}
+      - runs.each do |run|
+        %option{value: run[0]}
+          = run[1]
+
+:javascript
+  $('select.run_multipe_dropdown').SumoSelect({selectAll: true, showTitle: false});
+  if(#{runs == selected_runs}) {
+    $('select.run_multipe_dropdown')[0].sumo.selectAll();
+  } else {
+    var select_instance = $('select.run_multipe_dropdown')[0];
+    var selected_ids = #{select_ids || []};
+    selected_ids.forEach(function(run_id) {
+      select_instance.sumo.selectItem(run_id.toString());
+    });
+  }

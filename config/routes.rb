@@ -57,7 +57,7 @@ Rails.application.routes.draw do
         get :customer_comments_report
         post :inactivate
         post :reactivate
-        get :get_eligibilities_for_trip
+        get :get_eligibilities_mobilities_for_trip
         post :verify_code
         get :prompt_code
       end
@@ -114,6 +114,7 @@ Rails.application.routes.draw do
         post :change_advance_day_scheduling
         post :change_eligible_age
         post :change_fields_required_for_run_completion
+        post :change_driver_availability_settings
         post :save_region
         post :save_viewport
         patch :save_operating_hours
@@ -148,11 +149,18 @@ Rails.application.routes.draw do
       resources :vehicle_maintenance_schedules, except: [:show]
     end
     resources :vehicle_types do 
-      resources :vehicle_capacities, except: [:show] do 
+      resources :vehicle_capacity_configurations, except: [:show] do 
         collection do 
           get :list 
         end
       end
+    end
+
+    resources :mobility_capacities, only: [:index] do
+      collection do 
+        get :batch_edit
+        post :batch_update
+      end 
     end
 
     resources :recurring_vehicle_maintenance_compliances do
@@ -191,10 +199,18 @@ Rails.application.routes.draw do
     end
 
     resources :drivers do
+      collection do 
+        get :availability_forecast
+        get :daily_availability_forecast
+      end
+      
       member do
         get :delete_photo
         post :inactivate
         post :reactivate
+        get :availability
+        patch :assign_runs
+        patch :unassign_runs
       end
 
       resources :documents, except: [:index, :show]
@@ -232,6 +248,8 @@ Rails.application.routes.draw do
         get :request_uncompletion
         patch :uncomplete
         patch :complete
+        patch :assign_driver
+        patch :unassign_driver
       end
     end
 
@@ -243,7 +261,6 @@ Rails.application.routes.draw do
         post :batch_change_same_run_trip_result
         post :update_run_manifest_order
         get :cancel_run
-        get :runs_by_date
         get :run_trips
         get :load_trips
       end
@@ -258,11 +275,26 @@ Rails.application.routes.draw do
         post :update_run_manifest_order
         get :batch_update_daily_dispatch_action
         get :cancel_run
-        get :runs_by_date
         get :run_trips
         get :load_trips
       end
     end
+
+
+    resources :operating_hours, only: [:new] do 
+      collection do 
+        post :add 
+        delete :remove
+      end
+    end
+    resources :daily_operating_hours, only: [:new] do 
+      collection do 
+        post :add 
+        delete :remove
+      end
+    end
+
+    resources :planned_leaves, except: [:index, :show]
 
     resources :cab_trips, :only => [:index] do
       collection do
@@ -279,6 +311,11 @@ Rails.application.routes.draw do
     get "custom_reports/:id", :controller=>:reports, :action=>:show, as: :custom_report
     get "reports/:action", :controller=>:reports
     get "reports/:action/:id", :controller=>:reports
+    resources :reports, only: [] do 
+      collection do 
+        get :get_run_list
+      end
+    end
     # reporting engine
     mount Reporting::Engine, at: "/reporting"
 

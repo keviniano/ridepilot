@@ -38,8 +38,6 @@ class Vehicle < ActiveRecord::Base
   validates :vin, uniqueness: { :case_sensitive => false, scope: :provider, message: "should be unique", conditions: -> { where(deleted_at: nil) } }, length: {is: 17},
     format: {with: /\A[^ioq]*\z/i}, allow_nil: true, allow_blank: true
   validates_date :registration_expiration_date, allow_blank: true
-  validates :seating_capacity, numericality: { only_integer: true, greater_than: 0 }
-  validates :mobility_device_accommodations, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :ownership, inclusion: { in: OWNERSHIPS.map(&:to_s), allow_blank: true }
   validates :initial_mileage, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 10000000 }
   validate  :valid_phone_number
@@ -74,14 +72,6 @@ class Vehicle < ActiveRecord::Base
 
   def expired?(as_of: Date.current)
     vehicle_warranties.expired(as_of: as_of).any?
-  end
-  
-  def open_seating_capacity(start_time, end_time, ignore: nil)
-    seating_capacity - (trips.incomplete.during(start_time, end_time) - Array(ignore)).collect(&:trip_size).flatten.compact.sum if seating_capacity
-  end
-
-  def open_mobility_device_capacity(start_time, end_time, ignore: nil)
-    mobility_device_accommodations - (trips.incomplete.during(start_time, end_time) - Array(ignore)).collect(&:mobility_device_accommodations).flatten.compact.sum if mobility_device_accommodations
   end
 
   private

@@ -211,6 +211,12 @@ class ProvidersController < ApplicationController
     redirect_to general_provider_path(@provider, anchor: "run_fields_settings")
   end
 
+  def change_driver_availability_settings
+    @provider.update(driver_availability_params)
+
+    redirect_to drivers_provider_path(@provider)
+  end
+
   def inactivate
     @provider = Provider.find(params[:id])
     authorize! :edit, @provider
@@ -234,8 +240,8 @@ class ProvidersController < ApplicationController
   def general
     @hours = @provider.hours_hash
 
-    @start_hours = OperatingHours.available_start_times
-    @end_hours = OperatingHours.available_end_times
+    @start_hours = OperatingHour.available_start_times
+    @end_hours = OperatingHour.available_end_times
 
     array = (0..19).zip(0..19).map()
     @zoom_choices = array.inject({}) do |memo, values|
@@ -315,12 +321,21 @@ class ProvidersController < ApplicationController
     )
   end
 
+  def driver_availability_params
+    params.require(:provider).permit(
+      :driver_availability_min_hour,
+      :driver_availability_max_hour,
+      :driver_availability_interval_min,
+      :driver_availability_days_ahead
+      )
+  end
+
   def reimbursement_params
     params.permit(*Provider::REIMBURSEMENT_ATTRIBUTES)
   end
 
   def create_or_update_hours!
-    OperatingHoursProcessor.new(@provider, {
+    ProviderOperatingHoursProcessor.new(@provider, {
       hours: params[:hours],
       start_hour: params[:start_hour],
       end_hour: params[:end_hour]

@@ -1,6 +1,6 @@
 class Driver < ActiveRecord::Base
   include RequiredFieldValidatorModule
-  include Operatable
+  include Available
   include Inactivateable
   include PublicActivity::Common
 

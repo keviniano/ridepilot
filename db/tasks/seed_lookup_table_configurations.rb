@@ -11,7 +11,8 @@
     code_column_name: 'code',
     description_column_name: 'description',
     add_value_allowed: false,
-    delete_value_allowed: false
+    delete_value_allowed: false,
+    edit_value_allowed: false
   },
   {
     name: 'service_levels',

@@ -162,8 +162,6 @@ class VehiclesController < ApplicationController
       :ownership, 
       :responsible_party, 
       :registration_expiration_date, 
-      :seating_capacity, 
-      :mobility_device_accommodations, 
       :accessibility_equipment, 
       :initial_mileage,
       :garage_phone_number,

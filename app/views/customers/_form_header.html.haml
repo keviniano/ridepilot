@@ -16,7 +16,7 @@
           = link_to translate_helper("reactivate"), reactivate_customer_path(@customer), method: :post, :class=>'btn action-button', :data => { :confirm => translate_helper(:reactivate_confirmation)}
         - elsif can?(:inactivate, @customer)
           = button_tag :type => 'button', id: 'inactivateCustomer', "data-target" => "#inactivateDialog", "data-toggle" => "modal", :class => "btn action-button" do
-            = @customer.inactivated? ? translate_helper(:activate) : translate_helper(:inactivate)
+            = !@customer.active_for_date?(Date.today) ? translate_helper(:activate) : translate_helper(:inactivate)
         - if !@customer.new_record? && can?(:destroy, @customer)
           - if @customer.trips.present?
             = link_to(translate_helper("merge"), @customer, :id => 'customer_merge', :class=>'btn action-button btn-danger')

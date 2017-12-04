@@ -26,6 +26,7 @@
   <%= hidden_field_tag 'donations' %>
   <%= hidden_field_tag 'travel_trainings' %>
   <%= hidden_field_tag 'funding_authorization_numbers' %>
+  <%= hidden_field_tag 'mobilities' %>
   <%= f.hidden_field :group, value: is_group %>
   <%= render 'form_header', edit_mode: edit_mode, f: f %>
   <% if @customer.errors.any? %>
@@ -41,6 +42,7 @@
 
   <div class="col-sm-12 col-md-6">
     <%= render 'details_panel', f: f, edit_mode: edit_mode %>
+    <%= render 'mobility_panel', f: f, edit_mode: edit_mode %>
     <%= render 'travel_trainings_panel', f:f, edit_mode: edit_mode %>
     <%= render 'funding_authorization_numbers_panel', f:f, edit_mode: edit_mode %>
   </div>
@@ -77,6 +79,23 @@
   };
   updateGroupField();
   $('input#customer_group').click(updateGroupField);
+
+  // serialize existing numbers to save
+  function getMobilities() {
+    var data = [];
+    $('.editable-number').each(function() {
+      var mobility_id = $(this).data('mobility-id');
+      var ridership_id = $(this).data('ridership-id');
+      var value = parseInt($(this).text());
+      if(!$.isNumeric(value)) {
+        value = 0;
+      }
+
+      data.push({mobility_id: mobility_id, ridership_id: ridership_id, capacity: value});
+    });
+
+    return data;
+  }
 
   $('#customerForm').submit(function() {
     if($('#customerCommonAddressTable tbody tr').length == 0) {
@@ -127,5 +146,11 @@
     });
 
     $('#customerForm input[name=funding_authorization_numbers]').val(JSON.stringify(fundingNumbers));
+
+    // serializing mobilities
+    if($('.inline-editing-table .editable-unsaved').length > 0) {
+      $('#customerForm input[name=mobilities]').val(JSON.stringify(getMobilities()));
+    }
+    
   });
 </script>

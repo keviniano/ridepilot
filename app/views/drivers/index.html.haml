@@ -1,8 +1,9 @@
 = render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'drivers'
 #page-header.row
   .col-sm-12{style: 'padding: 0px;'}
-    - if can? :create, Driver
-      .pull-right
+    .pull-right
+      = link_to translate_helper("driver_availability_forecast_link_text"), availability_forecast_drivers_path, class: "btn action-button"
+      - if can? :create, Driver
         = link_to translate_helper("new_driver_link_text"), new_driver_path, class: "btn action-button"
     %h1
       = translate_helper("index_driver_heading")
@@ -16,12 +17,12 @@
     %table#drivers_table.table.table-striped.table-bordered
       %thead
         %tr
-          %th.col-sm-4= translate_helper("driver_form_name")
-          %th.col-sm-2= translate_helper("driver_form_active")
-          %th.col-sm-2= translate_helper("paid")
-          %th.col-sm-2= translate_helper("driver_form_available")
-          %th.col-sm-2= translate_helper("driver_overdue_events")
-          %th.col-sm-2= translate_helper("driver_completed_run_hours")
+          %th.col-sm-2= translate_helper("driver_form_name")
+          %th{style: "width: 100px;"}= translate_helper("paid")
+          %th.col-sm-3= translate_helper("driver_form_active")
+          %th.col-sm-4= translate_helper("driver_form_available")
+          %th= translate_helper("driver_overdue_events")
+          %th= translate_helper("driver_completed_run_hours")
       %tbody
         = render partial: 'driver', collection: @drivers
 

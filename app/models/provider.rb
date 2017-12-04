@@ -70,6 +70,9 @@ class Provider < ActiveRecord::Base
   # How many days in advance to create subscription trips/runs
   validates_numericality_of :advance_day_scheduling, :greater_than => 0, :allow_blank => true 
   validate  :valid_phone_number
+
+  validates_numericality_of :driver_availability_min_hour
+  validates_numericality_of :driver_availability_max_hour, :greater_than => :driver_availability_min_hour
   
   after_initialize :init
 

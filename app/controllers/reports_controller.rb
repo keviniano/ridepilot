@@ -9,6 +9,9 @@ class Query
   attr_accessor :end_date
   attr_accessor :vehicle_id
   attr_accessor :driver_id
+  attr_accessor :run_ids
+  attr_accessor :run_id
+  attr_accessor :customer_id
   attr_accessor :mobility_id
   attr_accessor :trip_display
   attr_accessor :address_group_id
@@ -52,6 +55,17 @@ class Query
       if params["driver_id"]
         @driver_id = params["driver_id"].to_i unless params["driver_id"].blank?
       end
+
+      if params["run_id"]
+        @run_ids = [params["run_id"].to_i] unless params["run_id"].blank?
+      end
+
+      if params["run_ids"]
+        @run_ids = params["run_ids"].split(',') unless params["run_ids"].blank?
+      end
+      if params["customer_id"]
+        @customer_id = params["customer_id"].to_i unless params["customer_id"].blank?
+      end
       if params["mobility_id"]
         @mobility_id = params["mobility_id"].to_i unless params["mobility_id"].blank?
       end
@@ -83,7 +97,7 @@ end
 class ReportsController < ApplicationController
   include Reporting::ReportHelper
 
-  before_action :set_reports
+  before_action :set_reports, except: [:get_run_list]
 
   def show
     @driver_query = Query.new :start_date => Date.today, :end_date => Date.today
@@ -761,15 +775,15 @@ class ReportsController < ApplicationController
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
       @drivers = Driver.for_provider(current_provider_id).default_order
-      if query_params[:report_type] == 'summary'
-        @is_summary_report = true
+      if query_params[:report_type] == 'perm_inacitve'
+        @is_perm_inactive_report = true
         @report_params << ["Inactive Type", "Permanent"]
-        # only perm_inactive for summary report
+        # only perm_inactive
         @drivers = @drivers.permanent_inactive
       else
-        @report_params << ["Inactive Type", "Permanent and Temporary"]
-        # temp_inactive and perm_inactive for detailed report
-        @drivers = @drivers.inactive_for_date(Date.today)
+        @report_params << ["Inactive Type", "Temporary"]
+        # temp_inactive for detailed report
+        @drivers = @drivers.active.inactive_for_date(Date.today)
       end
     end
 
@@ -817,23 +831,71 @@ class ReportsController < ApplicationController
   def customers_report
     query_params = params[:query] || {}
     @query = Query.new(query_params)
-    @mobilities = Mobility.by_provider(current_provider).order(:name)
+    @all_mobilities = Mobility.by_provider(current_provider).order(:name)
 
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
       
       active_customers = Customer.for_provider(current_provider_id).active
       unless @query.mobility_id.blank?
-        @report_params << [["Mobility Device", Mobility.find_by_id(@query.mobility_id).try(:name)]]
+        @mobilities = @all_mobilities.where(id: @query.mobility_id)
+        @report_params << [["Mobility Device", @mobilities.first.try(:name)]]
         @customers = active_customers.where(mobility_id: @query.mobility_id)
       else
+        @mobilities = @all_mobilities
         @customers = active_customers
       end
+
+      @count_by_mobilities = @customers.reorder('').group(:mobility_id).count
+      provider_eligible_age = current_provider.eligible_age || Provider::DEFAULT_ELIGIBLE_AGE
+      eligible_birth_date = Date.today - (provider_eligible_age).years
+      @age_eligible_count = @customers.where("birth_date is not NULL and birth_date <= ?", eligible_birth_date).count
+      @ada_eligible_count = @customers.where(ada_eligible: true).count
+      @count_by_eligibility = CustomerEligibility.where(customer_id: @customers.pluck(:id)).eligible.reorder('').group(:eligibility_id).count
+      @eligibilities = Eligibility.by_provider(current_provider).order(:description)
+
+      if query_params[:report_type] == 'summary'
+        @is_summary_report = true
+      end
+    end
+
+    apply_v2_response
+  end
+
+  # Cancellations, No Show or Missed Trip report
+  def cancellations_report
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
+    @query = Query.new(query_params)
+    @active_customers = Customer.active_for_date(Date.today).for_provider(current_provider_id)
+    if params[:query]
+      @report_params = [["Provider", current_provider.name]]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
+
+      unless @query.customer_id.blank?
+        @customers = @active_customers.where(id: @query.customer_id)
+      else
+        @customers = @active_customers
+      end
+
+      @cancelled_trips_results = TripResult.where(code: TripResult::NON_DISPATCHABLE_CODES)
+
+      @cancelled_trips = Trip.for_provider(current_provider_id)
+        .for_date_range(@query.start_date, @query.end_date)
+        .where(trip_result_id: @cancelled_trips_results.pluck(:id))
+        .where(customer_id: @customers.pluck(:id))
+
+      @customer_count = @cancelled_trips.group(:trip_result_id).sum("trips.customer_space_count")
+      @guest_count = @cancelled_trips.group(:trip_result_id).sum("trips.guest_count")
+      @attendant_count = @cancelled_trips.group(:trip_result_id).sum("trips.attendant_count")
+      @total_rider_count = @cancelled_trips.group(:trip_result_id).sum("trips.customer_space_count + trips.guest_count + trips.attendant_count")
+
+      @mobility_types = Mobility.by_provider(current_provider).order(:name)
+      @mobility_count = @cancelled_trips.joins(:ridership_mobilities).group(:trip_result_id, "ridership_mobility_mappings.mobility_id").sum("ridership_mobility_mappings.capacity")
 
       if query_params[:report_type] == 'summary'
         @is_summary_report = true
       else
-        
+        @customer_names = @cancelled_trips.joins(:customer).reorder("pickup_time::date").order("last_name, first_name, middle_initial").pluck(:first_name, :last_name)
       end
     end
 
@@ -941,7 +1003,7 @@ class ReportsController < ApplicationController
   def vehicle_report
     query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
-    @active_vehicles = Vehicle.for_provider(current_provider_id).active.default_order
+    @active_vehicles = Vehicle.where(reportable: true).for_provider(current_provider_id).active.default_order
 
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
@@ -974,7 +1036,7 @@ class ReportsController < ApplicationController
   def vehicle_monthly_service_report
     query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
-    @active_vehicles = Vehicle.for_provider(current_provider_id).active.default_order
+    @active_vehicles = Vehicle.where(reportable: true).for_provider(current_provider_id).active.default_order
 
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
@@ -993,6 +1055,14 @@ class ReportsController < ApplicationController
       @total_vehicle_count = @service_vehicles.count
       @total_vehicle_miles = @runs.sum("(end_odometer - start_odometer)")
       @miles_by_vehicle = @runs.group(:vehicle_id).sum("(end_odometer - start_odometer)")
+      @vehicle_hours = @runs.group(:vehicle_id).sum("extract(epoch from (scheduled_end_time - scheduled_start_time))")
+      @total_vehicle_hours = @runs.total_scheduled_hours
+      run_trips = @runs.joins(:trips).where("trips.trip_result_id is NULL or trips.trip_result_id = ?", TripResult.find_by_code('COMP').try(:id))
+      @trips_count = run_trips.group(:vehicle_id).count
+      @total_trips_count = run_trips.count
+      # Total passenger count
+      @passengers_count = run_trips.group(:vehicle_id).sum("customer_space_count + guest_count + attendant_count")
+      @total_passengers_count = run_trips.sum("customer_space_count + guest_count + attendant_count")
 
       if query_params[:report_type] == 'summary'
         @is_summary_report = true
@@ -1039,6 +1109,86 @@ class ReportsController < ApplicationController
     end
 
     apply_v2_response
+  end
+
+  def provider_service_productivity_report
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
+    @query = Query.new(query_params)
+    @active_vehicles = Vehicle.for_provider(current_provider_id).active.default_order
+
+    if params[:query]
+      @report_params = [["Provider", current_provider.name]]
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
+      
+      unless @query.vehicle_id.blank?
+        @vehicles = Vehicle.where(id: @query.vehicle_id)
+      else
+        @vehicles = @active_vehicles
+      end
+
+      # Only past runs with odometers
+      @runs = Run.with_odometer_readings.today_and_prior.for_provider(current_provider_id).for_vehicle(@vehicles.pluck(:id)).for_date_range(@query.start_date, @query.end_date)
+
+      @service_vehicles = Vehicle.where(id: @runs.pluck(:vehicle_id).uniq) # vehicles that provided service
+      run_trips = @runs.joins(:trips).where("trips.trip_result_id is NULL or trips.trip_result_id = ?", TripResult.find_by_code('COMP').try(:id))
+      @total_trips_count = run_trips.count
+
+      # Total passenger count
+      @total_customer_count = run_trips.sum("customer_space_count")
+      @total_guest_count = run_trips.sum("guest_count")
+      @total_attendant_count = run_trips.sum("attendant_count")
+      @total_service_animal_count = run_trips.sum("service_animal_space_count")
+      @total_passengers_count = @total_customer_count + @total_guest_count + @total_attendant_count + @total_service_animal_count
+
+      if query_params[:report_type] == 'summary'
+        @is_summary_report = true
+      else
+        @run_dates = @runs.pluck(:date).uniq.sort
+
+        run_trips = @runs.joins(:trips).where("trips.trip_result_id is NULL or trips.trip_result_id = ?", TripResult.find_by_code('COMP').try(:id))
+        @ride_counts_by_trip_purpose = run_trips.group(:date, "trips.trip_purpose_id").count
+        @ride_counts_by_date = run_trips.group(:date).count
+        @mobility_counts = @runs.joins(trips: :ridership_mobilities)
+          .where("trips.trip_result_id is NULL or trips.trip_result_id = ?", TripResult.find_by_code('COMP').try(:id))
+          .where("ridership_mobility_mappings.capacity > 0")
+          .group(:date, "ridership_mobility_mappings.mobility_id")
+          .sum("ridership_mobility_mappings.capacity")
+      end
+    end
+
+    apply_v2_response
+  end
+
+  def manifest
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
+    @query = Query.new(query_params)
+    @runs_with_trips = Run.for_provider(current_provider_id).for_date_range(@query.start_date, @query.end_date).joins(:trips).distinct
+    @all_runs = @runs_with_trips.reorder(:date, :name)
+
+    if params[:query]
+      @report_params = [["Provider", current_provider.name]]
+        
+      @capacity_types_hash = CapacityType.by_provider(current_provider).pluck(:id, :name).to_h
+      if @query.run_ids && !@query.run_ids.blank?
+        @runs = Run.where(id: @query.run_ids)
+      else
+        @runs = @all_runs
+      end
+
+      @runs = @runs.includes(trips: [:pickup_address, :dropoff_address, :customer])
+        .references(trips: [:pickup_address, :dropoff_address, :customer])
+        .reorder(:date, :scheduled_start_time)  
+    end
+
+    apply_v2_response
+  end
+
+  # refresh run dropdown whenever date range is changed
+  def get_run_list
+    query_params = params[:query]
+    @query = Query.new(query_params)
+    @runs_with_trips = Run.for_provider(current_provider_id).for_date_range(@query.start_date, @query.end_date).joins(:trips).distinct
+    @all_runs = @runs_with_trips.reorder(:date, :name)  
   end
 
   private

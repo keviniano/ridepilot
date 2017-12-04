@@ -6,7 +6,7 @@ module Operatable
   extend ActiveSupport::Concern
 
   included do
-    has_many :operating_hours, class_name: :OperatingHours, dependent: :destroy, as: :operatable, inverse_of: :operatable
+    has_many :operating_hours, dependent: :destroy, as: :operatable, inverse_of: :operatable
     
     def hours_hash
       result = {}
@@ -23,7 +23,7 @@ module Operatable
       if hours = operating_hours.where(day_of_week: day_of_week).first
         if hours.is_unavailable?
           return false
-        elsif hours.is_24_hours?
+        elsif hours.is_all_day?
           return true
         elsif hours.start_time > hours.end_time
           return time_of_day >= hours.start_time.strftime('%H:%M') || time_of_day <= hours.end_time.strftime('%H:%M')
@@ -46,7 +46,7 @@ module Operatable
       if hours = operating_hours.where(day_of_week: day_of_week).first
         if hours.is_unavailable?
           false
-        elsif hours.is_24_hours?
+        elsif hours.is_all_day?
           true
         elsif hours.start_time != hours.end_time
           (start_time && start_time.between?(hours.start_time.strftime('%H:%M'), hours.end_time.strftime('%H:%M'))) && 

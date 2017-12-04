@@ -1,4 +1,4 @@
-- if @is_summary_report
+- if @is_perm_inactive_report
   %table.table.table-bordered
     %thead
       %tr
@@ -16,7 +16,6 @@
     %thead
       %tr
         %th= translate_helper("name")
-        %th= translate_helper("permanent_inactive")
         %th= translate_helper("inactivated_start_date")
         %th= translate_helper("inactivated_end_date")
         %th= translate_helper("inactivated_reason")
@@ -25,14 +24,8 @@
       - @drivers.each do |driver|
         %tr
           %td= driver.user_name
-          - if driver.permanent_inactivated?
-            %td Permanent
-            %td
-            %td
-          - else
-            %td
-            %td= format_date(driver.inactivated_start_date)
-            %td= format_date(driver.inactivated_end_date)
+          %td= format_date(driver.inactivated_start_date)
+          %td= format_date(driver.inactivated_end_date)
           %td= driver.active_status_changed_reason
           %td= format_phone_number(driver.phone_number)
 

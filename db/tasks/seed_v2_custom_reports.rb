@@ -50,16 +50,11 @@
   {
     name: 'missing_data_report',
     title: 'Missing Data Report'
-  }].each do |report_data|
-  report = CustomReport.where(name: report_data[:name], version: '2').first_or_create 
-  report.update(redirect_to_results: true, title: report_data[:title])
-end
-
-[
+  },
   {
     name: 'manifest',
     title: 'Manifest'
-  }].each do | report_data |
+  }].each do |report_data|
   report = CustomReport.where(name: report_data[:name], version: '2').first_or_create 
-  report.update(redirect_to_results: false, title: report_data[:title])
+  report.update(redirect_to_results: true, title: report_data[:title])
 end
