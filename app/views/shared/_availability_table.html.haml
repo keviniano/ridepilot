@@ -9,6 +9,20 @@
   # get row labels
   row_data = []
   provider_unavailable_wdays = current_provider.operating_hours.unavailable.pluck(:day_of_week)
+  provider_hours_by_wday = {}
+  current_provider.operating_hours.reorder(:day_of_week).each do |op_hour|
+    if op_hour.is_unavailable
+      min_hour = 0
+      max_hour = 0
+    elsif op_hour.is_all_day
+      min_hour = 0
+      max_hour = 24
+    elsif op_hour.start_time && op_hour.end_time
+      min_hour = (op_hour.start_time - op_hour.start_time.at_beginning_of_day) / 3600.0
+      max_hour = (op_hour.end_time - op_hour.end_time.at_beginning_of_day) / 3600.0
+    end
+    provider_hours_by_wday[op_hour.day_of_week] = [min_hour, max_hour]
+  end
   recurring_hours = operatable.operating_hours.pluck(:id, :day_of_week, :is_all_day, :is_unavailable, :start_time, :end_time)
   
   if !is_daily
@@ -24,6 +38,7 @@
         label: day_name,
         is_all_day: is_all_day,
         is_provider_unavailable: provider_unavailable_wdays.include?(day_of_week),
+        provider_hours: provider_hours_by_wday[day_of_week],
         is_unavailable: is_unavailable,
         time_ranges: time_ranges || []
       }
@@ -57,6 +72,7 @@
         label: start_day.strftime('%a %m/%d'),
         is_all_day: is_all_day,
         is_provider_unavailable: provider_unavailable_wdays.include?(day_of_week),
+        provider_hours: provider_hours_by_wday[day_of_week],
         is_on_leave: is_on_leave,
         is_unavailable: is_unavailable,
         time_ranges: time_ranges || [] 
@@ -133,9 +149,9 @@
     %tbody
       - row_data.each do |row|
         %tr{data: {date_value: row[:id]}}
-          - is_provider_unavailable = row[:is_provider_unavailable]
+          - provider_hours = row[:provider_hours].compact
           - is_on_leave = row[:is_on_leave]
-          - is_disabled = is_provider_unavailable || is_on_leave
+          - is_disabled = row[:is_provider_unavailable] || is_on_leave
           - is_all_day = row[:is_all_day]
           - is_unavailable = row[:is_unavailable]
           - time_ranges = row[:time_ranges]
@@ -145,11 +161,14 @@
             - unless is_disabled
               = check_box_tag "all_day", "is_all_day", is_all_day, disabled: is_disabled, class: "is_all_day"
           - ticks.each do |tick|
-            - class_name = is_provider_unavailable ? "is_disabled" : (is_on_leave ? "is_on_leave" : (is_all_day ? "is_all_day_filled" : ""))
+            - is_provider_unavailable = provider_hours.any? ? !(provider_hours[0] <= tick[0] && provider_hours[1] > tick[0]) : false
+            - class_name = is_on_leave ? "is_on_leave" : (is_provider_unavailable ? "is_disabled" : (is_all_day ? "is_all_day_filled" : ""))
             - if class_name.blank?
-              - is_filled = time_ranges.select{|x| x[0] <= tick[0] && x[1] > tick[0]}.any?
+              - hour_block = time_ranges.select{|x| x[0] <= tick[0] && x[1] > tick[0]}.first
+              - is_filled = hour_block.present?
               - class_name = "is_filled" if is_filled
-            %td.hour_cell{style: "white-space: nowrap !important; color: white;", class: class_name || "", data: {time_flag: tick[0]}, title: is_provider_unavailable ? "Provider not operating" : (is_on_leave ? "Planned Leave" : "")}
+            - title = hour_tooltip(is_on_leave, is_provider_unavailable, is_all_day, hour_block.try(:[], 0), hour_block.try(:[], 1))
+            %td.hour_cell{style: "white-space: nowrap !important; color: white;", class: class_name || "", data: {time_flag: tick[0]}, title: title}
           - if can?(:edit, operatable)
             %td{style: 'width: 100px !important; white-space: normal !important;'}
               - unless is_disabled

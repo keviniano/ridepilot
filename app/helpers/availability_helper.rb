@@ -33,9 +33,26 @@ module AvailabilityHelper
       "12am"
     elsif hour == 12
       "12pm"
+    elsif hour < 12
+      min = (hour - hour.to_i) * 60
+      min == 0 ? "#{hour.to_i}am" : "#{hour.to_i}:#{min.to_i}am"
     else
-      hour < 12 ? "#{hour.to_i}am" : "#{hour.to_i - 12}pm"
+      hour -= 12
+      min = (hour - hour.to_i) * 60
+      min == 0 ? "#{hour.to_i}pm" : "#{hour.to_i}:#{min.to_i}pm"
     end 
+  end
+
+  def hour_tooltip(is_on_leave, is_provider_unavailable, is_all_day, start_hour, end_hour)
+    if is_on_leave
+      "Planned Leave"
+    elsif is_provider_unavailable
+      "Provider not operating"
+    elsif is_all_day
+      "All day"
+    elsif start_hour && end_hour
+      "#{format_hour_label(start_hour.to_f)} - #{format_hour_label(end_hour.to_f)}"
+    end
   end
 
 end

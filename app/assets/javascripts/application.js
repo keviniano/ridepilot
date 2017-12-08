@@ -469,6 +469,41 @@ function convert_uppercase(input) {
   input.setSelectionRange(start, end);
 }
 
+// format hour in time format
+function format_hour(hour) {
+  if(!hour && hour != 0) {
+    return "";
+  }
+
+  hour = parseFloat(hour);
+  if(hour == 0 || hour == 24) {
+    hour_label = "12am";
+  } else if (hour == 12) {
+    hour_label = "12pm";
+  } else if (hour < 12) {
+    var hour_int = parseInt(hour);
+    var min = (hour - hour_int) * 60;
+    var min_int = parseInt(min);
+    if(min == 0) {
+      hour_label = hour_int + "am";
+    } else {
+      hour_label = hour_int + ":" + min_int + "am";
+    }
+  } else {
+    hour -= 12
+    var hour_int = parseInt(hour);
+    var min = (hour - hour_int) * 60;
+    var min_int = parseInt(min);
+    if(min == 0) {
+      hour_label = hour_int + "pm";
+    } else {
+      hour_label = hour_int + ":" + min_int + "pm";
+    }
+  }
+
+  return hour_label;
+}
+
 /*
  * show loading mask
  */

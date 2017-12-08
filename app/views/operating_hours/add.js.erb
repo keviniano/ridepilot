@@ -5,13 +5,14 @@ var recur_table = $('table.recur_availability');
 var recur_row = recur_table.find("tr[data-date-value=" + day_of_week+ "]");
 
 if(is_all_day) {
-  recur_row.find('input.is_unavailable').prop('checked', false);
   recur_row.find('td.is_filled').removeClass('is_filled');
   recur_row.find('td.hour_cell').addClass('is_all_day_filled');
+  recur_row.find('td.hour_cell').prop('title', "All day");
 } else if(is_unavailable) {
   recur_row.find('input.is_all_day').prop('checked', false);
   recur_row.find('td.is_filled').removeClass('is_filled');
   recur_row.find('td.is_all_day_filled').removeClass('is_all_day_filled');
+  recur_row.find('td.hour_cell').prop('title', "");
 } else {
   $('#modal-dialog').modal('hide');
   var has_error = <%= @has_error || false %>;
@@ -19,27 +20,29 @@ if(is_all_day) {
     show_alert_dialog("There is error updating operating hours. Please make sure From Time is earlier than To Time.");
   } else {
     recur_row.find('input.is_all_day').prop('checked', false);
-    recur_row.find('input.is_unavailable').prop('checked', false);
     recur_row.find('td.is_all_day_filled').removeClass('is_all_day_filled');
+    recur_row.find('td.hour_cell').prop('title', "");
     
-    function is_filled(time_flag) {
+    function find_hour_block(time_flag) {
       var time_ranges = <%= @time_ranges || [] %>;
       var range_size = time_ranges.length;
-      var filled = false;
+      var hour_block = null;
       for(var i=0; i< range_size; i++) {
         var time_range = time_ranges[i];
         if(time_range[0] <= time_flag && time_range[1] > time_flag) {
-          filled = true;
+          hour_block = time_range;
           break;
         }
       }
 
-      return filled;
+      return hour_block;
     }
     recur_row.find('td.hour_cell').each(function(){
       var time_flag = parseFloat($(this).data('time-flag'));
-      if(is_filled(time_flag)) {
+      var hour_block = find_hour_block(time_flag);
+      if(hour_block) {
         $(this).addClass('is_filled');
+        $(this).prop("title", format_hour(hour_block[0]) + "-" + format_hour(hour_block[1]));
       }
     });
   }
