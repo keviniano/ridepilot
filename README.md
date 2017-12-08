@@ -1,7 +1,7 @@
 Ridepilot Verson 3
 ================
 
-The purpose of this project is to implement a Computer Aided Scheduling and Dispatch (CASD) software system to meet the needs of small scale human service transportation agencies. 
+The purpose of this project is to implement a Computer Aided Scheduling and Dispatch (CASD) software system to meet the needs of small scale human service transportation agencies.
 
 Status
 -------------
