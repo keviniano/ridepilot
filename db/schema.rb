@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171128213438) do
+ActiveRecord::Schema.define(version: 20171206164011) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -695,7 +695,7 @@ ActiveRecord::Schema.define(version: 20171128213438) do
     t.integer  "driver_id"
     t.boolean  "paid"
     t.integer  "provider_id"
-    t.integer  "lock_version",             default: 0
+    t.integer  "lock_version",                default: 0
     t.datetime "created_at"
     t.datetime "updated_at"
     t.date     "start_date"
@@ -704,6 +704,8 @@ ActiveRecord::Schema.define(version: 20171128213438) do
     t.integer  "unpaid_driver_break_time"
     t.date     "scheduled_through"
     t.text     "manifest_order"
+    t.string   "scheduled_start_time_string"
+    t.string   "scheduled_end_time_string"
   end
 
   add_index "repeating_runs", ["driver_id"], :name => "index_repeating_runs_on_driver_id"
@@ -882,7 +884,7 @@ ActiveRecord::Schema.define(version: 20171128213438) do
     t.datetime "actual_end_time"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "lock_version",             default: 0
+    t.integer  "lock_version",                default: 0
     t.integer  "repeating_run_id"
     t.datetime "deleted_at"
     t.text     "manifest_order"
@@ -890,6 +892,8 @@ ActiveRecord::Schema.define(version: 20171128213438) do
     t.integer  "from_garage_address_id"
     t.integer  "to_garage_address_id"
     t.text     "uncomplete_reason"
+    t.string   "scheduled_start_time_string"
+    t.string   "scheduled_end_time_string"
   end
 
   add_index "runs", ["deleted_at"], :name => "index_runs_on_deleted_at"

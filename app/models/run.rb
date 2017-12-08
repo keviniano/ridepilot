@@ -78,6 +78,8 @@ class Run < ActiveRecord::Base
 
   scope :other_overlapped_runs, -> (run) { overlapped(run).other_than(run) }
 
+  scope :default_order, -> { order(:date, :scheduled_start_time_string, :scheduled_end_time_string, :name) }
+
   CAB_RUN_ID = -1 # id for cab runs
   UNSCHEDULED_RUN_ID = -2 # id for unscheduled run (empty container)
   STANDBY_RUN_ID = -3 # standby queue id

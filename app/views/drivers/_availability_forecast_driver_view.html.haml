@@ -137,7 +137,7 @@
 
           %tbody
             - row_data.each do |r|
-              %tr{data: {id: r[:id]}}
+              %tr{data: {id: r[:id], name: r[:name]}}
                 %td{style: 'width: 100px !important; white-space: normal !important;'}
                   = link_to r[:name], driver_path(r[:id]), target: '_blank'
                 - runs = r[:runs]
@@ -152,31 +152,32 @@
                   - if class_name.blank?
                     - class_name = 'is_filled' if time_ranges.select{|r| tick[0] >= r[0] && tick[0] <= r[1]}
                   - run_name = run ? run[:name] : ""
-                  - if run_name != last_run_name
+                  - if !run_name.blank? && run_name != last_run_name
                     - last_run_name = run_name
                     - class_name += " name_cell"
                   
                   %td.chart_cell{style: "white-space: nowrap !important; color: white;", class: class_name || "", data: {time_flag: tick[0], run_name: run_name, run_id: run && run[:id], run_start_time: run && run[:start_time_diff], run_end_time: run && run[:end_time_diff]}}
                 - if can?(:edit, Run)
                   %td.pull-right
-                    = link_to unassign_runs_driver_path(r[:id], run_ids: run_ids.join(',')), method: 'patch', remote: true, class: has_run ? "" : "link_disabled",  data: {confirm: 'Are you sure to unassign this driver from the run(s)?'} do 
+                    = link_to '#', class: has_run ? "unassign_run_link" : "unassign_run_link link_disabled" do 
                       %i.fa.fa-remove{style: 'color: red;'}
                     .dropdown{style: 'display: inline-block !important;'}
                       %button{type: 'button', data: {toggle: 'dropdown'}}
                         Assign
                         %span.caret
-                      %ul.dropdown-menu.pull-right{style: 'z-index: 10000;'}
+                      %ul.dropdown-menu.pull-right.runs_dropdown{style: 'z-index: 10000;'}
                         - runs_to_assign = []
                         - @drivers_available_for_runs.each do |run_id, drivers|
                           - run_covered = drivers.select{|driver_data| driver_data[:id] == r[:id]}.any?
                           - runs_to_assign << {id: run_id, name: drivers[0][:run_name]} if run_covered
                         - runs_to_assign.each do |r|
                           %li
-                            %a{href:'#', data: {run_id: r[:id]}}
+                            %a{href:'#', data: {run_id: r[:id], run_name: r[:name], run_start_time: r[:run_start_time_diff], run_end_time: r[:run_end_time_diff]}}
                               = r[:name]
 
 - if @total_available_drivers.any?
   :javascript
+    var dialog;
     $(function() {
       // fixed table header
       $('#driver_availability_table').floatThead({ 
@@ -190,4 +191,86 @@
           $(this).text($(this).data('run-name'));
         });
       }, 200);
+
+      function unassign_driver_from_runs(driver_id, run_ids) {
+        $.ajax({
+          url: "#{unassign_runs_driver_path('xxx')}".replace('xxx', driver_id),
+          data: {
+            run_ids: run_ids.join(',')
+          },
+          method: 'patch'
+        });
+      }
+
+      function show_dialog_to_choose_run(driver_id, runs) {
+        var dropdown_html = '' +
+          '<div class="form-group">' + 
+            '<label for="sel1">Select run to unassign the driver from:</label>' +
+            '<select class="form-control" id="runs_to_unassign">' +
+              '<option value="-1">All</option>';
+        var all_run_ids = [];
+        for (run_id in runs) {
+          all_run_ids.push(run_id);
+          dropdown_html += '<option value=' + run_id + '>' + runs[run_id] + '</option>';
+        }
+        dropdown_html += '' +
+            '</select>' +
+          '</div>';
+
+        dialog = bootbox.dialog({
+          title: 'Choose Run',
+          message: dropdown_html,
+          buttons: {
+              cancel: {
+                label: 'Cancel'
+              },
+              ok: {
+                label: "OK",
+                className: 'btn action-button',
+                callback: function(){
+                  var run_ids = [];
+                  var selected_run_id = $('#runs_to_unassign option:selected').val();
+                  if(selected_run_id == '-1') {
+                    run_ids = all_run_ids;
+                  } else {
+                    run_ids = [selected_run_id];
+                  }
+                  unassign_driver_from_runs(driver_id, run_ids);
+                }
+              }
+          }
+        });
+      }
+
+      $('#driver_availability_table').on('click', '.unassign_run_link', function(e) {
+        e.preventDefault();
+
+        var driver_id = $(this).parents('tr').data('id');
+        var driver_name = $(this).parents('tr').data('name');
+        var run_ids = [];
+        var run_names = [];
+        var runs = {};
+
+        $(this).parents('tr').find('td.name_cell').each(function() {
+          var run_id = $(this).data('run-id');
+          var run_name = $(this).data('run-name');
+          run_ids.push(run_id);
+          run_names.push(run_name);
+          runs[run_id] = run_name;
+        });
+
+        if(run_ids.length > 1) {
+          // further select
+          show_dialog_to_choose_run(driver_id, runs);
+        } else {
+          var msg = "Please confirm you wish to remove <b>" + driver_name + "</b> as the driver of run <b>" + run_names.join(', ') + "</b>"
+          bootbox.confirm(msg, function(result){
+            if(result) {
+              unassign_driver_from_runs(driver_id, run_ids);
+            }
+          });
+        }
+
+        return false;
+      });
     });

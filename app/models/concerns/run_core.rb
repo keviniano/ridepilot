@@ -8,6 +8,8 @@ module RunCore
     belongs_to :driver, -> { with_deleted }
     belongs_to :vehicle, -> { with_deleted }
 
+    before_save :update_scheduled_time_string
+
     #validates                 :driver, presence: true
     validates                 :provider, presence: true
     validates                 :name, presence: true
@@ -48,6 +50,13 @@ module RunCore
     end
 
     delegate :name, to: :driver, prefix: :driver, allow_nil: true
+
+    private 
+
+    def update_scheduled_time_string
+      self.scheduled_start_time_string = self.scheduled_start_time.try(:to_s, :time_utc)
+      self.scheduled_end_time_string = self.scheduled_end_time.try(:to_s, :time_utc)
+    end
   end
 
   def cab=(value)

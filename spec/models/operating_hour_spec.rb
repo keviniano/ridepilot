@@ -22,14 +22,13 @@ RSpec.describe OperatingHour, type: :model do
     expect(OperatingHour.all.to_a).to eql [hours_0, hours_1, hours_3, hours_5]
   end
   
-  it "allows overnight hours up until 12:59am" do
+  it "does not allow overnight hours" do
     hours = build :operating_hour, start_time: "01:00", end_time: "00:59"
-    expect(hours.valid?).to be_truthy
-    expect(hours.is_regular_hours?).to be_truthy
-
-    hours.end_time = "01:00"
     expect(hours.valid?).to be_falsey
     expect(hours.errors.keys).to include :end_time
+
+    hours.end_time = "00:00"
+    expect(hours.valid?).to be_truthy
   end
   
   it "can be unavailable" do
@@ -58,16 +57,10 @@ RSpec.describe OperatingHour, type: :model do
     expect(hours.is_all_day?).to be_truthy
   end
   
-  it "defines START_OF_DAY as string representation of 01:00 am" do
+  it "defines START_OF_DAY as string representation of 00:00 am" do
     expect(OperatingHour::START_OF_DAY).to be_a String
-    expect(Time.zone.parse(OperatingHour::START_OF_DAY).hour).to eq 1
+    expect(Time.zone.parse(OperatingHour::START_OF_DAY).hour).to eq 0
     expect(Time.zone.parse(OperatingHour::START_OF_DAY).min).to eq 0
-  end
-  
-  it "defines END_OF_DAY as string representation of 00:59 am" do
-    expect(OperatingHour::END_OF_DAY).to be_a String
-    expect(Time.zone.parse(OperatingHour::END_OF_DAY).hour).to eq 0
-    expect(Time.zone.parse(OperatingHour::END_OF_DAY).min).to eq 59
   end
 
   describe ".available_start_times" do
@@ -83,8 +76,8 @@ RSpec.describe OperatingHour, type: :model do
       expect(@start_times.first).to be_a String
     end
     
-    it "starts at 1:00 am" do
-      expect(@start_times.first).to eq "01:00:00"
+    it "starts at 00:00 am" do
+      expect(@start_times.first).to eq "00:00:00"
     end
 
     it "defaults to 30 minute intervals" do
@@ -96,8 +89,8 @@ RSpec.describe OperatingHour, type: :model do
       expect(Time.zone.parse(times.second) - Time.zone.parse(times.first)).to eq 1.hour
     end
         
-    it "ends at 11:30 pm by default" do
-      expect(@start_times.last).to eq "23:30:00"
+    it "ends at 00:00am" do
+      expect(@start_times.last).to eq "00:00:00"
     end
   end
   
@@ -114,8 +107,8 @@ RSpec.describe OperatingHour, type: :model do
       expect(@end_times[0]).to be_a String
     end
     
-    it "starts at 1:00 am" do
-      expect(@end_times.first).to eq "01:00:00"
+    it "starts at 00:00 am" do
+      expect(@end_times.first).to eq "00:00:00"
     end
 
     it "defaults to 30 minute intervals" do
@@ -127,8 +120,8 @@ RSpec.describe OperatingHour, type: :model do
       expect(Time.zone.parse(times.second) - Time.zone.parse(times.first)).to eq 1.hour
     end
         
-    it "ends at 12:30am by default, which is after midnight" do
-      expect(@end_times.last).to eq "00:30:00"
+    it "ends at 00:00am by default, which is the midnight" do
+      expect(@end_times.last).to eq "00:00:00"
       expect(@end_times).to include "00:00:00"
     end
   end

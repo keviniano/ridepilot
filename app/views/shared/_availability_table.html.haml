@@ -113,12 +113,11 @@
 
 - table_css_class = is_daily ? "daily_availability" : "recur_availability"
 - table_id = is_daily ? "daily_availability_table" : "recur_availability_table"
-.table-responsive{style: 'max-height: 300px; overflow-y: auto;'}
+.table-responsive{style: 'max-height: 350px; overflow-y: auto;'}
   %table.table.table-condensed.availability-table{class: table_css_class, id: table_id}
     %thead
       %th
       %th All Day
-      %th Unavailable
       - tick_count = ticks.size
       %th{colspan: tick_count}
         %div{style: 'width: 100%; white-space:nowrap;'}
@@ -140,15 +139,11 @@
           - is_all_day = row[:is_all_day]
           - is_unavailable = row[:is_unavailable]
           - time_ranges = row[:time_ranges]
-          %td{class: is_disabled ? "disabled" : ""}
+          %td{class: is_disabled ? "disabled" : "", style: 'width: 100px !important; white-space: normal !important;'}
             = row[:label]
-          %td
+          %td{style: 'width: 50px !important; white-space: normal !important;'}
             - unless is_disabled
               = check_box_tag "all_day", "is_all_day", is_all_day, disabled: is_disabled, class: "is_all_day"
-          %td
-            - unless is_disabled
-              = check_box_tag "unavailable", "is_unavailable", is_unavailable, disabled: is_disabled, class: "is_unavailable"
-
           - ticks.each do |tick|
             - class_name = is_provider_unavailable ? "is_disabled" : (is_on_leave ? "is_on_leave" : (is_all_day ? "is_all_day_filled" : ""))
             - if class_name.blank?
@@ -156,10 +151,19 @@
               - class_name = "is_filled" if is_filled
             %td.hour_cell{style: "white-space: nowrap !important; color: white;", class: class_name || "", data: {time_flag: tick[0]}, title: is_provider_unavailable ? "Provider not operating" : (is_on_leave ? "Planned Leave" : "")}
           - if can?(:edit, operatable)
-            %td.pull-right
+            %td{style: 'width: 100px !important; white-space: normal !important;'}
               - unless is_disabled
-                = button_tag "New", disabled: is_disabled, class: 'new_hour'
-                = button_tag is_daily ? "Reset" : "Clear", disabled: is_disabled, class: 'clear_hours'
+                .pull-right
+                  = link_to '#', title: 'New hours' do 
+                    %i.fa.fa-plus.new_hour{style: 'font-size: 1.5em;'}
+                  - if is_daily
+                    = link_to '#', title: 'Clear settings' do 
+                      %i.fa.fa-remove.is_unavailable{style: 'color: red; font-size: 1.5em;'}
+                    = link_to '#', title: 'Restore recurring settings' do 
+                      %i.fa.fa-undo.clear_hours{style: 'font-size: 1.5em;'}
+                  - else
+                    = link_to '#', title: 'Clear settings' do 
+                      %i.fa.fa-remove.clear_hours{style: 'color: red; font-size: 1.5em;'}
 
 :javascript
   $(function() {
@@ -251,22 +255,26 @@
       var date = $(this).parents('tr').data('date-value');
       if(is_all_day) {
         mark_all_day(date);
+      } else {
+        mark_unavailable(date);
       }
     });
 
-    // change Unavailable checkbox
-    $('table.' + container_class + ' input[type=checkbox].is_unavailable').change(function() {
-      var is_unavaialble = $(this).is(':checked');
+    // Clear daily settings
+    $('table.' + container_class + ' .is_unavailable').click(function(e) {
+      e.preventDefault();
       var date = $(this).parents('tr').data('date-value');
-      if(is_unavaialble) {
-        mark_unavailable(date);
-      } else {
-        clear_hours(date);
-      }
+      bootbox.confirm('Are you sure to clear the settings?', function(result) {
+        if(result) {
+          mark_unavailable(date);
+        }
+      });
+      return false;
     });
 
     // Clear Hours
-    $('table.' + container_class + ' button.clear_hours').click(function() {
+    $('table.' + container_class + ' .clear_hours').click(function(e) {
+      e.preventDefault();
       var date = $(this).parents('tr').data('date-value');
       bootbox.confirm(clear_confirmation_msg, function(result) {
         if(result) {
@@ -276,7 +284,8 @@
     });
 
     // Add new Hour
-    $('table.' + container_class + ' button.new_hour').click(function() {
+    $('table.' + container_class + ' .new_hour').click(function(e) {
+      e.preventDefault();
       var date = $(this).parents('tr').data('date-value');
       add_new_hour(date);
     });

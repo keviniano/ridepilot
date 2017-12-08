@@ -1,4 +1,4 @@
-$('#planned_leave_table tr[data-id=' + "<%= @planned_leave.id %>" + ']').fadeOut(350).delete();
+$('#planned_leave_table tr[data-id=' + "<%= @planned_leave.id %>" + ']').fadeOut(350).remove();
 
 $('table#daily_availability_table').floatThead('destroy');
 $('table#daily_availability_table').replaceWith("<%= j (render 'shared/availability_table', is_daily: true, operatable: @leavable) %>");

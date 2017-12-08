@@ -379,4 +379,19 @@ namespace :ridepilot do
     end
     OperatingHour.where(id: all_day_ids).update_all(is_all_day: true)
   end
+
+  desc 'Update runs scheduled time string'
+  task :migrate_runs_scheduled_time_string => :environment do
+    Run.unscoped.where('scheduled_start_time_string is NULL or scheduled_end_time_string is NULL').find_each do |r|
+      r.scheduled_start_time_string = r.scheduled_start_time.try(:to_s, :time_utc)
+      r.scheduled_end_time_string = r.scheduled_end_time.try(:to_s, :time_utc)
+      r.save(validate: false)
+    end
+
+    RepeatingRun.unscoped.where('scheduled_start_time_string is NULL or scheduled_end_time_string is NULL').find_each do |r|
+      r.scheduled_start_time_string = r.scheduled_start_time.try(:to_s, :time_utc)
+      r.scheduled_end_time_string = r.scheduled_end_time.try(:to_s, :time_utc)
+      r.save(validate: false)
+    end
+  end
 end

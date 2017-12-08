@@ -34,12 +34,14 @@
       panel.find('.panel-body').slideUp();
       panel.find('.panel-expand-collapse').addClass('panel-collapsed');
       panel.find('.panel-expand-collapse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+      panel.find('table').floatThead('reflow');
     }
 
     function expand_panel(panel) {
       panel.find('.panel-body').slideDown();
       panel.find('.panel-expand-collapse').removeClass('panel-collapsed');
       panel.find('.panel-expand-collapse i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+      panel.find('table').floatThead('reflow');
     }
 
     $(document).on('click', '.panel-heading span.panel-expand-collapse', function(e){

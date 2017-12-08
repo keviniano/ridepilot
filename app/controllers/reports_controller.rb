@@ -1160,7 +1160,7 @@ class ReportsController < ApplicationController
   end
 
   def manifest
-    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
+    query_params = params[:query] || {start_date: Date.today, end_date: Date.today + 1}
     @query = Query.new(query_params)
     @runs_with_trips = Run.for_provider(current_provider_id).for_date_range(@query.start_date, @query.end_date).joins(:trips).distinct
     @all_runs = @runs_with_trips.reorder(:date, :name)

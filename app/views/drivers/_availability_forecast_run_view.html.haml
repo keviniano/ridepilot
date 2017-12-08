@@ -6,7 +6,7 @@
     max_hour = current_provider.driver_availability_max_hour || 22
     max_hour_label = format_hour_label(max_hour) 
 
-    row_data = @runs.map{|r| {
+    row_data = @runs.reorder(nil).default_order.map{|r| {
       id: r.id,
       name: r.name,
       date: r.date,
@@ -95,7 +95,7 @@
 
           %tbody
             - row_data.each do |r|
-              %tr{data: {id: r[:id], driver_name: r[:driver_name], start_time: r[:start_time_diff], end_time: r[:end_time_diff]}}
+              %tr{data: {id: r[:id], name: r[:name], driver_id: r[:driver_id], driver_name: r[:driver_name], start_time: r[:start_time_diff], end_time: r[:end_time_diff]}}
                 %td{style: 'width: 100px !important; white-space: normal !important;'}
                   = link_to r[:name], run_path(r[:id]), target: '_blank'
                 - ticks.each do |tick|
@@ -104,16 +104,16 @@
                   %td.chart_cell{style: "white-space: nowrap !important; color: white;", class: class_name || "", data: {time_flag: tick[0]}}
                 - if can?(:edit, Run)
                   %td.pull-right
-                    = link_to unassign_driver_run_path(r[:id]), method: 'patch', remote: true, class: r[:driver_id].blank? ? "link_disabled" : "",  data: {confirm: 'Are you sure to unassign the driver from this run?'} do 
+                    = link_to '#', method: 'patch', remote: true, class: r[:driver_id].blank? ? "unassign_driver_link link_disabled" : "unassign_driver_link" do 
                       %i.fa.fa-remove{style: 'color: red;'}
                     .dropdown{style: 'display: inline-block !important;'}
                       %button{type: 'button', data: {toggle: 'dropdown'}}
                         Assign
                         %span.caret
-                      %ul.dropdown-menu.pull-right{style: 'z-index: 10000;'}
+                      %ul.dropdown-menu.pull-right.drivers_dropdown{style: 'z-index: 10000;'}
                         - @drivers_available_for_runs[r[:id]].each do |d|
                           %li
-                            %a{href:'#', data: {driver_id: d[:id]}}
+                            %a{href:'#', data: {driver_id: d[:id], driver_name: d[:name]}}
                               = d[:name]
 
  
@@ -132,4 +132,31 @@
           $(this).find('td.is_driver_filled:first').text($(this).data('driver-name'));
         });
       }, 200);
+
+      function unassign_driver_from_run(driver_id, run_id) {
+        $.ajax({
+          url: "#{unassign_driver_run_path('xxx')}".replace('xxx', run_id),
+          data: {
+            driver_id: driver_id
+          },
+          method: 'patch'
+        });
+      }
+
+      $('#run_availability_table').on('click', '.unassign_driver_link', function(e) {
+        e.preventDefault();
+        var run_id = $(this).parents('tr').data('id');
+        var run_name = $(this).parents('tr').data('name');
+        var driver_id = $(this).parents('tr').data('driver-id');
+        var driver_name = $(this).parents('tr').data('driver-name');
+
+        var msg = "Please confirm you wish to remove <b>" + driver_name + "</b> as the driver of run <b>" + run_name + "</b>"
+        bootbox.confirm(msg, function(result){
+          if(result) {
+            unassign_driver_from_run(driver_id, run_id);
+          }
+        });
+
+        return false;
+      });
     });

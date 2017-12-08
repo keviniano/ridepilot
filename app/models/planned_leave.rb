@@ -17,7 +17,7 @@ class PlannedLeave < ActiveRecord::Base
       if start_date > end_date
         errors.add(:base, "End Date should be later than Start Date") 
       elsif leavable
-        errors.add(:base, "The date range overlaps with existing planned leaves") if leavable.planned_leaves.overlap(start_date, end_date).any?
+        errors.add(:base, "The date range overlaps with existing planned leaves") if leavable.planned_leaves.where.not(id: self.try(:id)).overlap(start_date, end_date).any?
       end
     end
   end

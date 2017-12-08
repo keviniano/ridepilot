@@ -192,7 +192,7 @@ class DispatchersController < ApplicationController
   def query_trips_runs
     filters_hash = runs_trips_params || {}
 
-    @runs = Run.not_cancelled.for_provider(current_provider_id)
+    @runs = Run.not_cancelled.for_provider(current_provider_id).reorder(nil).default_order
     @runs = @runs.where(id: filters_hash[:run_id]) unless filters_hash[:run_id].blank?
     filter_runs
 

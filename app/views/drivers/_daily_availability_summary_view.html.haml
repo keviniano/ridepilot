@@ -36,13 +36,15 @@
 
   # get lists of drivers available for a run
   @drivers_available_for_runs = {}
-  @runs.pluck(:id, :name, :scheduled_start_time, :scheduled_end_time).each do |r|
+  @runs.reorder(nil).default_order.pluck(:id, :name, :scheduled_start_time, :scheduled_end_time).each do |r|
     @drivers_available_for_runs[r[0]] = [] unless @drivers_available_for_runs.has_key?(r[0])
     @total_available_drivers.each do |d|
       if d.available_between?(date, r[2].strftime('%H:%M'), r[3].strftime('%H:%M')) 
         @drivers_available_for_runs[r[0]] << {
           id: d.id,
           run_name: r[1],
+          run_start_time_diff: (r[2] - r[2].at_beginning_of_day) / 3600.0,
+          run_end_time_diff: (r[3] - r[3].at_beginning_of_day) / 3600.0,
           name: d.user_name
         } 
       end
@@ -63,10 +65,6 @@
     white-space: nowrap !important;
   }
 
-  #main {
-    z-index: 11000 !important;
-  }
-
 .col-sm-12#daily_availability_forecast_view{style: 'padding: 0px;'}
   %h4
     = "Availability for #{date.strftime('%A, %B %d, %Y')}"
@@ -84,4 +82,118 @@
 :javascript
   $(function() {
     $('.driver_availability_forecast_table tr[data-date-value=' + "#{date}" + ']').addClass('in_view');
+
+      function assign_driver_to_run(driver_id, run_id, conflicting_run_ids) {
+        $.ajax({
+          url: "#{assign_driver_run_path('xxx')}".replace('xxx', run_id),
+          method: 'patch',
+          data: {
+            driver_id: driver_id,
+            conflicting_run_ids: conflicting_run_ids
+          }
+        });
+      }
+
+      function detect_conflicting_runs(start_time, end_time, driver_id) {
+        var driver_tr = $('#driver_availability_table tr[data-id=' + driver_id + ']');
+        var run_cells = driver_tr.find('td.name_cell');
+        var conflicting_runs = null;
+        if(run_cells.length > 0) {
+          var run_ids = [];
+          var run_names = [];
+
+          run_cells.each(function(){
+            var run_start_time = parseFloat($(this).data('run-start-time'));
+            var run_end_time = parseFloat($(this).data('run-end-time'));
+            if(! (run_end_time <= start_time || run_start_time >= end_time) ) {
+              var run_id = $(this).data('run-id');
+              var run_name = $(this).data('run-name');
+              run_ids.push(run_id);
+              run_names.push(run_name);
+            }
+          });
+
+          if(run_ids.length > 0) {
+            conflicting_runs =  {
+              run_ids: run_ids,
+              run_names: run_names
+            };
+          }     
+        } 
+
+        return conflicting_runs;
+      }
+
+      function show_conflicting_confirmation(driver_id, driver_name, run_id, run_name, current_run_driver_name, conflicting_runs) {
+        var conflicting_run_names = conflicting_runs["run_names"].join(', ');
+        var msg = "<b>" + driver_name + "</b> is already scheduled to drive on the <b>" + 
+          conflicting_run_names + "</b> run at a conflicting time." +
+          "<br><br>" +
+          "Please confirm you want to remove <b>" + driver_name + "</b>" +
+          " from <b>" + conflicting_run_names + "</b>";
+        if(current_run_driver_name) {
+          msg += " to replace <b>" + current_run_driver_name + "</b>" +
+          " on the <b>" + run_name + "</b> run.";
+        } else {
+          msg += " and assign to the <b>" + run_name + "</b> run.";
+        }
+
+        bootbox.confirm(msg, function(result) {
+          if(result) {
+            assign_driver_to_run(driver_id, run_id, conflicting_runs["run_ids"].join(','));
+          }
+        });
+      }
+
+      $('#run_availability_table').on('click', '.drivers_dropdown li a', function(e) {
+        e.preventDefault();
+        var driver_id = $(this).data('driver-id');
+        var driver_name = $(this).data('driver-name');
+        var tr = $(this).parents('tr');
+        var run_id = tr.data('id');
+        var run_driver_id = tr.data('driver-id');
+        if(driver_id == run_driver_id) {
+          return false;
+        }
+
+        var run_start_time = parseFloat(tr.data('start-time'));
+        var run_end_time = parseFloat(tr.data('end-time'));
+
+        var conflicting_runs = detect_conflicting_runs(run_start_time, run_end_time, driver_id);
+        if(conflicting_runs) {
+          var current_run_driver_name = tr.data('driver-name');
+          var current_run_name = tr.data('name');
+          show_conflicting_confirmation(driver_id, driver_name, run_id, current_run_name, current_run_driver_name, conflicting_runs);
+        } else {
+          assign_driver_to_run(driver_id, run_id, null)
+        }
+      });
+
+      $('#driver_availability_table').on('click', '.runs_dropdown li a', function(e) {
+        e.preventDefault();
+        var run_id = $(this).data('run-id');
+        var run_name = $(this).data('run-name');
+        var tr = $(this).parents('tr');
+        var driver_id = tr.data('id');
+        var driver_name = tr.data('name');
+        var driver_run_ids = [];
+        tr.find('td.name_cell').each(function() {
+          var run_id = $(this).data('run-id');
+          var run_name = $(this).data('run-name');
+          driver_run_ids.push(run_id);
+        });
+        if(driver_run_ids.indexOf(run_id) >= 0) {
+          return false;
+        }
+
+        var run_start_time = parseFloat($(this).data('run-start-time'));
+        var run_end_time = parseFloat($(this).data('run-end-time'));
+
+        var conflicting_runs = detect_conflicting_runs(run_start_time, run_end_time, driver_id);
+        if(conflicting_runs) {
+          show_conflicting_confirmation(driver_id, driver_name, run_id, run_name, null, conflicting_runs);
+        } else {
+          assign_driver_to_run(driver_id, run_id, null)
+        }
+      });
   });

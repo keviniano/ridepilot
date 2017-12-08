@@ -9,6 +9,6 @@
     %td
       .pull-right
         = link_to edit_planned_leave_path(leave, leavable_id: leavable.id, leavable_type: leavable.class.name), remote: true, title: 'Edit' do 
-          %i.fa.fa-edit.fa-2x
+          %i.fa.fa-edit{style: 'font-size: 1.5em;'}
         = link_to planned_leave_path(leave, leavable_id: leavable.id, leavable_type: leavable.class.name), remote: true, method: 'delete', data: { confirm: "Are you sure to delete it?" }, title: 'Delete' do 
-          %i.fa.fa-remove.fa-2x{style: 'color: red;'}
+          %i.fa.fa-remove{style: 'color: red; font-size: 1.5em;'}

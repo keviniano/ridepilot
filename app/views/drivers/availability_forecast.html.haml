@@ -1,7 +1,14 @@
-
 :css
   .panel-expand-collapse {
     cursor: pointer;
+  }
+
+  #main {
+    z-index: 11000 !important;
+  }
+
+  .modal {
+    z-index: 12000 !important;
   }
 
 = render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'drivers'
@@ -17,12 +24,14 @@
       panel.find('.panel-body').slideUp();
       panel.find('.panel-expand-collapse').addClass('panel-collapsed');
       panel.find('.panel-expand-collapse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+      panel.find('table').floatThead('reflow');
     }
 
     function expand_panel(panel) {
       panel.find('.panel-body').slideDown();
       panel.find('.panel-expand-collapse').removeClass('panel-collapsed');
       panel.find('.panel-expand-collapse i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+      panel.find('table').floatThead('reflow');
     }
 
     $(document).on('click', '.panel-heading span.panel-expand-collapse', function(e){

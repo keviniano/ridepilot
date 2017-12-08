@@ -3,8 +3,7 @@ require 'active_support/concern'
 module OperatingHourCore
   extend ActiveSupport::Concern
 
-  START_OF_DAY = '01:00:00'
-  END_OF_DAY = '00:59:59' # The next morning
+  START_OF_DAY = '00:00:00'
 
   included do
     belongs_to :operatable, polymorphic: true
@@ -50,14 +49,14 @@ module OperatingHourCore
     # Create an array of start times in UTC format
     def available_start_times(interval: 30.minutes)
       start_time = Time.zone.parse(START_OF_DAY)
-      end_time = start_time.at_end_of_day
+      end_time = start_time + 1.day
       get_times_between start_time: start_time, end_time: end_time, interval: interval
     end
     
     # Create an array of end times in UTC format
     def available_end_times(interval: 30.minutes)
       start_time = Time.zone.parse(START_OF_DAY)
-      end_time = Time.zone.parse(END_OF_DAY) + 1.day # END_OF_DAY > midnight
+      end_time = start_time + 1.day
       get_times_between start_time: start_time, end_time: end_time, interval: interval
     end
     
@@ -67,7 +66,7 @@ module OperatingHourCore
       # irrelevant
       times =[]
       t = start_time
-      while t < end_time
+      while t <= end_time
         times << t.to_s(:time_utc)
         t += interval
       end
@@ -79,12 +78,19 @@ module OperatingHourCore
       if first_recur_config.is_unavailable?
         []
       elsif first_recur_config.is_all_day?
-        from_time = Time.zone.parse("00:00:00")
-        to_time = from_time.at_end_of_day
+        from_time = Time.zone.parse(START_OF_DAY)
+        to_time =  from_time + 1.day
         get_times_between(start_time: from_time, end_time: to_time, interval: interval)
       else
         from_time = self.regular.minimum(:start_time)
         to_time = self.regular.maximum(:end_time)
+        if to_time == from_time
+          from_time = Time.zone.parse(START_OF_DAY)
+          to_time = from_time + 1.day
+        elsif to_time < from_time
+          to_time += 1.day
+        end
+
         if from_time && to_time
           get_times_between(start_time: from_time, end_time: to_time, interval: interval)
         else
@@ -157,8 +163,7 @@ module OperatingHourCore
   private
 
   def enforce_hour_sanity
-    # end_time > END_OF_DAY to allow hours such as 12:00pm - 3:00am (next day)
-    if is_regular_hours? and start_time >= end_time and end_time.try(:to_s, :time_utc) > END_OF_DAY
+    if is_regular_hours? && (start_time == end_time || (start_time > end_time && end_time.try(:to_s, :time_utc) != START_OF_DAY))
       errors.add(:end_time, 'must be later than start time.')
     end
   end

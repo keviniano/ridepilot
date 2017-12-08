@@ -203,6 +203,19 @@ class DriversController < ApplicationController
   end
 
   def assign_runs
+    if @driver 
+      run = Run.find_by_id(params[:run_id])
+      if run 
+        # first unassign other conflicting runs if any
+        unless params[:conflicting_run_ids].blank?
+          conflicting_runs = Run.where(id: params[:conflicting_run_ids].split(',')) 
+          conflicting_runs.update_all(driver_id: nil)
+        end
+
+        run.driver = driver
+        run.save(validate: false)
+      end
+    end
   end
 
   def unassign_runs
