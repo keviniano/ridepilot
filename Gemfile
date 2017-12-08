@@ -47,7 +47,7 @@ gem 'activerecord-postgis-adapter', '~> 2.2.1'
 # Manage app-specific cron tasks using a Ruby DSL, see config/schedule.rb
 gem 'whenever', '~> 0.9.4', :require => false
 
-# RADAR current version is 0.13.0, but schedule_atts requires > 0.7.0 
+# RADAR current version is 0.13.0, but schedule_atts requires > 0.7.0
 gem 'ice_cube', '~> 0.6.8'
 
 # Fork with Rails 4.x compatibility
@@ -127,7 +127,7 @@ gem 'momentjs-rails'
 gem 'phony_rails'
 
 # logging activities for Tracker Action Log
-gem 'public_activity' 
+gem 'public_activity'
 
 # twitter typeahed
 #gem 'twitter-typeahead-rails'
@@ -141,7 +141,7 @@ gem 'wicked_pdf'
 # In-line editing
 gem 'bootstrap-editable-rails'
 
-group :integration, :qa, :production do 
+group :integration, :qa, :production do
   gem 'rails_12factor'
   gem 'unicorn'
   gem 'rack-timeout'
@@ -172,7 +172,10 @@ group :test, :development do
   gem 'timecop', '~> 0.8'
 end
 
-group :test do 
+group :test do
   gem 'launchy'
   gem 'selenium-webdriver'
 end
+
+# Support code coverage analysis with Coveralls
+gem 'coveralls', require: false
