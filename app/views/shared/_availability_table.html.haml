@@ -20,6 +20,7 @@
     elsif op_hour.start_time && op_hour.end_time
       min_hour = (op_hour.start_time - op_hour.start_time.at_beginning_of_day) / 3600.0
       max_hour = (op_hour.end_time - op_hour.end_time.at_beginning_of_day) / 3600.0
+      max_hour = 24 if max_hour == 0
     end
     provider_hours_by_wday[op_hour.day_of_week] = [min_hour, max_hour]
   end
