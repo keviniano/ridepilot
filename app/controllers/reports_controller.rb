@@ -97,7 +97,8 @@ end
 class ReportsController < ApplicationController
   include Reporting::ReportHelper
 
-  before_action :set_reports, except: [:get_run_list]
+  before_action :set_reports, except: [:get_run_list, :show_save_form]
+  before_action :set_custom_report, except: [:get_run_list, :show_save_form, :save_as, :saved_report, :show_saved_report, :delete_saved_report]
 
   def show
     @driver_query = Query.new :start_date => Date.today, :end_date => Date.today
@@ -1191,11 +1192,85 @@ class ReportsController < ApplicationController
     @all_runs = @runs_with_trips.reorder(:date, :name)  
   end
 
+  # show save form
+  def show_save_form
+    @custom_report = CustomReport.find_by_id params[:custom_report_id]
+    @new_saved_report = SavedCustomReport.new(provider: current_provider, custom_report: @custom_report)
+  end
+
+  # Save custom report params so can re-run in the future
+  def save_as
+    @new_saved_report = SavedCustomReport.new(provider: current_provider)
+    @new_saved_report.attributes = saved_custom_report_params
+    if !@new_saved_report.save
+      render :show_save_form
+    else
+      @reports = all_report_infos
+    end
+  end
+
+  def delete_saved_report
+    @saved_report = SavedCustomReport.find_by_id(params[:id])
+
+    if @saved_report 
+      custom_report = @saved_report.custom_report
+      report_name = @saved_report.name
+      @saved_report.destroy
+      flash[:notice] = "#{report_name} has been deleted."
+      redirect_to custom_report_path(custom_report)
+    else
+      flash[:error] = "Failed to delete #{saved_report.name}."
+      redirect_to :back
+    end
+  end
+
+  # Show saved report results
+  def saved_report
+    @saved_report = SavedCustomReport.find_by_id(params[:id])
+    @is_saved_report = true
+
+    if @saved_report
+      @custom_report = @saved_report.custom_report
+      unless @saved_report.report_params.blank?
+        report_params = Rack::Utils.parse_nested_query @saved_report.report_params
+        
+        params[:query] = report_params["query"]
+
+        process_saved_date_params
+
+        query_params = params[:query] || {}
+        @query = Query.new(query_params)
+
+        if @saved_report.date_range_type == SavedCustomReport::PROMPT_DATES 
+          @query.start_date = nil 
+          @query.before_end_date = nil
+        end
+      end
+    end
+  end
+
+  def show_saved_report
+    @saved_report = SavedCustomReport.find_by_id(params[:id])
+    @is_saved_report = true
+
+    if @saved_report
+      @custom_report = @saved_report.custom_report
+      send(@custom_report.name) if @custom_report
+    end
+  end
+
   private
 
   def set_reports
     @reports = all_report_infos # get all report infos (id, name) both generic and customized reports
+  end
+
+  def set_custom_report
     @custom_report = CustomReport.find params[:id]
+  end
+
+  def saved_custom_report_params
+    params.require(:saved_custom_report).permit(:name, :custom_report_id, :date_range_type, :report_params)
   end
 
   def prep_with_cab
@@ -1274,5 +1349,48 @@ class ReportsController < ApplicationController
         render pdf_template
       end
     end
+  end
+
+  # given saved report date range type, re-process date range params
+  def process_saved_date_params
+    case @saved_report.date_range_type
+    when SavedCustomReport::LAST_7_DAYS
+      before_end_date = Date.today
+      start_date = before_end_date - 7.days
+    when SavedCustomReport::THIS_WEEK
+      before_end_date = Date.today
+      start_date = before_end_date.beginning_of_week(start_day = :sunday)
+    when SavedCustomReport::LAST_WEEK
+      before_end_date = (Date.today - 1.week).end_of_week(start_day = :sunday)
+      start_date = before_end_date.beginning_of_week(start_day = :sunday)
+    when SavedCustomReport::LAST_30_DAYS
+      before_end_date = Date.today
+      start_date = before_end_date - 30.days
+    when SavedCustomReport::THIS_MONTH
+      before_end_date = Date.today
+      start_date = before_end_date.beginning_of_month
+    when SavedCustomReport::LAST_MONTH
+      before_end_date = (Date.today - 1.month).end_of_month
+      start_date = before_end_date.beginning_of_month
+    when SavedCustomReport::THIS_QUARTER
+      before_end_date = Date.today
+      start_date = before_end_date.beginning_of_quarter
+    when SavedCustomReport::YEAR_TO_DATE
+      before_end_date = Date.today
+      start_date = before_end_date.beginning_of_year
+    when SavedCustomReport::LAST_YEAR
+      before_end_date = (Date.today - 1.year).end_of_year
+      start_date = before_end_date.beginning_of_year
+    end
+
+    if before_end_date && start_date
+      params[:query]["start_date(1i)"] = start_date.year
+      params[:query]["start_date(2i)"] = start_date.month
+      params[:query]["start_date(3i)"] = start_date.day
+      params[:query]["before_end_date(1i)"] = before_end_date.year
+      params[:query]["before_end_date(2i)"] = before_end_date.month
+      params[:query]["before_end_date(3i)"] = before_end_date.day
+    end
+
   end
 end

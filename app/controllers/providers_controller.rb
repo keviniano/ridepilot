@@ -108,12 +108,12 @@ class ProvidersController < ApplicationController
     if north == 0.0 and west == 0.0
       @provider.region_nw_corner = nil
     else
-      @provider.region_nw_corner = RGeo::Geographic.spherical_factory(srid: 4326).point(west, north)
+      @provider.region_nw_corner = Address.compute_geom(north, west)
     end
     if south == 0.0 and east == 0.0
       @provider.region_se_corner = nil
     else
-      @provider.region_se_corner = RGeo::Geographic.spherical_factory(srid: 4326).point(east, south)
+      @provider.region_se_corner = Address.compute_geom(south, east)
     end
     @provider.save!
 
@@ -134,7 +134,7 @@ class ProvidersController < ApplicationController
       @provider.viewport_center = nil
       @provider.viewport_zoom = nil
     else
-      @provider.viewport_center = RGeo::Geographic.spherical_factory(srid: 4326).point(lng, lat)
+      @provider.viewport_center = Address.compute_geom(lat, lng)
     end
     @provider.save!
 

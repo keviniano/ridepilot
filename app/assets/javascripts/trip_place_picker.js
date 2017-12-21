@@ -84,6 +84,14 @@ function process_google_address(addr, type) {
 
 $(function() {
   $('#pickup_address').on('input', function() {
+    $('#trip_pickup_lat').val('');
+    $('#trip_pickup_lon').val('');
+    $('input.trip_pickup_address_id').val('');
+    $('input.trip_pickup_google_address').val('');
+    $('#pickup_address_notes').val('');
+  });
+
+  $('#trip_pickup_lat, #trip_pickup_lon').on('input', function() {
     $('input.trip_pickup_address_id').val('');
     $('input.trip_pickup_google_address').val('');
     $('#pickup_address_notes').val('');
@@ -100,10 +108,19 @@ $(function() {
   });
 
   $('#dropoff_address').on('input', function() {
+    $('#trip_dropoff_lat').val('');
+    $('#trip_dropoff_lon').val('');
     $('input.trip_dropoff_address_id').val('');
     $('input.trip_dropoff_google_address').val('');
     $('#dropoff_address_notes').val('');
   });
+
+  $('#trip_dropoff_lat, #trip_dropoff_lon').on('input', function() {
+    $('input.trip_dropoff_address_id').val('');
+    $('input.trip_dropoff_google_address').val('');
+    $('#dropoff_address_notes').val('');
+  });
+
   $('#dropoff_address').on('typeahead:selected', function(e, addr, data) {
     $('input.trip_dropoff_address_id').val('');
     $('input.trip_dropoff_google_address').val('');

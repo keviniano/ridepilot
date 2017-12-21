@@ -17,5 +17,5 @@
           = "Total runs: #{@runs.count}"
         - else
           = translate_helper(:empty_runs)
-  .panel-body
+  .panel-body.vertical-resizable-panel
     = render 'runs_table'

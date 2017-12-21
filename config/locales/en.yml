@@ -945,6 +945,10 @@ en:
   total_hours_driven: "Total Hours Driven"
   passenger_type: "Passenger Type"
   passenger_count: "Count"
+  save_report: "Save"
+  saved_custom_report_form_error:
+    one: "1 error prohibited this report from being saved"
+    other: "%{count} errors prohibited this report from being saved"
   
   # Approved Vendors List
   vendor_list_download: "Download Approved Vendors List"

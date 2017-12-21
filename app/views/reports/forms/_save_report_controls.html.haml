@@ -1,0 +1,6 @@
+- if can?(:manage, SavedCustomReport)
+  = link_to translate_helper(:save_report), show_save_form_reports_path(custom_report_id: custom_report_id), class: 'btn action-button btn-info', remote: true
+  - if @saved_report
+    = link_to "Delete", delete_saved_report_path(@saved_report.id), method: :delete, class: 'btn action-button btn-danger', data: {confirm: "Are you sure to delete this report?"}
+
+= render 'shared/modal_dialog', modal_id: "modal-dialog" 

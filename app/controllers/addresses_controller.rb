@@ -63,7 +63,7 @@ class AddressesController < ApplicationController
 
 
   def validate_customer_specific
-    the_geom       = params[:lat].to_s.size > 0 ? RGeo::Geographic.spherical_factory(srid: 4326).point(params[:lon].to_f, params[:lat].to_f) : nil
+    the_geom       = process_geom
     prefix         = params['prefix'] || ""
     address_params = {}
 
@@ -83,12 +83,11 @@ class AddressesController < ApplicationController
     end
 
     if address.valid?
-      label = address.address_text
       render :json => {
         success: true,
         prefix: prefix,
-        address_text: label,
-        attributes: address.attributes.merge({label: label})
+        address_text: address.address_text,
+        attributes: address.as_json
       }
     else
       errors = address.errors.messages
@@ -123,5 +122,15 @@ class AddressesController < ApplicationController
     term.gsub!(' pkwy,', 'parkway,')
 
     term
+  end
+
+  def process_geom
+    if !params[:lat].blank? && !params[:lon].blank?
+      Address.compute_geom(params[:lat], params[:lon])
+    elsif !params[:address_lat].blank? && !params[:address_lon].blank?
+      Address.compute_geom(params[:address_lat], params[:address_lon])
+    else
+      nil 
+    end
   end
 end

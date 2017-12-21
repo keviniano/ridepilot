@@ -1,0 +1,42 @@
+:ruby
+  @no_date_param = ['customers_report', 'driver_report', 'inactive_driver_status_report', 'ineligible_customer_status_report', 'provider_common_location_report'].include?(@new_saved_report.custom_report.try(:name))
+= form_for @new_saved_report, remote: true, url: save_as_reports_path do |f|
+  = f.hidden_field :custom_report_id
+  = f.hidden_field :report_params
+  - if @new_saved_report.errors.any?
+    .panel.panel-danger
+      .panel-heading= translate_helper("saved_custom_report_form_error", count: @new_saved_report.errors.count)
+      .panel-body
+        %ul
+          - @new_saved_report.errors.full_messages.each do |msg|
+            %li= msg
+
+  .form-group.col-sm-12
+    = f.label :name, "Report Name", class: "col-md-3 control-label"
+    .col-md-9
+      = f.text_field :name, class: "form-control", required: true
+  - unless @no_date_param
+    .form-group.col-sm-12
+      = f.label :date_range_type, "Date Range Type", class: "col-md-3 control-label"
+      .col-md-9
+        = f.select :date_range_type, SavedCustomReport.date_range_type_list, {}, {class: 'form-control'}
+
+:javascript
+  $(function() {
+    function get_report_params() {
+      var params = [];
+      var param_arrays = $('#new_query ').serializeArray();
+      param_arrays.forEach(function(param) {
+        if(param.name.startsWith('query[')) {
+          params.push(encodeURIComponent(param.name) + "=" + encodeURIComponent(param.value));
+        }
+      });
+
+      return params.join("&");
+    }
+    $('#new_saved_custom_report').on('submit', function(e) {
+      $('#saved_custom_report_report_params').val(get_report_params());
+    });
+  });
+
+

@@ -1,6 +1,9 @@
-= form_for @query, :url=>url_for(:action=>:customers_report), :html=>{:method=>:get} do |f| 
+:ruby
+  action_name = @saved_report ? :show_saved_report : @custom_report.name
+= form_for @query, :url=>url_for(:action=>action_name), :html=>{:method=>:get} do |f| 
   %fieldset
     = f.label :mobility_id, "#{translate_helper(:mobility)}:"
     = f.collection_select :mobility_id, @all_mobilities, :id, :name, {include_blank: 'All'}
 
     = render 'reports/forms/v2_reports/common_controls', has_multiple_report_types: true, f: f
+    = render 'reports/forms/save_report_controls', custom_report_id: @custom_report.id

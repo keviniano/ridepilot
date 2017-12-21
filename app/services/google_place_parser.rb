@@ -68,7 +68,7 @@ class GooglePlaceParser
     lat = location[:lat].to_f rescue nil
     lng = location[:lng].to_f rescue nil
 
-    RGeo::Geographic.spherical_factory(srid: 4326).point(lng, lat) if lat && lng
+    Address.compute_geom(lat, lng) if lat && lng
   end
 
 end

@@ -1,0 +1,2 @@
+$('#modal-dialog').modal('hide');
+$('#reports_list').replaceWith("<%= j render('reporting/reports/list', report_id: @new_saved_report.custom_report.try(:id)) %>");

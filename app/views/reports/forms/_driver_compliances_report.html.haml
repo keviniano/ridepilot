@@ -7,3 +7,4 @@
     = f.collection_select :driver_id, @active_drivers, :id, :user_name, {include_blank: 'All'}
 
     = render 'reports/forms/v2_reports/common_controls', has_multiple_report_types: true, f: f
+    = render 'reports/forms/save_report_controls', custom_report_id: @custom_report.id

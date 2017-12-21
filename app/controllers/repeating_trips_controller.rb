@@ -42,7 +42,7 @@ class RepeatingTripsController < ApplicationController
   def create
     params[:repeating_trip][:provider_id] = current_provider_id   
     @trip = RepeatingTrip.new(trip_params)
-    process_google_address
+    process_address
     authorize! :manage, @trip
     edit_mobilities
 
@@ -70,7 +70,7 @@ class RepeatingTripsController < ApplicationController
     else
       params[:repeating_trip][:customer_id] = @trip.customer_id
     end    
-    process_google_address
+    process_address
     authorize! :manage, @trip
 
     prev_schedule = @trip.schedule
@@ -188,19 +188,31 @@ class RepeatingTripsController < ApplicationController
     [cab_vehicle] + vehicles 
   end
 
-  def process_google_address
-    if params[:repeating_trip][:pickup_address_id].blank? && !params[:trip_pickup_google_address].blank?
-      addr_params = JSON(params[:trip_pickup_google_address])
-      new_temp_addr = TempAddress.new(addr_params.select{|x| TempAddress.allowable_params.include?(x) })
-      new_temp_addr.the_geom = RGeo::Geographic.spherical_factory(srid: 4326).point(addr_params['lon'].to_f, addr_params['lat'].to_f)
-      @trip.pickup_address = new_temp_addr
+  def process_address
+    if params[:repeating_trip][:pickup_address_id].blank? 
+      if !params[:trip_pickup_google_address].blank?
+        addr_params = JSON(params[:trip_pickup_google_address])
+        new_temp_addr = TempAddress.new(addr_params.select{|x| TempAddress.allowable_params.include?(x) })
+        new_temp_addr.the_geom = Address.compute_geom(addr_params['lat'], addr_params['lon'])
+        @trip.pickup_address = new_temp_addr
+      elsif !params[:trip_pickup_lat].blank? && !params[:trip_pickup_lon].blank?
+        new_temp_addr = GeocodedAddress.new
+        new_temp_addr.the_geom = Address.compute_geom(params['trip_pickup_lat'], params['trip_pickup_lon'])
+        @trip.pickup_address = new_temp_addr
+      end
     end
 
-    if params[:repeating_trip][:dropoff_address_id].blank? && !params[:trip_dropoff_google_address].blank?
-      addr_params = JSON(params[:trip_dropoff_google_address])
-      new_temp_addr = TempAddress.new(addr_params.select{|x| TempAddress.allowable_params.include?(x)})
-      new_temp_addr.the_geom = RGeo::Geographic.spherical_factory(srid: 4326).point(addr_params['lon'].to_f, addr_params['lat'].to_f)
-      @trip.dropoff_address = new_temp_addr
+    if params[:repeating_trip][:dropoff_address_id].blank? 
+      if !params[:trip_dropoff_google_address].blank?
+        addr_params = JSON(params[:trip_dropoff_google_address])
+        new_temp_addr = TempAddress.new(addr_params.select{|x| TempAddress.allowable_params.include?(x)})
+        new_temp_addr.the_geom = Address.compute_geom(addr_params['lat'], addr_params['lon'])
+        @trip.dropoff_address = new_temp_addr
+      elsif !params[:trip_dropoff_lat].blank? && !params[:trip_dropoff_lon].blank?
+        new_temp_addr = GeocodedAddress.new
+        new_temp_addr.the_geom = Address.compute_geom(params['trip_dropoff_lat'], params['trip_dropoff_lon'])
+        @trip.dropoff_address = new_temp_addr
+      end
     end
         
   end

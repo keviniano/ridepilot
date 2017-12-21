@@ -1,0 +1,11 @@
+= render "custom_report_header"
+.filter-form{style: 'padding-top: 10px;'}
+  = render "reports/forms/#{@custom_report.name}"
+
+- if @saved_report.date_range_type == SavedCustomReport::PROMPT_DATES
+  = render 'reports/date_range_prompt_dialog'
+  :javascript
+    $(function() {
+      // dates prompt
+      $('#dateRangePromptDialog').modal('show');
+    });

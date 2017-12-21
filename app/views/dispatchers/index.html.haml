@@ -12,10 +12,11 @@
     = link_to translate_helper(:recurring_scheduling), recurring_dispatchers_path, class: 'btn action-button'
   = render :partial => 'filters'
 %hr
-.col-sm-12.dispatch-main{style: 'padding: 0px; margin-bottom: 230px;'}
-  = render 'runs_panel'
-.col-sm-12#unassigned_trips_container
-  = render 'unassigned_trips_panel'
+#dispatch_runs_trips{style: 'padding: 0px;'}
+  .col-sm-12.dispatch-main#dispatch_runs_container{style: 'padding: 0px;'}
+    = render 'runs_panel'
+  .col-sm-12#unassigned_trips_container{style: 'padding: 0px;'}
+    = render 'unassigned_trips_panel'
 
 = render 'trips/trip_result_reason_dialog'
 
@@ -24,11 +25,16 @@
   var run_ids = #{@runs.pluck(:id) || []};
   var target_run_id = #{params[:run_id].try(:to_i) || nil.to_json};
   var dropping_to_trips = false;
+  var splitter;
+
   // Local Storages
   // dispatch_loaded_run_ids = [] (list of run panels that are open)
   // dispatch_runs_panel_collapsed: 1/0 (0 if the runs panel is collapsed)
+  // dispatch_runs_panel_height
   // dispatch_run_panel_{id}_collapsed: 1/0 (0 if a specific run panel is collapsed)
+  // dispatch_run_panel_{id}_height
   // dispatch_unassigned_trips_collapsed: 1/0 (0 if the unassigned trips panel is collapsed)
+  // dispatch_unassigned_trips_height
 
   // update one trip schedule status
   function schedule_trip(trip_id, run_id, prev_run_id) {
@@ -95,24 +101,28 @@
     panel.find('.panel-body').slideUp();
     panel.find('.panel-expand-collapse').addClass('panel-collapsed');
     panel.find('.panel-expand-collapse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    panel.find('.floatThead-wrapper').hide();
   }
 
   function expand_panel(panel) {
     panel.find('.panel-body').slideDown();
     panel.find('.panel-expand-collapse').removeClass('panel-collapsed');
     panel.find('.panel-expand-collapse i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    panel.find('.floatThead-wrapper').show();
   }
 
   function reverse_collapse_panel(panel) {
     panel.find('.panel-body').slideUp();
     panel.find('.panel-expand-collapse-reverse').addClass('panel-collapsed');
     panel.find('.panel-expand-collapse-reverse i').removeClass('fa-chevron-down').addClass('fa-chevron-up'); 
+    panel.find('.floatThead-wrapper').hide();
   }
 
   function reverse_expand_panel(panel) {
     panel.find('.panel-body').slideDown();
     panel.find('.panel-expand-collapse-reverse').removeClass('panel-collapsed');
     panel.find('.panel-expand-collapse-reverse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    panel.find('.floatThead-wrapper').show();
   }
 
   function collapse_run_manifest(run_id) {
@@ -137,6 +147,11 @@
           scroll_to_run_trips_panel(run_id);
         }
 
+        var prev_height = parseInt(localStorage.getItem('dispatch_run_panel_' + run_id + '_height'));
+        if(prev_height > 0) {
+          //$("#run_trips_panel_" + run_id + " .panel-body").height(prev_height);
+        }
+
         var was_collapsed = localStorage.getItem('dispatch_run_panel_' + run_id + '_collapsed');
         if(was_collapsed == '0') {
           collapse_run_manifest(run_id);
@@ -157,6 +172,11 @@
 
   // load previously open run manifest panels
   function load_runs_panel() {
+    var prev_height = parseInt(localStorage.getItem('dispatch_runs_panel_height'));
+    if(prev_height > 0) {
+      //$('#runs_panel .panel-body').height(prev_height);
+    }
+
     var was_collapsed = localStorage.getItem('dispatch_runs_panel_collapsed');
     if(was_collapsed == '0') {
       // by default, collapse Unassigned Trips panel
@@ -189,6 +209,11 @@
 
   // expand or collapse given previous state
   function load_unassigned_trips_panel() {
+    var prev_height = parseInt(localStorage.getItem('dispatch_unassigned_trips_height'));
+    if(prev_height > 0) {
+      //$('#unassigned_trips_panel .panel-body').height(prev_height);
+    }
+
     var was_collapsed = localStorage.getItem('dispatch_unassigned_trips_collapsed');
     if(was_collapsed != '1') {
       // by default, collapse Unassigned Trips panel
@@ -231,7 +256,13 @@
       }
     });
 
-    $('#unassigned_trips_table').bootstrapTable();
+    //$('#unassigned_trips_table').bootstrapTable();
+    // fixed table header
+    //$('#unassigned_trips_table').floatThead({ 
+    //  scrollContainer: function($table){
+    //    return $table.closest('.panel-body');
+    //  }
+    //});
   }
 
   function change_trips_trip_result(trip_ids, result_id, reason) {
@@ -246,8 +277,24 @@
     });
   }
 
+  function update_splitter_position() {
+    if(!splitter) {
+      return;
+    }
+
+    var new_height = $('#unassigned_trips_container').position().top;
+    splitter.position(new_height - $('.hsplitter').height()/2);
+  }
+
   // page main entry point
   $(function() {  
+    // init the splitter between Runs section and Trips section
+    var splitter_height = $(document).outerHeight() - 150;
+    splitter = $('#dispatch_runs_trips').height(splitter_height).split({
+      position: splitter_height - 200,
+      limit: 40
+    });
+
     // Initialize a helper object with the trip result reason modal, and a list of cancellation codes.
     var trh = new TripResultHelper(
       "#tripResultReasonDialog",
@@ -371,6 +418,17 @@
 
       if(panel.attr('id') == 'unassigned_trips_panel') {
         localStorage.setItem('dispatch_unassigned_trips_collapsed', (is_collapsed ? '0' : '1'));
+        if(is_collapsed) {
+          if(splitter) {
+            splitter.prev_trips_height = $('#unassigned_trips_container').height();
+          }
+          $('#unassigned_trips_container').height(panel.find('.panel-heading').outerHeight());
+        } else {
+          if(splitter.prev_trips_height) {
+            $('#unassigned_trips_container').height(splitter.prev_trips_height);
+          }
+        }
+        update_splitter_position();
       }
     });
 
@@ -383,14 +441,13 @@
         // clean up local storage
         var run_id = $panel.data('run-id');
         localStorage.removeItem('dispatch_run_panel_' + run_id + '_collapsed');
+        localStorage.removeItem('dispatch_run_panel_' + run_id + '_height');
         var loaded_run_ids = get_loaded_run_id_array();
         var run_id_index = loaded_run_ids.indexOf(run_id.toString());
         if(run_id_index >= 0) {
           loaded_run_ids.splice(run_id_index, 1);
           localStorage.setItem('dispatch_loaded_run_ids', loaded_run_ids.join(','))
         }
-
-        console.log(loaded_run_ids);
       }
     });
 
@@ -474,5 +531,16 @@
 
     load_runs_panel();
     load_unassigned_trips_panel();
+
+    // cache panel heights before closing the screen
+    $(window).on('beforeunload', function(){
+      // dispatch_runs_panel_height
+      localStorage.setItem('dispatch_runs_panel_height', $('#runs_panel .panel-body').height());
+      localStorage.setItem('dispatch_unassigned_trips_height', $('#unassigned_trips_panel .panel-body').height());
+      $('.run_trips_panel').each(function() {
+        localStorage.setItem('dispatch_run_panel_' + $(this).data('run-id') + '_height', $(this).find('.panel-body').height());
+      });
+    });
+
   });
   

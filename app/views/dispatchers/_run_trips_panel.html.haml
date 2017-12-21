@@ -38,7 +38,7 @@
             Completed
       %span.run_summary{style: 'font-size: small;'}
         = simple_format run_summary(run)
-  .panel-body
+  .panel-body.vertical-resizable-panel
     = render 'dispatchers/run_manifest_table', run: run, trips: run.trips
 
 - unless run.complete?
@@ -90,3 +90,10 @@
     });
 
     $("#run_trips_panel_#{run.id} table tbody").sortable();
+    
+    // fixed table header
+    $("#run_trips_panel_#{run.id} table").floatThead({ 
+      scrollContainer: function($table){
+        return $table.closest('.panel-body');
+      }
+    });

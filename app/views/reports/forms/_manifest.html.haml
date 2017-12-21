@@ -1,4 +1,6 @@
-= form_for @query, :url=>url_for(:action=>:manifest), :html=>{:method=>:get} do |f| 
+:ruby
+  action_name = @saved_report ? :show_saved_report : @custom_report.name
+= form_for @query, :url=>url_for(:action=>action_name), :html=>{:method=>:get} do |f| 
   %fieldset
     .date-select{style: 'display: inline-block;'}
       = f.date_select  :start_date, :order => [:month,:day,:year], :html => {:class => "date-select"} rescue nil
@@ -15,6 +17,7 @@
       = f.select :report_format, options_for_select([['HTML', 'html'],['PDF', 'pdf']], @query.report_format || 'html')
 
     = f.submit translate_helper("run"), class: 'btn action-button', id: 'submitReport'
+    = render 'reports/forms/save_report_controls', custom_report_id: @custom_report.id
 
 :javascript
   $(function() {

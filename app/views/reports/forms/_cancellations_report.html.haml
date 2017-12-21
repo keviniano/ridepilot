@@ -1,4 +1,6 @@
-= form_for @query, :url=>url_for(:action=>:cancellations_report), :html=>{:method=>:get} do |f| 
+:ruby
+  action_name = @saved_report ? :show_saved_report : @custom_report.name
+= form_for @query, :url=>url_for(:action=>action_name), :html=>{:method=>:get} do |f| 
   %fieldset
     = f.date_select  :start_date, :order => [:month,:day,:year] rescue nil
     = translate_helper("through") 
@@ -15,3 +17,4 @@
       = f.select :report_type, options_for_select([['Summary Report', 'summary'],['Detailed Report', 'detail']], @query.report_type || 'summary')
 
     = f.submit translate_helper("run"), class: 'btn action-button'
+    = render 'reports/forms/save_report_controls', custom_report_id: @custom_report.id

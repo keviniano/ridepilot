@@ -19,7 +19,7 @@ class VehiclesController < ApplicationController
   def update
     new_attrs = vehicle_params
     is_garage_address_blank = check_blank_garage_address
-    
+
     if is_garage_address_blank
       prev_garage_address = @vehicle.garage_address
       @vehicle.garage_address_id = nil
@@ -28,7 +28,9 @@ class VehiclesController < ApplicationController
 
     @vehicle.assign_attributes new_attrs
 
-    if @vehicle.garage_address.present?
+    if !params[:address_lat].blank? && !params[:address_lon].blank?
+      @vehicle.build_garage_address.the_geom = Address.compute_geom(params[:address_lat], params[:address_lon])
+    elsif @vehicle.garage_address.present?
       @vehicle.garage_address.the_geom = Address.compute_geom(params[:lat], params[:lon])
     end
 
@@ -59,6 +61,8 @@ class VehiclesController < ApplicationController
 
     if is_garage_address_blank
       @vehicle.garage_address = nil
+    elsif !params[:address_lat].blank? && !params[:address_lon].blank?
+      @vehicle.build_garage_address.the_geom = Address.compute_geom(params[:address_lat], params[:address_lon])
     elsif @vehicle.garage_address.present?
       @vehicle.garage_address.the_geom = Address.compute_geom(params[:lat], params[:lon])
     end
@@ -200,7 +204,7 @@ class VehiclesController < ApplicationController
       end
     end if address_params
 
-    is_blank
+    is_blank && params[:address_lat].blank? && params[:address_lon].blank?
   end
   
 end

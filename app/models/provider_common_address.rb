@@ -47,7 +47,7 @@ class ProviderCommonAddress < Address
             if address_name
               p = ProviderCommonAddress.create!({
                 provider: provider,
-                the_geom: RGeo::Geographic.spherical_factory(srid: 4326).point(row[0].to_f, row[1].to_f),
+                the_geom: Address.compute_geom(row[1], row[0]),
                 name: address_name,
                 building_name: row[3],
                 address: row[4].to_s + row[5].to_s,

@@ -32,7 +32,21 @@ module Reporting::ReportHelper
         }
     }
 
-    (generic_report_infos + customized_report_infos).sort_by {|r| r[:name]}
+    saved_customized_report_infos = SavedCustomReport.active_per_provider(current_provider_id).map {
+      |report|
+        custom_report = report.custom_report
+        next unless custom_report
+
+        {
+          id: report.id,
+          name: report.name,
+          is_generic: false,
+          is_saved: true,
+          version: custom_report.version
+        }
+    }
+
+    (generic_report_infos + customized_report_infos + saved_customized_report_infos).sort_by {|r| r[:name]}
   end
 
   # converts datetime format to MM/DD/YYYY (to be correctly displayed in front-end)

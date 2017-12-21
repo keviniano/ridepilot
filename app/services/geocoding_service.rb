@@ -30,7 +30,7 @@ class GeocodingService
                   :city => city,
                   :state => state,
                   :zip => address['postcode'],
-                  :the_geom => RGeo::Geographic.spherical_factory(srid: 4326).point(raw_address['lon'].to_f, raw_address['lat'].to_f)
+                  :the_geom => Address.compute_geom(raw_address['lat'], raw_address['lon'])
                   )
       next if !address_obj.valid?
       address_obj.json.merge({label: raw_address["display_name"]})

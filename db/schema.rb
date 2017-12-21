@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171206164011) do
+ActiveRecord::Schema.define(version: 20171216221909) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -904,6 +904,19 @@ ActiveRecord::Schema.define(version: 20171206164011) do
   add_index "runs", ["repeating_run_id"], :name => "index_runs_on_repeating_run_id"
   add_index "runs", ["to_garage_address_id"], :name => "index_runs_on_to_garage_address_id"
   add_index "runs", ["vehicle_id"], :name => "index_runs_on_vehicle_id"
+
+  create_table "saved_custom_reports", force: true do |t|
+    t.integer  "custom_report_id"
+    t.integer  "provider_id"
+    t.string   "name"
+    t.integer  "date_range_type"
+    t.text     "report_params"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "saved_custom_reports", ["custom_report_id"], :name => "index_saved_custom_reports_on_custom_report_id"
+  add_index "saved_custom_reports", ["provider_id"], :name => "index_saved_custom_reports_on_provider_id"
 
   create_table "service_levels", force: true do |t|
     t.string   "name"

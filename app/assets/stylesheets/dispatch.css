@@ -10,6 +10,10 @@
   padding: 0px;
 }
 
+.dropdown-menu {
+  z-index: 10000 !important;
+}
+
 .dropdown-menu li a {
   white-space: normal !important;
 }
@@ -19,7 +23,6 @@
 }
 
 #unassigned_trips_panel .panel-body  {
-  height: 200px;
   overflow-y: auto;
 }
 
@@ -46,15 +49,6 @@
   color: white;
   background-color: #8a6d3b;
   border-color: #8a6d3b;
-}
-
-#unassigned_trips_container {
-  position: fixed;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  margin: 0px 0px 32px 0px;
-  background: white;
 }
 
 .drop-zone-active {

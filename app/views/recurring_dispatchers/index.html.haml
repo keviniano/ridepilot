@@ -9,15 +9,17 @@
     = link_to translate_helper(:daily_scheduling), dispatchers_path, class: 'btn action-button'
   = render :partial => 'filters'
 %hr
-.col-sm-12.dispatch-main{style: 'padding: 0px; margin-bottom: 230px;'}
-  = render 'runs_panel'
-.col-sm-12#unassigned_trips_container
-  = render 'unassigned_trips_panel'
+#dispatch_runs_trips{style: 'padding: 0px;'}
+  .col-sm-12.dispatch-main#dispatch_runs_container{style: 'padding: 0px;'}
+    = render 'runs_panel'
+  .col-sm-12#unassigned_trips_container{style: 'padding: 0px;'}
+    = render 'unassigned_trips_panel'
 
 :javascript
   var run_ids = #{@runs.pluck(:id) || []};
   var target_run_id = #{params[:run_id].try(:to_i) || nil.to_json};
   var dropping_to_trips = false;
+  var splitter;
   // Local Storages
   // dispatch_loaded_run_ids = [] (list of run panels that are open)
   // dispatch_runs_panel_collapsed: 1/0 (0 if the runs panel is collapsed)
@@ -89,24 +91,28 @@
     panel.find('.panel-body').slideUp();
     panel.find('.panel-expand-collapse').addClass('panel-collapsed');
     panel.find('.panel-expand-collapse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    panel.find('.floatThead-wrapper').hide();
   }
 
   function expand_panel(panel) {
     panel.find('.panel-body').slideDown();
     panel.find('.panel-expand-collapse').removeClass('panel-collapsed');
     panel.find('.panel-expand-collapse i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    panel.find('.floatThead-wrapper').show();
   }
 
   function reverse_collapse_panel(panel) {
     panel.find('.panel-body').slideUp();
     panel.find('.panel-expand-collapse-reverse').addClass('panel-collapsed');
     panel.find('.panel-expand-collapse-reverse i').removeClass('fa-chevron-down').addClass('fa-chevron-up'); 
+    panel.find('.floatThead-wrapper').hide();
   }
 
   function reverse_expand_panel(panel) {
     panel.find('.panel-body').slideDown();
     panel.find('.panel-expand-collapse-reverse').removeClass('panel-collapsed');
     panel.find('.panel-expand-collapse-reverse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    panel.find('.floatThead-wrapper').show();
   }
 
   function collapse_run_manifest(run_id) {
@@ -213,12 +219,26 @@
         
       }
     });
+  }
 
-    $('#unassigned_trips_table').bootstrapTable();
+  function update_splitter_position() {
+    if(!splitter) {
+      return;
+    }
+
+    var new_height = $('#unassigned_trips_container').position().top;
+    splitter.position(new_height - $('.hsplitter').height()/2);
   }
 
   // page main entry point
   $(function() {  
+    // init the splitter between Runs section and Trips section
+    var splitter_height = $(document).outerHeight() - 150;
+    splitter = $('#dispatch_runs_trips').height(splitter_height).split({
+      position: splitter_height - 200,
+      limit: 40
+    });
+
     // run manifest panel expand/collapse
     $(document).on('click', '.panel-heading span.panel-expand-collapse', function(e){
       var $this = $(this);
@@ -256,6 +276,17 @@
 
       if(panel.attr('id') == 'unassigned_trips_panel') {
         localStorage.setItem('recurring_dispatch_unassigned_trips_collapsed', (is_collapsed ? '0' : '1'));
+        if(is_collapsed) {
+          if(splitter) {
+            splitter.prev_trips_height = $('#unassigned_trips_container').height();
+          }
+          $('#unassigned_trips_container').height(panel.find('.panel-heading').outerHeight());
+        } else {
+          if(splitter.prev_trips_height) {
+            $('#unassigned_trips_container').height(splitter.prev_trips_height);
+          }
+        }
+        update_splitter_position();
       }
     });
 
@@ -274,8 +305,6 @@
           loaded_run_ids.splice(run_id_index, 1);
           localStorage.setItem('recurring_dispatch_loaded_run_ids', loaded_run_ids.join(','))
         }
-
-        console.log(loaded_run_ids);
       }
     });
 
