@@ -6,8 +6,8 @@ app:
   ports:
     - "3000:3000"
   links:
-    - postgres
-postgres:
-  image: postgres:9.4
+    - db
+db:
+  image: mdillon/postgis:9.5
   ports:
-    - "5432"
+    - "5432:5432"
