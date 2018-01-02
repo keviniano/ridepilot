@@ -2,19 +2,27 @@
   %option{value: "#", disabled: "disabled", selected: true}
     Please select a report
   - reports.each do |report_info|
-    - if report_info[:is_generic]
-      - report = Reporting::Report.find(report_info[:id])
-      - if @is_generic_report && report.id == report_id
-        %option{value: "#{reporting.report_path(report)}", selected: true}
-          = report.name
+    - report_name = report_info[:name]
+    - a_report_id = report_info[:id]
+    - if report_info[:is_saved]
+      - if @is_saved_report && a_report_id == report_id
+        %option{value: "#{saved_report_path(a_report_id)}", selected: true}
+          = report_name
       - else
-        %option{value: "#{reporting.report_path(report)}"}
-          = report.name
-    -else
-      - report = CustomReport.find(report_info[:id])
-      - if !@is_generic_report && report.id == report_id
-        %option{value: "#{custom_report_path(report)}", selected: true}
-          = report.display_name
-      - else
-        %option{value: "#{custom_report_path(report)}"}
-          = report.display_name
+        %option{value: "#{saved_report_path(a_report_id)}"}
+          = report_name
+    - else
+      - if report_info[:is_generic]
+        - if @is_generic_report && !@is_saved_report && a_report_id == report_id
+          %option{value: "#{reporting.report_path(a_report_id)}", selected: true}
+            = report_name
+        - else
+          %option{value: "#{reporting.report_path(a_report_id)}"}
+            = report_name
+      -else
+        - if !@is_generic_report && !@is_saved_report && a_report_id == report_id
+          %option{value: "#{custom_report_path(a_report_id)}", selected: true}
+            = report_name
+        - else
+          %option{value: "#{custom_report_path(a_report_id)}"}
+            = report_name

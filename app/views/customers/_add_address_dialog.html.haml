@@ -64,7 +64,7 @@
         form.find('form')[0].reset();
         form.find('input[type=hidden][name!=prefix]').val('');
         form.find('.error').html('');
-        $(".address-form input.address_search").attr("disabled","disabled");
+        $(".address-form .address_container input").attr("disabled","disabled");
         $(".address-form input.address_non_street_mailing_address").attr("disabled","disabled");
         $(".address-form .non_geocoding_address input").attr("readonly","readonly");
       }

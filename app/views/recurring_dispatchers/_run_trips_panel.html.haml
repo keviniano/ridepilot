@@ -29,7 +29,7 @@
         = run.name
       %span.run_summary{style: 'font-size: small;'}
         = simple_format recurring_run_summary(run, @day_of_week)
-  .panel-body
+  .panel-body.vertical-resizable-panel
     = render 'recurring_dispatchers/run_manifest_table', run: run, trips: trips
 
 :javascript
@@ -80,3 +80,10 @@
   });
 
   $("#run_trips_panel_#{run.id} table tbody").sortable();
+
+  // fixed table header
+  $("#run_trips_panel_#{run.id} table").floatThead({ 
+    scrollContainer: function($table){
+      return $table.closest('.panel-body');
+    }
+  });

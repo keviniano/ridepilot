@@ -15,8 +15,20 @@
       .form-group
         = label_tag "#{prefix}_full_address", translate_helper("full_address_name"), class: "col-md-2 control-label"
         .col-md-10
-          = text_field_tag "#{prefix}_full_address", address.try(:address_text), disabled: @readonly, class: "address_search form-control"
+          .form-inline.address_container
+            - is_latlng_coded = address.try(:coded_by_lat_lng?)
+            - is_latlng = is_latlng_coded || !params[:address_lat].blank? || !params[:address_lon].blank?
+            .latlng_fields{style: is_latlng ? "" : 'display: none;'}
+              = number_field_tag "address_lat", (is_latlng_coded && address.try(:latitude)) || params[:address_lat], class: "form-control", placeholder: "laitudue", min: -90, max: 90, style: 'width: 40%;', disabled: @readonly
+              = number_field_tag "address_lon", (is_latlng_coded && address.try(:longitude)) || params[:address_lon], class: "form-control", placeholder: "longitude", min: -180, max: 180, style: 'width: 40%;', disabled: @readonly
+            .address_fields{style: is_latlng ? 'display: none;' : ""}
+              = text_field_tag "#{prefix}_full_address", address.try(:address_text), disabled: @readonly, class: "address_search form-control", style: "width: 100%;"
+            .pull-right
+              %label.pull-right
+                %input.latlng_address_switch{type: 'checkbox', checked: ("true" if is_latlng), disabled: @readonly}
+                Lat/Lon
       = render 'addresses/google_place_autocomplete_js'
+      = render 'addresses/latlng_address_switch_js'
     .form-group
       = f.label :garage_phone_number, translate_helper("phone_number"), class: "col-md-2 control-label"
       .col-md-10
@@ -24,3 +36,16 @@
           = format_phone_number(@vehicle.garage_phone_number)
         - else
           = f.text_field :garage_phone_number, disabled: @readonly, class: "form-control"
+
+:javascript
+  $(function() {
+    $('input[name=address_lat], input[name=address_lon]').on('input', function() {
+      $('.address_search').val('');
+      $('.address_search').change();
+    });
+
+    $('.address_search').on('input', function() {
+      $('input[name=address_lat]').val('');
+      $('input[name=address_lon]').val('');
+    });
+  });

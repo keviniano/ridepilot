@@ -1,0 +1,64 @@
+#dateRangePromptDialog.modal.fade{:role => "dialog", "aria-hidden" => 'true', :tabindex => "-1", data: {"backdrop": "static", "keyboard": false }}
+  .modal-dialog.modal-sm
+    .modal-content
+      .modal-header
+        .pull-right
+          %button#apply_date_range{type: 'button', class: 'btn action-button'}
+            Apply
+        .modal-title{:style => "text-align:left; font-weight: bold; font-size: large;"}
+          Specify Date Range
+      .modal-body.row{:style => "text-align:left; margin: 0px; padding-top: 0px;"}
+        .col-sm-12.date_range
+          .col-sm-12{style: 'padding: 0px;'}
+            %label
+              Start Date
+              .input-group.datepicker-icon
+                = text_field_tag :report_start_date, nil, class: 'datepicker form-control', readonly: true, required: true
+                .input-group-btn
+                  %button.btn.btn-default{:type => "button"}
+                    = image_tag "calendar-clock.png"
+          .col-sm-12{style: 'padding: 0px;'}
+            %label
+              End Date
+              .input-group.datepicker-icon
+                = text_field_tag :report_end_date, nil, class: 'datepicker form-control', readonly: true, required: true
+                .input-group-btn
+                  %button.btn.btn-default{:type => "button"}
+                    = image_tag "calendar-clock.png"
+
+= render 'shared/date_time_picker_javascript'
+
+:javascript 
+  $(function() {
+    $('#dateRangePromptDialog').on('show.bs.modal', function() {
+      // if datepicker is not initialized, then do it now
+      if($(this).find('.ui-datepicker-trigger').length == 0) {
+        makeDatePickers();
+      }
+      // hide by default as date_range is not the default filter mode
+      $('.date_range').find('.ui-datepicker-trigger').hide();
+    });
+
+    $('#apply_date_range').click(function() {
+      var start_date = $('#report_start_date').datepicker( "getDate" );
+      var end_date = $('#report_end_date').datepicker( "getDate" );
+      if(!start_date || !end_date) {
+        bootbox.alert('Please specify both dates.');
+        return;
+      } else if (start_date > end_date) {
+        bootbox.alert('Start Date should be no later than End Date');
+        return;
+      }
+
+      // updates date range in the report form
+      $('#query_start_date_1i').val(start_date.getFullYear());
+      $('#query_start_date_2i').val(start_date.getMonth() + 1);
+      $('#query_start_date_3i').val(start_date.getDate());
+      $('#query_before_end_date_1i').val(end_date.getFullYear());
+      $('#query_before_end_date_2i').val(end_date.getMonth() + 1);
+      $('#query_before_end_date_3i').val(end_date.getDate());
+
+      $('#dateRangePromptDialog').modal('hide');
+    });
+  });
+    

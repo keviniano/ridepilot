@@ -1,12 +1,4 @@
-%table.table.table-striped.table-condensed.table-bordered#runs_table{:data => {:toggle => 'table',
-    :pagination => 'false',
-    :show_pagination_switch => 'false',
-    :page_list => "[5, 10, 20]",
-    :page_size => 5,
-    :search => 'false',
-    :show_export => 'false',
-    :show_columns => 'false',
-    :show_toggle => 'false'}}
+%table.table.table-striped.table-condensed.table-bordered#runs_table
   %thead
     %tr
       %th= translate_helper(:run_table_header_name)
@@ -62,3 +54,13 @@
             - if can?(:cancel, run)
               = link_to cancel_run_dispatchers_path(run_id: run.id), title: 'Cancel run', remote: true, data: {confirm: 'Are you sure to cancel this run?'} do 
                 %i.fa.fa-power-off
+
+:javascript
+  $(function() {
+    // fixed table header
+    $("#runs_table").floatThead({ 
+      scrollContainer: function($table){
+        return $table.closest('.panel-body');
+      }
+    });
+  });

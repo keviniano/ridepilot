@@ -42,6 +42,7 @@
 //= require bootstrap-editable
 //= require bootstrap-editable-rails
 //= require jquery.floatThead
+//= require jquery.splitter
 //= require_self
 
 function ISODateFormatToDateObject(str) {

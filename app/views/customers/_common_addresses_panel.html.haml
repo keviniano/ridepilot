@@ -19,7 +19,7 @@
             = translate_helper(:is_mailing_address)
       %tbody
         - @customer.addresses.each do |address|
-          %tr{data: {"address-id": address.id.to_s, "address-text": address.address_text, address: address.attributes.merge({label: address.address_text}).to_json}}
+          %tr{data: {"address-id": address.id.to_s, "address-text": address.address_text, address: address.as_json.to_json}}
             - if is_editing
               %td
                 = button_tag :type => 'button', class: 'deleteCustomerAddress btn-danger' do 

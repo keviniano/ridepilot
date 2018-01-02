@@ -1,4 +1,7 @@
-- report = nil if local_assigns[:report].nil?
+:ruby
+  report = nil if local_assigns[:report].nil?
+  report_name = @is_generic_report || @is_saved_report ? report.name : report.display_name if report
+
 .row.info-header{style: 'margin-top: 10px;'}
   .col-sm-12
     - if @is_generic_report
@@ -6,7 +9,12 @@
         = button_tag type: :submit, id: 'runReporting', class: 'btn action-button controls' do
           = translate_helper(:run)
     - if report
-      %h1= @is_generic_report ? report.name : report.display_name
+      %h1
+        = report_name
+        - if @is_saved_report
+          %span{style: 'font-size: small;'}
+            = "Created from: "
+            = link_to @custom_report.display_name, custom_report_path(@custom_report)
 
   :javascript
     $('#runReporting').on('click', function() {

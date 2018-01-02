@@ -1,3 +1,9 @@
+:css
+  .latlng_fields, .address_fields, .address_search {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
 - defined?(prefix) ? prefix : prefix = "address"
 - defined?(edit_mode) ? edit_mode : edit_mode = :new
 = hidden_field_tag :lat, address.latitude, class: 'address_lat'
@@ -14,7 +20,18 @@
   - if edit_mode == :edit
     = address.try(:address_text)
   - else
-    = text_field_tag "#{prefix}_full_address", address.try(:address_text), class: 'address_search form-control'
+    .form-inline.address_container
+      - is_latlng_coded = address.try(:coded_by_lat_lng?)
+      - is_latlng = is_latlng_coded || !params[:address_lat].blank? || !params[:address_lon].blank?
+      .latlng_fields{style: is_latlng ? "" : 'display: none;'}
+        = number_field_tag "address_lat", (is_latlng_coded && address.try(:latitude)) || params[:address_lat], class: "form-control", placeholder: "laitudue", min: -90, max: 90, style: 'width: 40%;'
+        = number_field_tag "address_lon", (is_latlng_coded && address.try(:longitude)) || params[:address_lon], class: "form-control", placeholder: "longitude", min: -180, max: 180, style: 'width: 40%;'
+      .address_fields{style: is_latlng ? 'display: none;' : ""}
+        = text_field_tag "#{prefix}_full_address", is_latlng_coded ? nil : address.try(:address_text), class: 'address_search form-control', style: 'width: 100%;'
+      .pull-right
+        %label.pull-right
+          %input.latlng_address_switch{type: 'checkbox', checked: ("true" if is_latlng)}
+          Lat/Lon
 .selfclear.non_geocoding_address{:style => "display: none;"}
   %li.selfclear
     = form.label :address, translate_helper("address")
@@ -40,7 +57,10 @@
 %li.selfclear
   = form.label :notes, translate_helper("address_notes")
   = form.text_area :notes, class: 'form-control'
+
 = render 'addresses/google_place_autocomplete_js' if prefix != 'pickup'
+= render 'addresses/latlng_address_switch_js'
+
 :javascript
   $(function() {
     // Force uppercase text
@@ -60,5 +80,16 @@
 
       $('.non_geocoding_address input').val('');
       $('.full_address input').val();
+    });
+
+
+    $('input[name=address_lat], input[name=address_lon]').on('input', function() {
+      $('.address_search').val('');
+      $('.address_search').change();
+    });
+
+    $('.address_search').on('input', function() {
+      $('input[name=address_lat]').val('');
+      $('input[name=address_lon]').val('');
     });
   });

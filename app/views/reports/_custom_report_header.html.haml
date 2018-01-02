@@ -1,7 +1,10 @@
+:ruby 
+  report = @saved_report || @custom_report
+
 - content_for :head do
   = stylesheet_link_tag 'reports_print', media: 'print'
 
 = render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'reports'
 
-= render partial: 'reporting/reports/list', locals: {report_id: @custom_report.id}
-= render partial: 'reporting/reports/header', locals: { report: @custom_report}
+= render partial: 'reporting/reports/list', locals: {report_id: report.try(:id)}
+= render partial: 'reporting/reports/header', locals: { report: report}

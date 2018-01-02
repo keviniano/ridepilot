@@ -38,7 +38,7 @@ class Trip < ActiveRecord::Base
                                   where('NOT ((pickup_time < ? AND appointment_time < ?) OR (pickup_time > ? AND appointment_time > ?))', 
                                   pickup_time.utc, appointment_time.utc, pickup_time.utc, appointment_time.utc) }
   scope :for_date,           ->(date) { where(pickup_time: date.beginning_of_day..date.end_of_day) }
-  scope :for_date_range,     -> (from_date, to_date) { where(pickup_time: from_date.beginning_of_day..to_date.end_of_day) } 
+  scope :for_date_range,     -> (from_date, to_date) { where(pickup_time: from_date.beginning_of_day..(to_date - 1.day).end_of_day) } 
   scope :prior_to,           -> (pickup_time) { where('pickup_time < ?', pickup_time.to_datetime.in_time_zone.utc) } 
   scope :has_scheduled_time, -> { where.not(pickup_time: nil) }
   scope :by_result,          -> (code) { includes(:trip_result).references(:trip_result).where("trip_results.code = ?", code) }

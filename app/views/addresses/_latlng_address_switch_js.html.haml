@@ -1,0 +1,13 @@
+:javascript
+  $(function() {
+    $('.latlng_address_switch').change(function() {
+      var address_container = $(this).parents('.address_container');
+      if($(this).is(":checked")) {
+        address_container.find('.address_fields').hide();
+        address_container.find('.latlng_fields').show();
+      } else {
+        address_container.find('.latlng_fields').hide();
+        address_container.find('.address_fields').show();
+      }
+    });
+  });

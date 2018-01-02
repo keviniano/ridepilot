@@ -1,0 +1,5 @@
+var $new_form = $("<%= j (render 'reports/forms/save_form') %>");
+
+$('#modal-dialog .modal-body .container-fluid').html($new_form);
+$('#modal-dialog .modal-title').html("Save As New Report");
+$('#modal-dialog').modal('show');

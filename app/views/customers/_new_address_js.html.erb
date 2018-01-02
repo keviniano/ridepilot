@@ -20,6 +20,14 @@
     var in_district = [true, false].indexOf(address.in_district) >= 0 ? address.in_district.toString() : '';
     form.find('#' + field + '_in_district').val(in_district);
     form.find('#' + field + '_notes').val(address.notes);
+
+    if(address.coded_by_lat_lng) {
+      form.find('.latlng_address_switch').prop('checked', true).trigger('change');
+      form.find('input[name=address_lat]').val(address.latitude);
+      form.find('input[name=address_lon]').val(address.longitude);
+    } else {
+      form.find('.latlng_address_switch').prop('checked', false).trigger('change');
+    }
   }
 
   function updateAddressRow(addressData, addressText) {

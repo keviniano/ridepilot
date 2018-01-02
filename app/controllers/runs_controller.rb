@@ -269,16 +269,7 @@ class RunsController < ApplicationController
       :complete, 
       :actual_start_time, 
       :actual_end_time, 
-      :repeats_sundays,
-      :repeats_mondays,
-      :repeats_tuesdays,
-      :repeats_wednesdays,
-      :repeats_thursdays,
-      :repeats_fridays,
-      :repeats_saturdays,
-      :repetition_driver_id,
-      :repetition_interval,
-      :repetition_vehicle_id,
+      :ntd_reportable,
       :trips_attributes => [
         :id,
         :trip_result_id

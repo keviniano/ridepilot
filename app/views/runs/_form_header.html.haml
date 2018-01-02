@@ -19,7 +19,7 @@
           = link_to translate_helper("edit"), edit_run_path(@run), :class=>'btn action-button' if !@run.new_record? && can?(:edit, @run)
         = link_to translate_helper(:back), (params[:from_dispatch] == 'true' ? dispatchers_path(run_id: params[:run_id]) : runs_path), class: "btn btn-default"
     %h1
-      = translate_helper("run")
+      = translate_helper("run_label")
       - if @run.cancelled?
         %span.label.label-danger{style: 'font-size: small;'}
           Cancelled

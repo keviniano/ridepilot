@@ -24,5 +24,7 @@ namespace :scheduler do
     # Mark past scheduled trips as driver_notified
     Trip.mark_past_scheduled_trips_as_driver_notified!
 
+    # Update Vehicle monthly tracking numbers
+    Vehicle.update_monthly_tracking
   end
 end

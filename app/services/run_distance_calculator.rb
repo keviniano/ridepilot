@@ -20,6 +20,7 @@ class RunDistanceCalculator
     revenuse_miles = 0
     non_revenue_miles = 0
     deadhead_to_garage = 0
+    passenger_miles = 0
 
     from_address = @run.from_garage_address || @run.vehicle.try(:garage_address)
     to_address = itins[0][:address]
@@ -38,6 +39,7 @@ class RunDistanceCalculator
       dist = get_drive_distance(from_address, to_address, time)
       if itin[:capacity] > 0
         revenuse_miles += dist 
+        passenger_miles += dist * itin[:capacity].to_f
       else
         non_revenue_miles += dist
       end         
@@ -57,6 +59,7 @@ class RunDistanceCalculator
     run_distance.non_revenue_miles = non_revenue_miles
     run_distance.deadhead_from_garage = deadhead_from_garage
     run_distance.deadhead_to_garage = deadhead_to_garage
+    run_distance.passenger_miles = passenger_miles
     run_distance.save
   end
 

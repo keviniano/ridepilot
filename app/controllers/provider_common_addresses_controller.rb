@@ -48,7 +48,7 @@ class ProviderCommonAddressesController < AddressesController
   
   # create provider common address
   def create
-    the_geom       = params[:lat].to_s.size > 0 ? RGeo::Geographic.spherical_factory(srid: 4326).point(params[:lon].to_f, params[:lat].to_f) : nil
+    the_geom       = process_geom
     prefix         = params['prefix'] || ""
 
     new_params = address_params
@@ -89,7 +89,7 @@ class ProviderCommonAddressesController < AddressesController
 
   def update
     new_addr_params = address_params.except(:provider_id) # don't want to overwrite provider
-    the_geom       = params[:lat].to_s.size > 0 ? RGeo::Geographic.spherical_factory(srid: 4326).point(params[:lon].to_f, params[:lat].to_f) : nil
+    the_geom       = process_geom
     new_addr_params[:the_geom] = the_geom if the_geom
     
     if @address.update_attributes new_addr_params
@@ -176,6 +176,15 @@ class ProviderCommonAddressesController < AddressesController
     @address = ProviderCommonAddress.find_by_id(params[:id])
   end  
 
+  def process_geom
+    if !params[:lat].blank? && !params[:lon].blank?
+      Address.compute_geom(params[:lat], params[:lon])
+    elsif !params[:address_lat].blank? && !params[:address_lon].blank?
+      Address.compute_geom(params[:address_lat], params[:address_lon])
+    else
+      nil 
+    end
+  end
 
   def address_params
     params.require(:provider_common_address).permit(:address_group_id, :name, :building_name, :address, :city, :state, :zip, :in_district, :provider_id, :phone_number, :inactive, :trip_purpose_id, :notes)

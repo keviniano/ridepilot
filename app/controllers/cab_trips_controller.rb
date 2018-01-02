@@ -3,7 +3,7 @@ class CabTripsController < ApplicationController
 
   def index
     @dates_in_range = (@week_start.to_date..@week_end.to_date).to_a
-    @cab_trips = Trip.for_provider(current_provider_id).for_cab.for_date_range(@week_start, @week_end)
+    @cab_trips = Trip.for_provider(current_provider_id).for_cab.for_date_range(@week_start, @week_end + 1.day)
     @grouped_cab_trips = @cab_trips.group_by{|t| t.date.to_s}
     respond_to do |format|
       format.html # index.html.erb

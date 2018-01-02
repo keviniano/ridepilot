@@ -6,7 +6,7 @@
         .modal-header
           .pull-right
             = f.submit translate_helper(:yes), id: 'getReturnTrip', class: 'btn action-button', role: 'button'
-            = link_to translate_helper(:no), trips_path, class: "btn action-button"
+            = link_to translate_helper(:no), trip_path(@trip), class: "btn action-button"
           .modal-title{:style => "text-align:left;"}
             %strong
               = translate_helper(:site_title)

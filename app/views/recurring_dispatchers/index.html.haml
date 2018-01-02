@@ -9,15 +9,17 @@
     = link_to translate_helper(:daily_scheduling), dispatchers_path, class: 'btn action-button'
   = render :partial => 'filters'
 %hr
-.col-sm-12.dispatch-main{style: 'padding: 0px; margin-bottom: 230px;'}
-  = render 'runs_panel'
-.col-sm-12#unassigned_trips_container
-  = render 'unassigned_trips_panel'
+#dispatch_runs_trips{style: 'padding: 0px;'}
+  .col-sm-12.dispatch-main#dispatch_runs_container{style: 'padding: 0px;'}
+    = render 'runs_panel'
+  .col-sm-12#unassigned_trips_container{style: 'padding: 0px;'}
+    = render 'unassigned_trips_panel'
 
 :javascript
   var run_ids = #{@runs.pluck(:id) || []};
   var target_run_id = #{params[:run_id].try(:to_i) || nil.to_json};
   var dropping_to_trips = false;
+  var splitter;
   // Local Storages
   // dispatch_loaded_run_ids = [] (list of run panels that are open)
   // dispatch_runs_panel_collapsed: 1/0 (0 if the runs panel is collapsed)
@@ -89,24 +91,28 @@
     panel.find('.panel-body').slideUp();
     panel.find('.panel-expand-collapse').addClass('panel-collapsed');
     panel.find('.panel-expand-collapse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    panel.find('.floatThead-wrapper').hide();
   }
 
   function expand_panel(panel) {
     panel.find('.panel-body').slideDown();
     panel.find('.panel-expand-collapse').removeClass('panel-collapsed');
     panel.find('.panel-expand-collapse i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    panel.find('.floatThead-wrapper').show();
   }
 
   function reverse_collapse_panel(panel) {
     panel.find('.panel-body').slideUp();
     panel.find('.panel-expand-collapse-reverse').addClass('panel-collapsed');
     panel.find('.panel-expand-collapse-reverse i').removeClass('fa-chevron-down').addClass('fa-chevron-up'); 
+    panel.find('.floatThead-wrapper').hide();
   }
 
   function reverse_expand_panel(panel) {
     panel.find('.panel-body').slideDown();
     panel.find('.panel-expand-collapse-reverse').removeClass('panel-collapsed');
     panel.find('.panel-expand-collapse-reverse i').removeClass('fa-chevron-up').addClass('fa-chevron-down'); 
+    panel.find('.floatThead-wrapper').show();
   }
 
   function collapse_run_manifest(run_id) {
@@ -213,12 +219,68 @@
         
       }
     });
+  }
 
-    $('#unassigned_trips_table').bootstrapTable();
+  // window height changes, then need to update splitter position and container height
+  function on_window_resize() {
+    var prev_height = $('#dispatch_runs_trips').height();
+    var new_height = $(window).outerHeight() - 180; // exclude page nav bar and footer height
+    $('#dispatch_runs_trips').height(new_height);
+    if(splitter) {
+      var prev_pos = splitter.position();
+      var new_pos = new_height - (prev_height - prev_pos);
+      if((new_height - new_pos) < 40) {
+        new_pos = new_height - 40;
+
+        var collapseButton = $('#unassigned_trips_container').find('.panel-expand-collapse-reverse');
+        var panel = $('#unassigned_trips_panel');
+        
+        if(!collapseButton.hasClass('panel-collapsed')) {
+          reverse_collapse_panel(panel);
+          localStorage.setItem('dispatch_unassigned_trips_collapsed', '0'); 
+        } 
+      }
+      splitter.position(new_pos);
+    }
+  }
+
+  function update_splitter_position() {
+    if(!splitter) {
+      return;
+    }
+
+    var new_height = $('#unassigned_trips_container').position().top;
+    splitter.position(new_height - $('.hsplitter').height()/2);
   }
 
   // page main entry point
   $(function() {  
+     // init the splitter between Runs section and Trips section
+    var splitter_height = $(window).outerHeight() - 200;
+    console.log(splitter_height);
+    splitter = $('#dispatch_runs_trips').height(splitter_height).split({
+      position: '80%',
+      limit: 40,
+      onDrag: function(e) {
+        var collapseButton = $('#unassigned_trips_container').find('.panel-expand-collapse-reverse');
+        var panel = $('#unassigned_trips_panel');
+        var is_collapsed = collapseButton.hasClass('panel-collapsed');
+        if($('#unassigned_trips_container').height() > 40) {
+          if(collapseButton.hasClass('panel-collapsed')) {
+            is_collapsed = false;
+            reverse_expand_panel(panel);
+          }
+        } else if($('#unassigned_trips_container').height() <= 40) {
+          if(!collapseButton.hasClass('panel-collapsed')) {
+            is_collapsed = true;
+            reverse_collapse_panel(panel);
+          }
+        }
+        
+        localStorage.setItem('dispatch_unassigned_trips_collapsed', (is_collapsed ? '0' : '1')); 
+      }
+    });
+
     // run manifest panel expand/collapse
     $(document).on('click', '.panel-heading span.panel-expand-collapse', function(e){
       var $this = $(this);
@@ -256,6 +318,12 @@
 
       if(panel.attr('id') == 'unassigned_trips_panel') {
         localStorage.setItem('recurring_dispatch_unassigned_trips_collapsed', (is_collapsed ? '0' : '1'));
+        if(is_collapsed) {
+          $('#unassigned_trips_container').height(panel.find('.panel-heading').outerHeight());
+        } else {
+          $('#unassigned_trips_container').height(200);
+        }
+        update_splitter_position();
       }
     });
 
@@ -274,8 +342,6 @@
           loaded_run_ids.splice(run_id_index, 1);
           localStorage.setItem('recurring_dispatch_loaded_run_ids', loaded_run_ids.join(','))
         }
-
-        console.log(loaded_run_ids);
       }
     });
 
@@ -285,8 +351,12 @@
     });
 
     // master checkbox to select/unselect all
-    $(document).on('change', '.master-select-checkbox', function(e){
-      $(this).parents('table').find('input.trip-selected').prop('checked', $(this).prop('checked'));
+    $(document).on('change', '#unassigned_trips_table .master-select-checkbox', function(e){
+      $('#unassigned_trips_table').find('input.trip-selected').prop('checked', $(this).prop('checked'));
+    });
+
+    $(document).on('change', '.run_trips_panel .master-select-checkbox', function(e){
+      $(this).parents('.run_trips_panel').find('input.trip-selected').prop('checked', $(this).prop('checked'));
     });
 
     // unassigned trips panel checkbox
@@ -355,5 +425,9 @@
 
     load_runs_panel();
     load_unassigned_trips_panel();
+
+    $(window).on('resize', function() {
+      on_window_resize();
+    });
   });
   

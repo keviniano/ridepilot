@@ -1,0 +1,26 @@
+:ruby
+  action_name = @saved_report ? :show_saved_report : @custom_report.name
+  min_year = Run.minimum(:date).try(:year) || Date.today.year
+  max_year = Date.today.year
+  years = (min_year..max_year).map{|y| [y, y]}
+  current_month = Date.today.month
+  months = (1..12).map{|m| [Date::MONTHNAMES[m], m]}
+
+= form_for @query, :url=>url_for(:action=>action_name), :html=>{:method=>:get} do |f| 
+  %fieldset
+
+    %label
+      Year:
+      = f.select :ntd_year, options_for_select(years, @query.ntd_year || max_year)
+
+    %label
+      Month:
+      = f.select :ntd_month, options_for_select(months, @query.ntd_month || current_month)
+
+    
+    %label
+      = "#{translate_helper(:report_format)}:"
+      = f.select :report_format, options_for_select([['Excel', 'xlsx']], @query.report_format || 'xlsx')
+
+    = f.submit translate_helper("run"), class: 'btn action-button', id: 'submitReport'
+    = render 'reports/forms/save_report_controls', custom_report_id: @custom_report.id

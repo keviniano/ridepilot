@@ -39,6 +39,17 @@ class Address < ActiveRecord::Base
     RGeo::Geographic.spherical_factory(srid: 4326).point(lon.to_f, lat.to_f) if lat.present? && lon.present?
   end
 
+  def as_json
+    addr_data = self.attributes
+    addr_data[:label] = self.address_text
+
+    addr_data[:coded_by_lat_lng] = self.coded_by_lat_lng?
+    addr_data[:latitude] = self.latitude
+    addr_data[:longitude] = self.longitude
+
+    addr_data
+  end
+
   def trips
     trips_from + trips_to
   end
@@ -82,30 +93,49 @@ class Address < ActiveRecord::Base
   end
 
   def text
-    if name.to_s.size > 0
-      first_line = name + "\n"
+    unless coded_by_lat_lng?
+      if name.to_s.size > 0
+        first_line = name + "\n"
+      else
+        first_line = ''
+      end
+
+      ("%s %s \n%s, %s %s" % [first_line, address, city, state, zip]).strip 
     else
-      first_line = ''
+      lat_lng_text
     end
-
-    ("%s %s \n%s, %s %s" % [first_line, address, city, state, zip]).strip
-
   end
 
   def one_line_text
-    if name
-      ("%s (%s %s, %s %s)" % [name, address, city, state, zip]).strip
+    unless coded_by_lat_lng?
+      regular_text = if name
+        ("%s (%s %s, %s %s)" % [name, address, city, state, zip]).strip 
+      else
+        ("%s %s, %s %s" % [address, city, state, zip]).strip
+      end
     else
-      ("%s %s, %s %s" % [address, city, state, zip]).strip
+      lat_lng_text
     end
   end
 
   def address_text
-    (
-      (address.blank? ? '' : address + ", " ) +
-      (city.blank? ?  '' : city + ", " ) +
-      ("%s %s" % [state, zip])
-    ).strip 
+    unless coded_by_lat_lng?
+      (
+        (address.blank? ? '' : address + ", " ) +
+        (city.blank? ?  '' : city + ", " ) +
+        ("%s %s" % [state, zip])
+      ).strip 
+    else
+      lat_lng_text
+    end
+  end
+
+  def lat_lng_text
+    "(#{latitude}, #{longitude})" if geocoded?
+  end
+
+  def coded_by_lat_lng?
+    [address, city, state, zip].compact.join("").blank? && geocoded?
   end
 
   def json
@@ -129,7 +159,7 @@ class Address < ActiveRecord::Base
   end
 
   def address_presented
-    errors.add(:base, TranslationEngine.translate_text(:address_required)) if !address_text.present?
+    errors.add(:base, TranslationEngine.translate_text(:address_required)) unless address_text.present?
   end
 
   private

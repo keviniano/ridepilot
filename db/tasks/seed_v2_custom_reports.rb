@@ -54,6 +54,10 @@
   {
     name: 'manifest',
     title: 'Manifest'
+  },
+  {
+    name: 'ntd',
+    title: 'National Transit Database (NTD) '
   }].each do |report_data|
   report = CustomReport.where(name: report_data[:name], version: '2').first_or_create 
   report.update(redirect_to_results: true, title: report_data[:title])

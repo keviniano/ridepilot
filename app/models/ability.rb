@@ -32,6 +32,7 @@ class Ability
           can :manage, role.provider
           can :manage, VehicleType, :provider_id => role.provider_id
           can :manage, VehicleCapacityConfiguration
+          can :manage, SavedCustomReport
         end
         
         cannot :create, Provider
