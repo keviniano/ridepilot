@@ -46,12 +46,25 @@ class Vehicle < ActiveRecord::Base
   
   scope :for_provider,  -> (provider_id) { where(provider_id: provider_id) }
   scope :reportable,    -> { where(reportable: true) }
+  scope :ntd_reportable,    -> { where(ntd_reportable: true) }
   scope :default_order, -> { order("lower(name)") }
 
   after_initialize :set_defaults
 
   def self.unassigned(provider)
     for_provider(provider).reject { |vehicle| vehicle.device_pool.present? }
+  end
+
+  def self.update_monthly_tracking
+    Provider.active.pluck(:id).each do |p_id|
+      date = Date.yesterday
+      available_vehicle_count = Vehicle.for_provider(p_id).active_for_date(date).count
+      tracking_rec = VehicleMonthlyTracking.where(provider_id: p_id, year: date.year, month: date.month).first_or_initialize
+      if !tracking_rec.max_available_count || tracking_rec.max_available_count < available_vehicle_count
+        tracking_rec.max_available_count = available_vehicle_count
+        tracking_rec.save(validate: false)
+      end
+    end
   end
 
   def last_odometer_reading

@@ -38,6 +38,8 @@ module TripCore
     scope :individual,         -> { joins(:customer).where(customers: {group: false}) }
     scope :not_called_back,    -> { where('called_back_at IS NULL') }
 
+    scope :ntd_reportable,         -> { where(ntd_reportable: true) }
+
     private
 
     def no_appointment_time?

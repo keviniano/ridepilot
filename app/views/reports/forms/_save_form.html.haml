@@ -1,5 +1,5 @@
 :ruby
-  @no_date_param = ['customers_report', 'driver_report', 'inactive_driver_status_report', 'ineligible_customer_status_report', 'provider_common_location_report'].include?(@new_saved_report.custom_report.try(:name))
+  @no_date_param = ['ntd', 'customers_report', 'driver_report', 'inactive_driver_status_report', 'ineligible_customer_status_report', 'provider_common_location_report'].include?(@new_saved_report.custom_report.try(:name))
 = form_for @new_saved_report, remote: true, url: save_as_reports_path do |f|
   = f.hidden_field :custom_report_id
   = f.hidden_field :report_params

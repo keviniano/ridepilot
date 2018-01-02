@@ -1,5 +1,9 @@
 :ruby
   action_name = @saved_report ? :show_saved_report : @custom_report.name
+
+  @runs_with_trips ||= Run.for_provider(current_provider_id).for_date_range(@query.start_date, @query.end_date).joins(:trips).distinct
+  @all_runs ||= @runs_with_trips.reorder(:date, :name)
+
 = form_for @query, :url=>url_for(:action=>action_name), :html=>{:method=>:get} do |f| 
   %fieldset
     .date-select{style: 'display: inline-block;'}
@@ -8,7 +12,7 @@
       = f.date_select  :before_end_date, :order => [:month,:day,:year], :html => {:class => "date-select"} rescue nil
     
     %label
-      = "#{translate_helper(:run)}:"
+      Runs:
       =f.hidden_field :run_ids
       = render 'reports/forms/run_multiple_dropdown', runs: @all_runs, selected_runs: @runs || @all_runs
     

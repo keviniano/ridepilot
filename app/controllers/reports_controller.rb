@@ -15,6 +15,8 @@ class Query
   attr_accessor :mobility_id
   attr_accessor :trip_display
   attr_accessor :address_group_id
+  attr_accessor :ntd_year
+  attr_accessor :ntd_month
   attr_accessor :report_format
   attr_accessor :report_type
 
@@ -71,6 +73,12 @@ class Query
       end
       if params["address_group_id"]
         @address_group_id = params["address_group_id"]
+      end
+      if params["ntd_year"]
+        @ntd_year = params["ntd_year"].to_i unless params["ntd_year"].blank?
+      end
+      if params["ntd_month"]
+        @ntd_month = params["ntd_month"].to_i unless params["ntd_month"].blank?
       end
       if params["report_format"]
         @report_format = params["report_format"]
@@ -753,6 +761,7 @@ class ReportsController < ApplicationController
   def ineligible_customer_status_report
     query_params = params[:query] || {}
     @query = Query.new(query_params)
+
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
       @customers = Customer.for_provider(current_provider_id).order("lower(last_name)", "lower(first_name)")
@@ -773,6 +782,7 @@ class ReportsController < ApplicationController
   def inactive_driver_status_report
     query_params = params[:query] || {}
     @query = Query.new(query_params)
+
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
       @drivers = Driver.for_provider(current_provider_id).default_order
@@ -794,6 +804,7 @@ class ReportsController < ApplicationController
   def customer_donation_report
     query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
+
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
       @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
@@ -868,6 +879,7 @@ class ReportsController < ApplicationController
     query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
     @query = Query.new(query_params)
     @active_customers = Customer.active_for_date(Date.today).for_provider(current_provider_id)
+    
     if params[:query]
       @report_params = [["Provider", current_provider.name]]
       @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
@@ -1184,6 +1196,18 @@ class ReportsController < ApplicationController
     apply_v2_response
   end
 
+  def ntd
+    query_params = params[:query] || {start_date: Date.today, end_date: Date.today + 1}
+    @query = Query.new(query_params)
+
+    if params[:query]
+      @excel_file_name = "NTD_#{@query.ntd_year}_#{@query.ntd_month}"
+      @workbook = NtdReport.new(current_provider, @query.ntd_year, @query.ntd_month).export!
+    end
+
+    apply_v2_response
+  end
+
   # refresh run dropdown whenever date range is changed
   def get_run_list
     query_params = params[:query]
@@ -1343,6 +1367,14 @@ class ReportsController < ApplicationController
       format.csv do 
         headers['Content-Disposition'] = "attachment;filename=#{@custom_report.name}.csv"
         render template: "reports/show.csv.haml"
+      end
+
+      format.xlsx do 
+        send_data( @workbook.stream.read, {
+          :disposition => 'attachment',
+          :type => 'application/excel',
+          :filename => "#{@excel_file_name || @custom_report.name}.xlsx"
+        })
       end
 
       format.pdf do

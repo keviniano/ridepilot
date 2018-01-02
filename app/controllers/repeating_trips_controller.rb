@@ -165,6 +165,7 @@ class RepeatingTripsController < ApplicationController
       :comments,
       :start_date,
       :end_date,
+      :ntd_reportable,
       customer_attributes: [:id]
     )
   end
