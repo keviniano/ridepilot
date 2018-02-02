@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
     get "admin", :controller => :home, :action => :index
     get "schedule_recurring", :controller => :home, :action => :schedule_recurring
+    get "ntd_funding_sources", :controller => :home, :action => :ntd_funding_sources
+    post "update_ntd_funding_sources", :controller => :home, :action => :update_ntd_funding_sources
 
     devise_for :users
 
