@@ -512,7 +512,7 @@ ActiveRecord::Schema.define(version: 20180202203233) do
     t.boolean  "add_value_allowed",       default: true
     t.boolean  "edit_value_allowed",      default: true
     t.boolean  "delete_value_allowed",    default: true
-    t.string   "model_name_str"
+    t.string   "model_name"
     t.string   "code_column_name"
     t.string   "description_column_name"
   end
@@ -578,7 +578,7 @@ ActiveRecord::Schema.define(version: 20180202203233) do
     t.string   "caption"
     t.string   "name"
     t.string   "value_column_name"
-    t.string   "model_name_str"
+    t.string   "model_name"
     t.string   "code_column_name"
     t.string   "description_column_name"
     t.datetime "created_at"
