@@ -49,5 +49,22 @@
 :javascript
   $(function() {
     $('table').dataTable();
+
+    // search multiple-word in single cell (default was matching any one of the words in one cell)
+    $.fn.dataTableExt.afnFiltering.push(
+      function(oSettings, aData, iDataIndex) {
+          var keyword = $(".dataTables_filter input").val().toLowerCase();  
+          var matched = false;
+
+          for (var col=0; col<aData.length; col++) {
+              if (aData[col].toLowerCase().indexOf(keyword)>-1) {
+                  matched = true;
+                  break;
+              }
+          }
+
+          return matched;
+       }
+    );
   });
     
