@@ -129,6 +129,10 @@ class RepeatingRun < ActiveRecord::Base
               } )
           )
 
+          unless run.valid?
+            puts "invalid run generated off recurring run #{self.id}: #{run.errors.full_messages.join('; ')}"
+          end
+
           # unassign unavailable driver
           if run.driver && run.scheduled_start_time && run.scheduled_end_time
             run.driver = nil if !run.driver.available_between?(run.date, run.scheduled_start_time.strftime('%H:%M'), run.scheduled_end_time.strftime('%H:%M'))

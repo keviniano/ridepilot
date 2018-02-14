@@ -107,6 +107,10 @@ class RepeatingTrip < ActiveRecord::Base
               } )
           )  
 
+          unless trip.valid?
+            puts "invalid trip generated off recurring trip #{self.id}: #{trip.errors.full_messages.join('; ')}"
+          end
+
           # find outbound instance
           unless outbound_daily_trips.blank?
             trip.linking_trip_id = outbound_daily_trips[date.to_date]
