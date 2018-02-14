@@ -523,22 +523,22 @@ class Run < ActiveRecord::Base
   def fix_dates
     d = self.date
     unless d.nil?
-      unless scheduled_start_time.nil?
+      if !scheduled_start_time.nil? && d != scheduled_start_time.to_date
         s = scheduled_start_time
         self.scheduled_start_time = Time.zone.local(d.year, d.month, d.day, s.hour, s.min, 0)
         scheduled_start_time_will_change!
       end
-      unless scheduled_end_time.nil?
+      if !scheduled_end_time.nil? && d != scheduled_end_time.to_date
         s = scheduled_end_time
         self.scheduled_end_time = Time.zone.local(d.year, d.month, d.day, s.hour, s.min, 0)
         scheduled_end_time_will_change!
       end
-      unless actual_start_time.nil?
+      if !actual_start_time.nil? && d != actual_start_time.to_date
         a = actual_start_time
         self.actual_start_time = Time.zone.local(d.year, d.month, d.day, a.hour, a.min, 0)
         actual_start_time_will_change!
       end
-      unless actual_end_time.nil?
+      if !actual_end_time.nil? && d != actual_end_time.to_date
         a = actual_end_time
         self.actual_end_time = Time.zone.local(d.year, d.month, d.day, a.hour, a.min, 0)
         actual_end_time_will_change!
