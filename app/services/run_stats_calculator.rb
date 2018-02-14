@@ -115,6 +115,18 @@ class RunStatsCalculator
       itins << run_end_itin
     end
 
+    # make sure run_begin & run_end address valid
+    run_begin_itin = itins.first
+    if run_begin_itin.address.nil?
+      run_begin_itin.address = @run.from_garage_address || @run.vehicle.try(:garage_address)
+      run_begin_itin.save(validate: false)
+    end
+    run_end_itin = itins.last
+    if run_end_itin.address.nil?
+      run_end_itin.address = @run.to_garage_address || @run.vehicle.try(:garage_address)
+      run_end_itin.save(validate: false)
+    end
+
     eta_info = {}
     itin_count = itins.size
     itins.each_with_index do |itin, index|
