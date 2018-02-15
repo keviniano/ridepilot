@@ -5,6 +5,7 @@ module TripCore
 
   included do
     after_initialize :set_defaults
+    before_save :ensure_customer_count_exist
     belongs_to :customer, -> { with_deleted }, validate: false
     belongs_to :dropoff_address,  -> { with_deleted }, class_name: "Address"
     belongs_to :funding_source, -> { with_deleted }
@@ -107,6 +108,15 @@ module TripCore
     if self.early_pickup_allowed.nil?
       self.early_pickup_allowed = self.is_outbound? 
     end
+  end
+
+  def ensure_customer_count_exist
+    # use default 1 for the case of non-configured customer capacity
+    if self.respond_to?(:customer_space_count) && self.customer_space_count.to_i == 0
+      self.customer_space_count = 1
+    end
+
+    true
   end
 
   def return_trip_later_than_outbound_trip
