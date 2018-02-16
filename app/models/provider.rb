@@ -7,6 +7,8 @@ class Provider < ActiveRecord::Base
   
   serialize :fields_required_for_run_completion, Array
 
+  after_initialize :set_defaults
+
   has_many :addresses, class_name: 'ProviderCommonAddress', :dependent => :nullify
   has_many :device_pools, :dependent => :destroy
   has_many :drivers, :dependent => :destroy
@@ -49,6 +51,9 @@ class Provider < ActiveRecord::Base
   DEFAULT_ADVANCE_DAY_SCHEDULING = 21
   # default value of eligible_age
   DEFAULT_ELIGIBLE_AGE = 65
+  # default load & unload time in minutes
+  DEFAULT_PASSENGER_LOAD_MIN = 5
+  DEFAULT_PASSENGER_UNLOAD_MIN = 5
   
   validates :name, :uniqueness => { :case_sensitive => false, conditions: -> { where(deleted_at: nil)} }, :length => { :minimum => 2 }
   normalize_attribute :name, :with => [ :strip ]
@@ -158,6 +163,16 @@ class Provider < ActiveRecord::Base
   end
 
   private
+
+  def set_defaults
+    self.advance_day_scheduling            = DEFAULT_ADVANCE_DAY_SCHEDULING if advance_day_scheduling.nil?
+    self.passenger_load_min                = DEFAULT_PASSENGER_LOAD_MIN if self.passenger_load_min.nil?
+    self.passenger_unload_min              = DEFAULT_PASSENGER_UNLOAD_MIN if self.passenger_unload_min.nil?
+    self.very_early_arrival_threshold_min  = 15 if self.very_early_arrival_threshold_min.nil?
+    self.early_arrival_threshold_min       = 5 if self.early_arrival_threshold_min.nil?
+    self.late_arrival_threshold_min        = 5 if self.late_arrival_threshold_min.nil?
+    self.very_late_arrival_threshold_min   = 15 if self.very_late_arrival_threshold_min.nil?
+  end
 
   def valid_phone_number
     util = Utility.new

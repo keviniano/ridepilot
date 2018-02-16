@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180102225807) do
+ActiveRecord::Schema.define(version: 20180202203233) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -222,6 +222,8 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.text     "comments"
     t.text     "ada_ineligible_reason"
     t.string   "code"
+    t.integer  "passenger_load_min"
+    t.integer  "passenger_unload_min"
   end
 
   add_index "customers", ["address_id"], :name => "index_customers_on_address_id"
@@ -451,6 +453,7 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.string   "name"
     t.datetime "deleted_at"
     t.integer  "provider_id"
+    t.boolean  "ntd_reportable"
   end
 
   add_index "funding_sources", ["deleted_at"], :name => "index_funding_sources_on_deleted_at"
@@ -476,6 +479,23 @@ ActiveRecord::Schema.define(version: 20180102225807) do
   end
 
   add_index "images", ["imageable_id", "imageable_type"], :name => "index_images_on_imageable_id_and_imageable_type"
+
+  create_table "itineraries", force: true do |t|
+    t.datetime "time"
+    t.datetime "eta"
+    t.integer  "travel_time"
+    t.integer  "address_id"
+    t.integer  "run_id"
+    t.integer  "trip_id"
+    t.integer  "leg_flag"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "depart_time"
+  end
+
+  add_index "itineraries", ["address_id"], :name => "index_itineraries_on_address_id"
+  add_index "itineraries", ["run_id"], :name => "index_itineraries_on_run_id"
+  add_index "itineraries", ["trip_id"], :name => "index_itineraries_on_trip_id"
 
   create_table "locales", force: true do |t|
     t.string   "name"
@@ -621,6 +641,12 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.integer  "driver_availability_max_hour",                                                                                                     default: 22
     t.integer  "driver_availability_interval_min",                                                                                                 default: 30
     t.integer  "driver_availability_days_ahead",                                                                                                   default: 30
+    t.integer  "passenger_load_min"
+    t.integer  "passenger_unload_min"
+    t.integer  "very_early_arrival_threshold_min"
+    t.integer  "early_arrival_threshold_min"
+    t.integer  "late_arrival_threshold_min"
+    t.integer  "very_late_arrival_threshold_min"
   end
 
   add_index "providers", ["business_address_id"], :name => "index_providers_on_business_address_id"
@@ -675,6 +701,24 @@ ActiveRecord::Schema.define(version: 20180102225807) do
   add_index "regions", ["deleted_at"], :name => "index_regions_on_deleted_at"
   add_index "regions", ["the_geom"], :name => "index_regions_on_the_geom", :spatial => true
 
+  create_table "repeating_itineraries", force: true do |t|
+    t.datetime "time"
+    t.datetime "eta"
+    t.integer  "travel_time"
+    t.integer  "address_id"
+    t.integer  "repeating_run_id"
+    t.integer  "repeating_trip_id"
+    t.integer  "leg_flag"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "wday"
+    t.datetime "depart_time"
+  end
+
+  add_index "repeating_itineraries", ["address_id"], :name => "index_repeating_itineraries_on_address_id"
+  add_index "repeating_itineraries", ["repeating_run_id"], :name => "index_repeating_itineraries_on_repeating_run_id"
+  add_index "repeating_itineraries", ["repeating_trip_id"], :name => "index_repeating_itineraries_on_repeating_trip_id"
+
   create_table "repeating_run_manifest_orders", force: true do |t|
     t.integer  "repeating_run_id"
     t.integer  "wday"
@@ -706,7 +750,6 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.text     "manifest_order"
     t.string   "scheduled_start_time_string"
     t.string   "scheduled_end_time_string"
-    t.boolean  "ntd_reportable",              default: true
   end
 
   add_index "repeating_runs", ["driver_id"], :name => "index_repeating_runs_on_driver_id"
@@ -749,13 +792,17 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.string   "dropoff_address_notes"
     t.integer  "customer_space_count"
     t.integer  "service_animal_space_count"
-    t.boolean  "ntd_reportable",                 default: true
+    t.integer  "passenger_load_min"
+    t.integer  "passenger_unload_min"
+    t.boolean  "early_pickup_allowed"
+    t.integer  "linking_trip_id"
   end
 
   add_index "repeating_trips", ["customer_id"], :name => "index_repeating_trips_on_customer_id"
   add_index "repeating_trips", ["driver_id"], :name => "index_repeating_trips_on_driver_id"
   add_index "repeating_trips", ["dropoff_address_id"], :name => "index_repeating_trips_on_dropoff_address_id"
   add_index "repeating_trips", ["funding_source_id"], :name => "index_repeating_trips_on_funding_source_id"
+  add_index "repeating_trips", ["linking_trip_id"], :name => "index_repeating_trips_on_linking_trip_id"
   add_index "repeating_trips", ["mobility_id"], :name => "index_repeating_trips_on_mobility_id"
   add_index "repeating_trips", ["pickup_address_id"], :name => "index_repeating_trips_on_pickup_address_id"
   add_index "repeating_trips", ["provider_id"], :name => "index_repeating_trips_on_provider_id"
@@ -868,6 +915,11 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.float    "passenger_miles"
+    t.float    "ntd_total_miles"
+    t.float    "ntd_total_revenue_miles"
+    t.float    "ntd_total_passenger_miles"
+    t.float    "ntd_total_hours"
+    t.float    "ntd_total_revenue_hours"
   end
 
   create_table "runs", force: true do |t|
@@ -897,7 +949,6 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.text     "uncomplete_reason"
     t.string   "scheduled_start_time_string"
     t.string   "scheduled_end_time_string"
-    t.boolean  "ntd_reportable",              default: true
   end
 
   add_index "runs", ["deleted_at"], :name => "index_runs_on_deleted_at"
@@ -1040,7 +1091,9 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.boolean  "driver_notified"
     t.integer  "customer_space_count"
     t.integer  "service_animal_space_count"
-    t.boolean  "ntd_reportable",                                                  default: true
+    t.integer  "passenger_load_min"
+    t.integer  "passenger_unload_min"
+    t.boolean  "early_pickup_allowed"
   end
 
   add_index "trips", ["called_back_by_id"], :name => "index_trips_on_called_back_by_id"
@@ -1259,7 +1312,6 @@ ActiveRecord::Schema.define(version: 20180102225807) do
     t.text     "active_status_changed_reason"
     t.integer  "vehicle_maintenance_schedule_type_id"
     t.integer  "vehicle_type_id"
-    t.boolean  "ntd_reportable",                       default: true
   end
 
   add_index "vehicles", ["default_driver_id"], :name => "index_vehicles_on_default_driver_id"

@@ -21,7 +21,11 @@ class RecurringTripScheduler
   private
 
   def unschedule
-    @trip.weekday_assignments.for_wday(@wday).delete_all
+    prev_assignment = @trip.weekday_assignments.for_wday(@wday)
+    if prev_assignment.any?
+      remove_trip_manifest(prev_assignment.first.repeating_run, @trip.id)
+      prev_assignment.delete_all
+    end
   end
 
   def schedule_to_run
@@ -46,7 +50,6 @@ class RecurringTripScheduler
       @trip.weekday_assignments.create(wday: @wday, repeating_run: @run)
       @run.add_trip_manifest!(@trip.id, @wday)
     end
-
   end
 
   # run avaiability validations
@@ -76,6 +79,12 @@ class RecurringTripScheduler
 
   def time_portion(time)
     (time - time.beginning_of_day) if time
+  end
+
+  def remove_trip_manifest(run, trip_id)
+    if run 
+      run.delete_trip_manifest!(trip_id, @wday)
+    end
   end
 
 end

@@ -44,6 +44,9 @@ module AvailabilityHelper
     elsif hour < 12
       min = (hour - hour.to_i) * 60
       min == 0 ? "#{hour.to_i}am" : "#{hour.to_i}:#{min.to_i}am"
+    elsif hour < 13
+      min = (hour - hour.to_i) * 60
+      min == 0 ? "#{hour.to_i}pm" : "#{hour.to_i}:#{min.to_i}pm"
     else
       hour -= 12
       min = (hour - hour.to_i) * 60

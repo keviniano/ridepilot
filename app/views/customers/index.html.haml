@@ -15,7 +15,7 @@
   = form_tag found_customers_path, :class=>'customer-search', :method=>:get do 
     %label{for:"customer_id"}
       Search:
-    = autocomplete_field_tag 'customer_name', params[:term], autocomplete_customers_path(active_only: @active_only), :size => 30, :delay => 500, :id_element => "#customer_id", "submit-buttons" => "#show_details #new_trip" 
+    = autocomplete_field_tag 'customer_name', params[:term], autocomplete_customers_path(active_only: @active_only), :size => 30, :delay => 500, :id_element => "#customer_id", "submit-buttons" => "#show_details #new_trip", placeholder: "Name or phone number" 
     = hidden_field_tag 'customer_id' 
     = submit_tag translate_helper("search"), :id=>:show_details
     

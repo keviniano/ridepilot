@@ -1,0 +1,22 @@
+.panel.panel-primary#eta_settings_panel
+  .panel-heading
+    %h3.panel-title
+      = translate_helper(:eta_related_settings)
+  .panel-body{style: 'padding: 5px;'}
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :passenger_load_min, translate_helper("passenger_load_min")
+      .col-sm-6.col-md-3
+        = f.number_field  :passenger_load_min, min: 0, required: true, size: 3, class: 'form-control'
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :passenger_unload_min, translate_helper("passenger_unload_min")
+      .col-sm-6.col-md-3
+        = f.number_field :passenger_unload_min, min: 0, required: true, size: 3, class: 'form-control'
+    .form-group.col-sm-12
+      .col-sm-3
+        = f.label :early_pickup_allowed, translate_helper("early_pickup_allowed")
+      .col-sm-9
+        = f.check_box :early_pickup_allowed
+
+    

@@ -117,6 +117,8 @@ class Customer < ActiveRecord::Base
       :address_data              => address_data,
       :default_funding_source_id => default_funding_source_id,
       :default_service_level     => service_level_name,
+      :passenger_load_min        => passenger_load_min,
+      :passenger_unload_min      => passenger_unload_min,
       :customer_eligibilities    => customer_eligibilities.where.not(eligibility_id: nil).specified.as_json
     }
   end
@@ -151,10 +153,7 @@ class Customer < ActiveRecord::Base
     if term[0].match /\d/ #by phone number
       query = term.gsub("-", "")
       query = query[1..-1] if query.start_with? "1"
-      return Customer.where([
-      "regexp_replace(phone_number_1, '[^0-9]', '') = ? or
-      regexp_replace(phone_number_2, '[^0-9]', '') = ?
-      ", query, query])
+      return Customer.where("phone_number_1 LIKE '%' || ? || '%'  OR phone_number_2 LIKE '%' || ? || '%' ", query, query)
     else
       if term.match /^[a-z]+$/i
         #a single word, either a first or a last name
@@ -373,6 +372,22 @@ class Customer < ActiveRecord::Base
 
   def set_defaults
     self.active = true if self.active.nil?
+
+    if self.passenger_load_min.nil?
+      if self.provider
+        self.passenger_load_min = self.provider.passenger_load_min
+      else
+        self.passenger_load_min = Provider::DEFAULT_PASSENGER_LOAD_MIN
+      end
+    end
+    
+    if self.passenger_unload_min.nil?
+      if self.provider
+        self.passenger_unload_min = self.provider.passenger_unload_min
+      else
+        self.passenger_unload_min = Provider::DEFAULT_PASSENGER_UNLOAD_MIN
+      end
+    end
   end
 
   def ada_changed
@@ -380,6 +395,8 @@ class Customer < ActiveRecord::Base
       # once ada_eligible is changed, clear ada questions if not ada_eligible
       customer_ada_questions.clear unless ada_eligible?
     end
+
+    true
   end
 
 end

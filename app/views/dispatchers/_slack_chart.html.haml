@@ -1,0 +1,35 @@
+:ruby
+  slack_info = run.manifest_slack_travel_times
+
+:css
+  .slack_label_div, .slack_bar_div {
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    font-size: small;
+  }
+
+.slack_chart
+  - unless slack_info.empty?
+    - service_start_time = slack_info.first[:time_point]
+    - service_end_time = slack_info.last[:time_point]
+    - duration = service_end_time - service_start_time
+    .label_container{style:"width: 100%;font-size: 0;"}
+      - slack_info.each_with_index do |itin, index|
+        - next if index == (slack_info.size - 1)
+        - next_itin = slack_info[index + 1]
+        - pct = (next_itin[:time_point] - itin[:time_point]) / duration.to_f
+        - next if pct == 0
+        .slack_label_div{style: "width: #{pct * 100}%;"}
+          %span
+            = format_hour_label itin[:time_point]
+    .chart_container{style:"width: 100%;font-size: 0;"}
+      - slack_info.each_with_index do |itin, index|
+        - next if index == (slack_info.size - 1)
+        - next_itin = slack_info[index + 1]
+        - pct = (next_itin[:time_point] - itin[:time_point]) / duration.to_f
+        - next if pct == 0
+        - bg_color = slack_color(next_itin[:slack_time])
+        - tooltip = format_slack_tooltip(next_itin)
+        .slack_bar_div{style: "height: 20px;width: #{pct * 100}%; background-color: #{bg_color}; border-left: 1px solid white !important;", title: tooltip}

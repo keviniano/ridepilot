@@ -1,0 +1,1 @@
+$('#trip_filters_status_id').replaceWith("<%= j select_tag('trip_filters[status_id]', options_for_select(@run_listings, session[:trips_status_id]), include_blank: translate_helper(:all), class: 'form-control') %>");

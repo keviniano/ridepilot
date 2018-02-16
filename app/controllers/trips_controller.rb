@@ -12,9 +12,10 @@ class TripsController < ApplicationController
     filter_trips
 
     @vehicles        = Vehicle.where(:provider_id => current_provider_id)
-    if current_provider.try(:cab_enabled?)
-      @vehicles = add_cab(@vehicles)
-    end
+    cab_enabled = current_provider.try(:cab_enabled?)
+
+    @vehicles = add_cab(@vehicles) if cab_enabled
+
     @drivers         = Driver.for_provider current_provider_id
     @start_pickup_date = Time.zone.at(session[:trips_start].to_i).to_date
     @end_pickup_date = Time.zone.at(session[:trips_end].to_i).to_date
@@ -28,6 +29,11 @@ class TripsController < ApplicationController
     else
       flash.now[:alert] = nil
     end
+
+    runs = get_eligible_runs(trip_sessions)
+    @run_listings = runs.pluck(:name, :id) 
+    @run_listings += [[TranslationEngine.translate_text(:cab), -1]] if cab_enabled
+    @run_listings += [[TranslationEngine.translate_text(:unscheduled), -2]]
 
     respond_to do |format|
       format.html
@@ -284,7 +290,6 @@ class TripsController < ApplicationController
       @trip = @trip.clone_for_return!
     end
 
-    @outbound_trip_id = params[:trip_id]
     prep_view
 
     respond_to do |format|
@@ -313,11 +318,8 @@ class TripsController < ApplicationController
     process_address
     authorize! :manage, @trip
 
-    if @trip.is_return? && params[:trip][:outbound_trip_id].present?
-      @trip.outbound_trip = Trip.find_by_id(params[:trip][:outbound_trip_id])
-      if @trip.outbound_trip.try(:is_stand_by)
-        @trip.is_stand_by = true
-      end
+    if @trip.is_return? && @trip.outbound_trip.try(:is_stand_by)
+      @trip.is_stand_by = true
     end
 
     if params[:run_id].present?
@@ -340,6 +342,8 @@ class TripsController < ApplicationController
 
     respond_to do |format|
       if @trip.is_all_valid?(current_provider_id) && @trip.save
+        @trip.run.add_trip_manifest!(@trip.id) if @trip.run
+        @trip.post_process_trip_result_changed!(current_user)
         @trip.update_donation current_user, params[:customer_donation].to_f if params[:customer_donation].present?
         TripDistanceCalculationWorker.perform_async(@trip.id) #sidekiq needs to run
         @ask_for_return_trip = true if @trip.is_outbound?
@@ -412,8 +416,10 @@ class TripsController < ApplicationController
     is_address_changed = @trip.pickup_address_id_changed? || @trip.dropoff_address_id_changed?
     is_trip_result_changed = @trip.trip_result_id_changed?
     is_run_disrupted = @trip.run_disrupted_by_trip_changes?
+    trip_result_changed = @trip.changes.include?(:trip_result_id)
     respond_to do |format|
       if @trip.is_all_valid?(current_provider_id) && @trip.save
+        @trip.post_process_trip_result_changed!(current_user) if trip_result_changed
         @trip.unschedule_trip if is_run_disrupted
         @trip.update_donation current_user, params[:customer_donation].to_f if params[:customer_donation].present?
         TripDistanceCalculationWorker.perform_async(@trip.id) if is_address_changed
@@ -440,6 +446,7 @@ class TripsController < ApplicationController
   def destroy
     @trip = Trip.find(params[:id])
     run = @trip.run 
+    run.delete_trip_manifest!(@trip.id) if run
     @trip.destroy
     #if run 
     #  TrackerActionLog.trips_removed_from_run(run, [@trip], current_user)
@@ -450,6 +457,14 @@ class TripsController < ApplicationController
       format.xml  { head :ok }
       format.js   { render :json => {:status => "success"}, :content_type => "text/json" }
     end
+  end
+
+  def update_run_filters
+    filters_hash = params[:trip_filters].try(:symbolize_keys) || {}
+    runs = get_eligible_runs(filters_hash)
+    @run_listings = runs.pluck(:name, :id) 
+    @run_listings += [[TranslationEngine.translate_text(:cab), -1]] if current_provider.try(:cab_enabled?)
+    @run_listings += [[TranslationEngine.translate_text(:unscheduled), -2]]
   end
 
   private
@@ -484,7 +499,9 @@ class TripsController < ApplicationController
       :number_of_senior_passengers_served,
       :number_of_disabled_passengers_served,
       :number_of_low_income_passengers_served,
-      :ntd_reportable,
+      :passenger_load_min,
+      :passenger_unload_min,
+      :early_pickup_allowed,
       customer_attributes: [:id]
     )
   end
@@ -549,6 +566,11 @@ class TripsController < ApplicationController
       status_id: session[:trips_status_id],
       days_of_week: session[:trips_days_of_week]
     }
+  end
+
+  def get_eligible_runs(filter_params)
+    runs = Run.for_provider(current_provider_id).reorder(nil).default_order
+    runs = RunFilter.new(runs,filter_params).filter!
   end
   
   def check_double_booked_params

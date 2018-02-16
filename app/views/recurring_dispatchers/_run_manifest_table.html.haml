@@ -29,29 +29,31 @@
       - run_id = run.id
       - itins = get_itineraries(run, true, @day_of_week)
       - itins.each do |itin|
-        - trip = itin[:trip]
-        %tr.manifest-row{data: {trip_id: itin[:trip_id], id: itin[:id], leg_flag: itin[:leg_flag]}}
+        - trip = itin.trip
+        %tr.manifest-row{data: {trip_id: trip.try(:id), id: itin.itin_id, leg_flag: itin.leg_flag}}
           %td
             %input.trip-selected{type: "checkbox"}
           %td{style: 'white-space: nowrap;'}
-            = itin[:leg_flag] == 1 ? 'PU' : 'DO'
+            = itin.leg_flag == 1 ? 'PU' : 'DO'
 
             - if trip.ridership_mobilities.has_capacity.empty?
               %span.label.label-danger
                 Mobility?
 
-          %td= itin[:customer]
-          %td= itin[:address]
-          %td= format_time_for_listing(itin[:time])
+          %td= trip.customer.try(:name)
+          %td= itin.address.try(:one_line_text)
+          %td= format_time_for_listing(itin.time)
           - @capacity_types_hash.each do |c_id, c_name|
-            %td{class: itin[:capacity_warning] ? "capacity_warning" : "", title: itin[:capacity_warning] ? vehicle_cannot_accommodate_warning : ""}= (itin[:occupancy] && itin[:occupancy][c_id].to_i || 0)
-          %td= itin[:comments]
-          %td= simple_format(itin[:phone].join('<br>')) unless itin[:phone].empty?
+            %td{class: itin.capacity_warning ? "capacity_warning" : "", title: itin.capacity_warning ? vehicle_cannot_accommodate_warning : ""}= (itin.capacity && itin.capacity[c_id].to_i || 0)
+          %td= trip.notes
           %td
-            = link_to repeating_trip_path(itin[:trip_id], from_dispatch: true, run_id: run_id), style: 'padding-right: 5px;', title: "View details" do 
+            - phone = [format_phone_number(trip.customer.phone_number_1), format_phone_number(trip.customer.phone_number_2)].compact
+            = simple_format(phone.join('<br>')) unless phone.empty?
+          %td
+            = link_to repeating_trip_path(trip.id, from_dispatch: true, run_id: run_id), style: 'padding-right: 5px;', title: "View details" do 
               %i.fa.fa-external-link
             - if can?(:edit, Trip)
-              = link_to edit_repeating_trip_path(itin[:trip_id], from_dispatch: true, run_id: run_id), style: 'padding-right: 5px;', title: 'Edit' do 
+              = link_to edit_repeating_trip_path(trip.id, from_dispatch: true, run_id: run_id), style: 'padding-right: 5px;', title: 'Edit' do 
                 %i.fa.fa-pencil
 
 :javascript

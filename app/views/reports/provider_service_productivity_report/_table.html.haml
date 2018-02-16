@@ -2,7 +2,7 @@
 %table.table.table-bordered
   %thead
     %tr
-      %th= translate_helper(:passenger_type)
+      %th{style: 'width: 200px;'}= translate_helper(:passenger_type)
       %th= translate_helper(:passenger_count)
 
   %tbody
@@ -21,6 +21,24 @@
     %tr
       %td= translate_helper(:total_passengers)
       %td= "#{@total_passengers_count.to_i} passengers, #{@total_trips_count.to_i} trips"
+
+%table.table.table-bordered
+  %thead
+    %tr
+      %th{style: 'width: 200px;'}= translate_helper(:funding_source)
+      %th= translate_helper(:number_of_trips)
+
+  %tbody
+    - funding_sources = FundingSource.by_provider(current_provider).where(id: @trip_count_by_funding_source.keys)
+    - if funding_sources.empty?
+      %tr
+        %td{colspan:2}
+          No funding source for trips.
+    - else
+      - funding_sources.each do |source|
+        %tr
+          %td= source.name
+          %td= @trip_count_by_funding_source[source.id].to_i
 
 - if @run_dates
   - @run_dates.each do |date|

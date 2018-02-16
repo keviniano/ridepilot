@@ -10,6 +10,10 @@ class RepeatingTrip < ActiveRecord::Base
   has_many :trips # Child trips created by this repeating trip's scheduler
 
   has_many :ridership_mobilities, class_name: "RepeatingTripRidershipMobility", foreign_key: :host_id, dependent: :destroy
+  has_many :repeating_itineraries, dependent: :destroy
+
+  has_one    :return_trip, class_name: "RepeatingTrip", foreign_key: :linking_trip_id
+  belongs_to :outbound_trip, class_name: 'RepeatingTrip', foreign_key: :linking_trip_id
 
   schedules_occurrences_with with_attributes: -> (trip) {
       {
@@ -75,6 +79,13 @@ class RepeatingTrip < ActiveRecord::Base
     # First and last days to create new trips
     now, later = scheduler_window_start, scheduler_window_end
     
+    outbound_trip_id = self.linking_trip_id if self.is_return? 
+    if outbound_trip_id
+      outbound_daily_trips = Trip.for_date_range(now, later + 1.day).where(repeating_trip_id: outbound_trip_id).pluck("date(pickup_time)", :id).to_h
+      puts "outboud trips..."
+      puts outbound_daily_trips
+    end
+
     # Transaction block ensures that no DB changes will be made if there are any errors
     RepeatingTrip.transaction do
       # Potentially create a trip for each schedule occurrence in the scheduler window
@@ -96,13 +107,22 @@ class RepeatingTrip < ActiveRecord::Base
               } )
           )  
 
+          unless trip.valid?
+            puts "invalid trip generated off recurring trip #{self.id}: #{trip.errors.full_messages.join('; ')}"
+          end
+
+          # find outbound instance
+          unless outbound_daily_trips.blank?
+            trip.linking_trip_id = outbound_daily_trips[date.to_date]
+          end
+
           trip.save(validate: false)  #allow invalid trip exist
           
           self.ridership_mobilities.has_capacity.each do |m|
             trip.ridership_mobilities.create(capacity: m.capacity, ridership_id: m.ridership_id, mobility_id: m.mobility_id)
           end
 
-          TrackerActionLog.create_run(trip, nil)
+          TrackerActionLog.create_trip(trip, nil)
         end
       end
       
@@ -129,6 +149,33 @@ class RepeatingTrip < ActiveRecord::Base
     cloned_trip.customer_informed = false
     cloned_trip.cab = false
 
+    cloned_trip.ridership_mobilities = self.ridership_mobilities.has_capacity.collect{|m| m.dup}
+
     cloned_trip
+  end
+
+  def clone_for_return!(pickup_time_str = nil, appointment_time_str = nil)
+
+    return_trip = self.dup 
+    return_trip.direction = :return
+    return_trip.pickup_address = self.dropoff_address
+    return_trip.dropoff_address = self.pickup_address
+
+    # assume pickup and appt time will be on that date
+    return_trip.pickup_time = pickup_time_str
+    return_trip.appointment_time = appointment_time_str
+
+    return_trip.outbound_trip = self
+
+    return_trip.ridership_mobilities = self.ridership_mobilities.has_capacity.collect{|m| m.dup}
+
+    return_trip
+  end
+
+  def unschedule!
+    weekday_assignments.each do |assignment|
+      rr = assignment.repeating_run
+      rr.delete_trip_manifest!(self.id, assignment.wday) if rr
+    end
   end
 end

@@ -70,6 +70,7 @@ class Address < ActiveRecord::Base
       in_district = Region.count(:conditions => ["is_primary = 't' and st_contains(the_geom, ?)", the_geom]) > 0
       true # avoid returning false while doing before_validation
     end 
+    
   end
 
   def latitude
@@ -132,6 +133,14 @@ class Address < ActiveRecord::Base
 
   def lat_lng_text
     "(#{latitude}, #{longitude})" if geocoded?
+  end
+
+  def same_geom_as?(a_address)
+    lat_lng_text.to_s == a_address.try(:lat_lng_text).to_s
+  end
+
+  def same_lat_lng?(lat, lng)
+    latitude.to_s == lat.to_s && longitude.to_s == lng.to_s 
   end
 
   def coded_by_lat_lng?

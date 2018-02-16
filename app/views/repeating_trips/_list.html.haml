@@ -3,6 +3,7 @@
     %tr
       %th
       %th= translate_helper("customer_column")
+      %th= translate_helper("trip_direction_column")
       %th= translate_helper("pickup_address_column") 
       %th= translate_helper("pickup_time_column") 
       %th= translate_helper("dropoff_address_column")
@@ -14,15 +15,56 @@
         %td
           = link_to(translate_helper("view"), repeating_trip_path(trip))
         %td
-          = link_to trip.customer.name, trip.customer, :title => translate_helper("view_customer_record_link_text") 
+          - customer_name = trip.customer.name
+          .hidden
+            = customer_name
+          = link_to customer_name, trip.customer, :title => translate_helper("view_customer_record_link_text") 
+        %td
+          = trip.is_return? ? translate_helper("return_trip") : translate_helper("outbound_trip")
+          - if trip.is_linked?
+            %br/
+            (#{translate_helper(:linking_to)}:
+            - if trip.is_return?
+              %a{:href => "#{repeating_trip_path(trip.outbound_trip)}"}
+                = trip.outbound_trip.id
+            - else
+              %a{:href => "#{repeating_trip_path(trip.return_trip)}"}
+                = trip.return_trip.id
+            )
         %td
           = trip.pickup_address.try :address_text
         %td
+          .hidden
+            = trip.pickup_time.try(:strftime, "%H:%M")
           = format_time_for_listing trip.pickup_time
         %td
           = trip.dropoff_address.try :address_text
         %td
+          .hidden
+            = trip.appointment_time.try(:strftime, "%H:%M")
           = format_time_for_listing trip.appointment_time if trip.appointment_time
         %td
           = trip.schedule.to_s rescue nil
+
+:javascript
+  $(function() {
+    $('table').dataTable();
+
+    // search multiple-word in single cell (default was matching any one of the words in one cell)
+    $.fn.dataTableExt.afnFiltering.push(
+      function(oSettings, aData, iDataIndex) {
+          var keyword = $(".dataTables_filter input").val().toLowerCase();  
+          var matched = false;
+
+          for (var col=0; col<aData.length; col++) {
+              if (aData[col].toLowerCase().indexOf(keyword)>-1) {
+                  matched = true;
+                  break;
+              }
+          }
+
+          return matched;
+       }
+    );
+  });
     

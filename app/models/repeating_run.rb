@@ -12,6 +12,7 @@ class RepeatingRun < ActiveRecord::Base
 
   has_many :repeating_trips, through: :weekday_assignments
   has_many :weekday_assignments, dependent: :destroy
+  has_many :repeating_itineraries, dependent: :destroy
 
   has_many :repeating_run_manifest_orders, dependent: :destroy
 
@@ -128,6 +129,10 @@ class RepeatingRun < ActiveRecord::Base
               } )
           )
 
+          unless run.valid?
+            puts "invalid run generated off recurring run #{self.id}: #{run.errors.full_messages.join('; ')}"
+          end
+
           # unassign unavailable driver
           if run.driver && run.scheduled_start_time && run.scheduled_end_time
             run.driver = nil if !run.driver.available_between?(run.date, run.scheduled_start_time.strftime('%H:%M'), run.scheduled_end_time.strftime('%H:%M'))
@@ -156,61 +161,120 @@ class RepeatingRun < ActiveRecord::Base
   end
 
   def add_trip_manifest!(trip_id, wday)
-    manifest = self.repeating_run_manifest_orders.for_wday(wday).first
-    if manifest && !manifest.manifest_order.blank? 
-      # remove it first in case same trip was left over
-      delete_trip_manifest!(trip_id, wday)
+    # remove it first in case same trip was left over
+    delete_trip_manifest!(trip_id, wday)
 
-      #scan from the beginning to injert based on scheduled_pickup_time
-      unless manifest.manifest_order.blank?
-        trip = RepeatingTrip.find_by_id trip_id
-        if trip
-          trip_pickup_time = trip.pickup_time
-          trip_appt_time = trip.appointment_time
-          pickup_index = nil 
-          appt_index = nil
+    manifest = self.repeating_run_manifest_orders.for_wday(wday).first_or_create
+    trip = RepeatingTrip.find_by_id trip_id
+    if trip
+      trip_pickup_time = trip.pickup_time
+      trip_appt_time = trip.appointment_time
+      pickup_index = nil 
+      appt_index = nil
 
-          manifest.manifest_order.each_with_index do |leg_name, index|
-            leg_name_parts = leg_name.split('_')
-            leg_trip_id = leg_name_parts[1]
-            is_pickup = leg_name_parts[3] == '1'
-            a_trip = RepeatingTrip.find_by_id leg_trip_id
-            if a_trip 
-              action_time = is_pickup ? a_trip.pickup_time : a_trip.appointment_time
-              next unless action_time
+      manifest_order_array = manifest.manifest_order
+      manifest_order_array.each_with_index do |leg_name, index|
+        leg_name_parts = leg_name.split('_')
+        leg_trip_id = leg_name_parts[1]
+        is_pickup = leg_name_parts[3] == '1'
+        a_trip = RepeatingTrip.find_by_id leg_trip_id
+        if a_trip 
+          action_time = is_pickup ? a_trip.pickup_time : a_trip.appointment_time
+          next unless action_time
 
-              pickup_index = index if !pickup_index && action_time.to_s(:time_utc) > trip_pickup_time.to_s(:time_utc)
+          pickup_index = index if !pickup_index && action_time.to_s(:time_utc) > trip_pickup_time.to_s(:time_utc)
 
-              if !appt_index
-                if trip_appt_time
-                  appt_index = index if action_time.to_s(:time_utc) > trip_appt_time.to_s(:time_utc)
-                  appt_index += 1 if pickup_index && pickup_index == appt_index
-                else
-                  appt_index = pickup_index + 1 if pickup_index
-                end
-              end
-
-              break if pickup_index && appt_index
+          if !appt_index
+            if trip_appt_time
+              appt_index = index if action_time.to_s(:time_utc) > trip_appt_time.to_s(:time_utc)
+              appt_index += 1 if pickup_index && pickup_index == appt_index
+            else
+              appt_index = pickup_index + 1 if pickup_index
             end
           end
-          
-          unless pickup_index
-            pickup_index = manifest.manifest_order.size 
-            appt_index = pickup_index + 1
-          end
 
-          # Injert at certain index
-          manifest.manifest_order.insert pickup_index, "trip_#{trip_id}_leg_1" if pickup_index && pickup_index <= manifest.manifest_order.size
-          manifest.manifest_order.insert appt_index, "trip_#{trip_id}_leg_2" if appt_index && appt_index <= manifest.manifest_order.size
-          manifest.save(validate: false)
+          break if pickup_index && appt_index
         end
       end
+
+      is_run_end_included = manifest_order_array.last == 'run_end'
+      last_itin_spot = is_run_end_included ? (manifest_order_array.size - 1) : manifest_order_array.size
+
+      unless pickup_index
+        pickup_index = last_itin_spot
+        appt_index = last_itin_spot + 1
+      else 
+        unless appt_index
+          appt_index = last_itin_spot + 1
+        end
+      end
+
+      # Injert at certain index
+      manifest_order_array.insert pickup_index, "trip_#{trip_id}_leg_1" if pickup_index && pickup_index <= manifest_order_array.size
+      manifest_order_array.insert appt_index, "trip_#{trip_id}_leg_2" if appt_index && appt_index <= manifest_order_array.size
+      manifest.manifest_order = manifest_order_array
+      manifest.save(validate: false)
     end
+
+    add_trip_itineraries!(trip_id, wday)
   end
 
   def delete_trip_manifest!(trip_id, wday)
     manifest = self.repeating_run_manifest_orders.for_wday(wday).first
     manifest.delete_trip_manifest!(trip_id) if manifest
+    remove_trip_itineraries!(trip_id, wday)
+  end
+
+  def sorted_itineraries(revenue_only = false, wday)
+    itins = repeating_itineraries.for_wday(wday)
+    itins = itins.revenue if revenue_only
+
+    if itins.empty?
+      # build itineraries from trips
+      #from_garage_address = self.from_garage_address || self.vehicle.try(:garage_address)
+      #to_garage_address = self.to_garage_address || self.vehicle.try(:garage_address)
+
+      # begin run
+      #itins << build_itinerary(self.scheduled_start_time, from_garage_address, nil, 0, wday) unless revenue_only
+
+      self.weekday_assignments.for_wday(wday).each do |assignment|
+        trip = assignment.repeating_trip
+        next unless trip
+        
+        itins << build_itinerary(trip.pickup_time, trip.pickup_address, trip.id, 1, wday)
+
+        itins << build_itinerary(trip.appointment_time, trip.dropoff_address, trip.id, 2, wday)
+      end
+
+      # end run
+      #itins << build_itinerary(self.scheduled_end_time, to_garage_address, nil, 3, wday) unless revenue_only
+    end
+
+    manifest_order = repeating_run_manifest_orders.for_wday(wday).first.try(:manifest_order) 
+    if manifest_order.blank?
+      itins = itins.sort_by { |itin| [itin.time_diff, itin.leg_flag] }
+    else
+      itins = itins.sort_by{|itin| manifest_order.index(itin.itin_id)}
+    end
+
+    itins
+  end
+
+  # scheduled_time, address, trip, flag
+  def build_itinerary(scheduled_time, address, trip_id, leg_flag, wday)
+    RepeatingItinerary.new(time: scheduled_time, address: address, run: self, repeating_trip_id: trip_id, leg_flag: leg_flag, wday: wday)
+  end
+
+  def add_trip_itineraries!(trip_id, wday)
+    trip = RepeatingTrip.find_by_id(trip_id) 
+    if trip 
+      build_itinerary(trip.pickup_time, trip.pickup_address, trip_id, 1, wday).save
+      build_itinerary(trip.appointment_time, trip.dropoff_address, trip_id, 2, wday).save
+    end
+  end
+
+  def remove_trip_itineraries!(trip_id, wday)
+    self.repeating_itineraries.where(repeating_trip_id: trip_id, wday: wday).delete_all
   end
   
   private

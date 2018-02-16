@@ -96,6 +96,7 @@ class RepeatingTripsController < ApplicationController
   end
 
   def destroy
+    @trip.unschedule!
     @trip.destroy
 
     respond_to do |format|
@@ -128,6 +129,19 @@ class RepeatingTripsController < ApplicationController
     
     respond_to do |format|
       format.html { render action: :new }
+    end
+  end
+
+  def return
+    @is_return = true
+    @trip = @trip.clone_for_return!
+
+    prep_view
+
+    respond_to do |format|
+      format.html { render action: :new }
+      format.xml  { render :xml => @trip }
+      format.js   { @remote = true; render :json => {:form => render_to_string(:partial => 'form') }, :content_type => "text/json" }
     end
   end
 
@@ -165,7 +179,11 @@ class RepeatingTripsController < ApplicationController
       :comments,
       :start_date,
       :end_date,
-      :ntd_reportable,
+      :passenger_load_min,
+      :passenger_unload_min,
+      :early_pickup_allowed,
+      :direction,
+      :linking_trip_id,
       customer_attributes: [:id]
     )
   end

@@ -16,8 +16,12 @@
         %td
           = run.name
         %td
+          .hidden
+            = run.scheduled_start_time.try(:strftime, "%H:%M")
           = run.scheduled_start_time.try(:to_s,:time_only)
         %td
+          .hidden
+            = run.scheduled_end_time.try(:strftime, "%H:%M")
           = run.scheduled_end_time.try(:to_s,:time_only)
         %td
           = run.vehicle ? run.vehicle.name : translate_helper('no_vehicle')
@@ -26,3 +30,7 @@
         %td
           = run.schedule.to_s rescue nil
     
+:javascript
+  $(function() {
+    $('table').dataTable();
+  });

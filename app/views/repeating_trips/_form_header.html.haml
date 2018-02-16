@@ -13,7 +13,7 @@
       - else
         = link_to(translate_helper("delete"), @trip, data: {:confirm => translate_helper("delete_trip_confirm")}, :method => :delete, :id => 'trip_delete', :class=>'btn action-button btn-danger') if !@trip.new_record? && can?(:destroy, @trip)
         = link_to translate_helper("edit"), edit_repeating_trip_path(@trip), :class=>'btn action-button' if !@trip.new_record? && can?(:edit, @trip)
-
+        = link_to translate_helper("create_return_trip"), return_repeating_trip_path(@trip), :class=>'btn action-button' if can?(:create, RepeatingTrip) && @trip.is_outbound? && !@trip.return_trip.present? && @trip.customer
         = link_to translate_helper(:back), (params[:from_dispatch] == 'true' ? recurring_dispatchers_path(run_id: params[:run_id]) : :back), class: "btn btn-default"
     %h1
       = translate_helper("repeating_trip")

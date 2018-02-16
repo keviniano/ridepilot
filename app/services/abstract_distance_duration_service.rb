@@ -1,10 +1,9 @@
 require 'json'
 require 'net/http'
 
-class TripPlanner
+class AbstractDistanceDurationService
   attr_reader :from_lat, :from_lon, :to_lat, :to_lon, :trip_datetime
 
-  OPEN_TRIP_PLANNER_URL = ENV['OPEN_TRIP_PLANNER_URL']
   METERS_TO_MILES = 0.000621371192
 
   def initialize(from_lat, from_lon, to_lat, to_lon, trip_datetime)
@@ -16,7 +15,7 @@ class TripPlanner
   end
 
   def get_drive_itineraries(try_count=3)
-    return nil unless OPEN_TRIP_PLANNER_URL.present? && params_valid?
+    return nil unless params_valid?
 
     try = 1
     result = nil
@@ -41,38 +40,25 @@ class TripPlanner
 
   end
 
+  # in seconds
   def get_drive_time
     return nil if !params_valid?
 
     result, response = get_drive_itineraries
-    itinerary = response['itineraries'].try(:first) if response
     
-    itinerary['duration'] rescue nil
+    send(:parse_drive_time, response) if result
   end
 
+  # in miles
   def get_drive_distance
     return nil if !params_valid?
 
     result, response = get_drive_itineraries
-    itinerary = response['itineraries'].try(:first) if response
-    
-    itinerary['legs'].first['distance'] * METERS_TO_MILES rescue nil
+
+    send(:parse_drive_distance, response) if result
   end
 
   private
-
-  def build_url
-    time = @trip_datetime.strftime("%-I:%M%p")
-    date = @trip_datetime.strftime("%Y-%m-%d")
-
-    url_options = "mode=CAR"
-    url_options += "&date=#{date}"
-    url_options += "&time=#{time}"
-    url_options += "&fromPlace=#{@from_lat.to_s},#{@from_lon.to_s}" 
-    url_options += "&toPlace=#{@to_lat.to_s},#{@to_lon.to_s}"
-
-    OPEN_TRIP_PLANNER_URL + url_options
-  end
 
   def params_valid?
     @from_lon && @from_lat && @to_lat && @to_lon && @trip_datetime
@@ -98,13 +84,8 @@ class TripPlanner
 
     data = resp.body
     result = JSON.parse(data)
-    if result.has_key? 'error' and not result['error'].nil?
-      Rails.logger.error "Service failure: fixed: result has error: #{result['error']}"
-      return false, result['error']
-    else
-      return true, result['plan']
-    end
-
+    
+    send(:parse_response, result)
   end
 
 end

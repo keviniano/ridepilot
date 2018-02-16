@@ -1,8 +1,8 @@
-- trip = itinerary[:trip]
-- is_pickup = itinerary[:leg_flag] == 1
+- trip = itinerary.trip
+- is_pickup = itinerary.leg_flag == 1
 - address = is_pickup ? trip.pickup_address : trip.dropoff_address
 - address_notes = is_pickup ? trip.pickup_address_notes : trip.dropoff_address_notes
-- schedule_time = itinerary[:time]
+- schedule_time = itinerary.time
 - customer = trip.customer
 
 %tr{style: 'font-weight: bold; font-size: 12pt;'}
@@ -36,7 +36,7 @@
   %td
     - is_occupied = false
     - @capacity_types_hash.each do |c_id, c_name|
-      - val = itinerary[:occupancy][c_id].to_i
+      - val = itinerary.capacity[c_id].to_i
       - if val > 0
         - is_occupied = true
         = "#{c_name}: #{val}; "

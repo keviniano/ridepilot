@@ -88,6 +88,8 @@ class RecurringDispatchersController < ApplicationController
       TrackerActionLog.cancel_run(@run, current_user, RepeatingRun::DAYS_OF_WEEK[@day_of_week])
     end
 
+    # remove itineraries
+    @run.repeating_itineraries.for_wday(@day_of_week).delete_all
 
     query_trips_runs
   end

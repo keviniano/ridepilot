@@ -1,0 +1,14 @@
+:ruby
+  eta_info = {} 
+  @eta_info.each do |k, itin|
+    eta_info[k] = {
+      eta: format_time_for_listing(itin[:eta])
+    }
+  end
+  
+
+var eta_info = #{eta_info ? eta_info.to_json.html_safe : {}}; 
+for(var k in eta_info) { var itin = eta_info[k]; $('tr[data-id=' + k + '] td.itinerary_eta').text(itin.eta || ""); }
+
+var run_panel = $("#run_trips_panel_#{@run.id}");
+var slack_chart_div = run_panel.find('.slack_chart').replaceWith("#{j render('slack_chart', run: @run)}");

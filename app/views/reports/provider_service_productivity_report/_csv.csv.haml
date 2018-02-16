@@ -11,6 +11,15 @@
   = CSV.generate_line([translate_helper(:total_passengers), "#{@total_passengers_count.to_i} passengers, #{@total_trips_count.to_i} trips"], {:row_sep => nil}).html_safe
 
   = CSV.generate_line([""], {:row_sep => nil}).html_safe
+  = CSV.generate_line([translate_helper(:funding_source), translate_helper(:number_of_trips)], {:row_sep => nil}).html_safe
+  - funding_sources = FundingSource.by_provider(current_provider).where(id: @trip_count_by_funding_source.keys)
+  - if funding_sources.empty?
+    = CSV.generate_line(["No funding source for trips."], {:row_sep => nil}).html_safe
+  - else
+    - funding_sources.each do |source|
+      = CSV.generate_line([source.name, @trip_count_by_funding_source[source.id].to_i], {:row_sep => nil}).html_safe
+
+  = CSV.generate_line([""], {:row_sep => nil}).html_safe
   - if @run_dates
     - @run_dates.each do |date|
       - next unless @ride_counts_by_date && @ride_counts_by_date[date].to_i > 0

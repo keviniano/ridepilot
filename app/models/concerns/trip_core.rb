@@ -5,6 +5,7 @@ module TripCore
 
   included do
     after_initialize :set_defaults
+    before_save :ensure_customer_count_exist
     belongs_to :customer, -> { with_deleted }, validate: false
     belongs_to :dropoff_address,  -> { with_deleted }, class_name: "Address"
     belongs_to :funding_source, -> { with_deleted }
@@ -13,7 +14,6 @@ module TripCore
     belongs_to :provider, -> { with_deleted }
     belongs_to :service_level, -> { with_deleted }
     belongs_to :trip_purpose, -> { with_deleted }
-
 
     delegate :name, to: :service_level, prefix: :service_level, allow_nil: true
     delegate :name, to: :customer, prefix: :customer, allow_nil: true
@@ -26,6 +26,7 @@ module TripCore
     validates :pickup_address, associated: true, presence: true
     validates :trip_purpose_id, presence: true
     validates_datetime :pickup_time, presence: true
+    validate :return_trip_later_than_outbound_trip
 
     validates_datetime :appointment_time, allow_nil: true, on_or_after: :pickup_time, on_or_after_message: "should be no earlier than pickup time", unless: :no_appointment_time?
 
@@ -38,8 +39,6 @@ module TripCore
     scope :individual,         -> { joins(:customer).where(customers: {group: false}) }
     scope :not_called_back,    -> { where('called_back_at IS NULL') }
 
-    scope :ntd_reportable,         -> { where(ntd_reportable: true) }
-
     private
 
     def no_appointment_time?
@@ -51,12 +50,28 @@ module TripCore
     (customer_space_count || 1) + guest_count.to_i + attendant_count.to_i + service_animal_space_count.to_i
   end
 
+  def human_trip_size
+    (customer_space_count || 1) + guest_count.to_i + attendant_count.to_i 
+  end
+
   def trip_count
     trip_size
   end
 
   def is_in_district?
     pickup_address.try(:in_district) && dropoff_address.try(:in_district)
+  end
+
+  def is_return?
+    direction.try(:to_sym) == :return
+  end
+
+  def is_outbound?
+    direction.try(:to_sym) == :outbound
+  end
+
+  def is_linked?
+    (is_return? && outbound_trip) || (is_outbound? && return_trip)
   end
 
   module ClassMethods
@@ -69,5 +84,48 @@ module TripCore
     self.guest_count = 0 if self.respond_to?(:guest_count) && self.guest_count.nil?
     self.attendant_count = 0 if self.respond_to?(:attendant_count) && self.attendant_count.nil?
     self.service_animal_space_count = 0 if self.respond_to?(:service_animal_space_count) && self.service_animal_space_count.nil?
+    
+    if self.passenger_load_min.nil?
+      if self.customer
+        self.passenger_load_min = self.customer.passenger_load_min
+      elsif self.provider
+        self.passenger_load_min = self.provider.passenger_load_min
+      else
+        self.passenger_load_min = Provider::DEFAULT_PASSENGER_LOAD_MIN
+      end
+    end
+    
+    if self.passenger_unload_min.nil?
+      if self.customer
+        self.passenger_unload_min = self.customer.passenger_unload_min
+      elsif self.provider
+        self.passenger_unload_min = self.provider.passenger_unload_min
+      else
+        self.passenger_unload_min = Provider::DEFAULT_PASSENGER_UNLOAD_MIN
+      end
+    end
+
+    if self.early_pickup_allowed.nil?
+      self.early_pickup_allowed = self.is_outbound? 
+    end
+  end
+
+  def ensure_customer_count_exist
+    # use default 1 for the case of non-configured customer capacity
+    if self.respond_to?(:customer_space_count) && self.customer_space_count.to_i == 0
+      self.customer_space_count = 1
+    end
+
+    true
+  end
+
+  def return_trip_later_than_outbound_trip
+    if is_linked?
+      if is_outbound? && appointment_time
+        errors.add(:base, TranslationEngine.translate_text(:outbound_trip_dropoff_time_no_later_than_return_trip_pickup_time)) if appointment_time > return_trip.pickup_time
+      elsif is_return? && pickup_time && outbound_trip.appointment_time
+        errors.add(:base, TranslationEngine.translate_text(:return_trip_pickup_time_no_earlier_than_outbound_trip_dropoff_time)) if pickup_time < outbound_trip.appointment_time
+      end
+    end
   end
 end

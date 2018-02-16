@@ -24,10 +24,6 @@
         = f.label :name, translate_helper("name") 
       .col-sm-9
         = f.text_field :name, class: 'form-control', required: true
-    .col-sm-12.col-md-6.form-group
-      = f.label :ntd_reportable, class: 'pull-right' do 
-        = f.check_box :ntd_reportable
-        = translate_helper("ntd_reportable_label")
 
   .col-sm-12.col-md-6
     = render 'runs/date_time_panel', f: f, edit_mode: edit_mode
@@ -58,7 +54,47 @@
   = render 'unavailable_driver_vehicle_warning_dialog'
   :javascript
     $(function() {
-      $('.run_form input[type=submit]').click(function() {
+      function reload_vehicles() {
+        $.ajax({
+          url: "#{reload_vehicles_runs_path}",
+          data: {
+            date: $('#run_date').val()
+          }
+        });
+      }
+
+      function reload_drivers() {
+        $.ajax({
+          url: "#{reload_drivers_runs_path}",
+          data: {
+            date: $('#run_date').val(),
+            from_time: $('#run_scheduled_start_time').val(),
+            to_time: $('#run_scheduled_end_time').val()
+          }
+        });
+      }
+
+      $('#run_date').on('change', function() {
+        reload_vehicles();
+        reload_drivers();
+      });
+
+      $('input.time_field_hour, input.time_field_minute').on('change', function() {
+        // use time_out to wait for #run_scheduled_start_time value updated
+        setTimeout(function() {
+          reload_drivers();
+        }, 10);
+      });
+
+      $(document).on('click', 'button.am-pm', function() {
+        // use time_out to wait for #run_scheduled_start_time value updated
+        setTimeout(function() {
+          reload_drivers();
+        }, 10);
+      });
+
+      var original_run_date = $('#run_date').val();
+      var check_driver_vehicle_availability_fn = function() {
         var driver_id = $('#run_driver_id').val();
         var vehicle_id = $('#run_vehicle_id').val();
         var date = $('#run_date').val();
@@ -76,6 +112,28 @@
               end_time: end_time
             }
           });
+        }
+      };
+
+      $('.run_form input[type=submit]').click(function() {
+        var new_run_date = $('#run_date').val();
+        if(new_run_date) {
+          // check if date change for a scheduled run (with trips)
+          if(#{ @run.trips.any? || false}) {
+            var date_changed = (new_run_date != original_run_date);
+            if(date_changed) {
+              bootbox.confirm("You have changed the run date. This would unschedule all associated trips. Are you sure to continue?", function(result) {
+                if(result) {
+                  check_driver_vehicle_availability_fn();
+                }
+              });
+            } else {
+              check_driver_vehicle_availability_fn();
+            }
+          } else {
+            check_driver_vehicle_availability_fn();
+          }
+
           return false;
         }
       })

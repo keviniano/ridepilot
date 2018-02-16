@@ -51,6 +51,7 @@ class RunsController < ApplicationController
   end
 
   def show
+    @readonly = true
     setup_run
   end
 
@@ -190,7 +191,28 @@ class RunsController < ApplicationController
     end
   end 
 
-  def request_completion
+  def request_change_locations
+  end
+
+  def update_locations
+    prev_from_address = @run.from_garage_address.try(:dup)
+    prev_to_address = @run.to_garage_address.try(:dup)
+
+    if !prev_from_address || !prev_from_address.same_lat_lng?(params[:from_garage_address_lat], params[:from_garage_address_lon])
+      @run.build_from_garage_address(provider_id: current_provider_id)
+      @run.from_garage_address.the_geom = Address.compute_geom(params[:from_garage_address_lat], params[:from_garage_address_lon])
+    end
+
+    if !prev_to_address || !prev_to_address.same_lat_lng?(params[:to_garage_address_lat], params[:to_garage_address_lon])
+      @run.build_to_garage_address(provider_id: current_provider_id)
+      @run.to_garage_address.the_geom = Address.compute_geom(params[:to_garage_address_lat], params[:to_garage_address_lon])
+    end
+
+    @run.attributes = run_params
+
+    @run.save(validate: false)
+
+    redirect_to run_path(@run)
   end
 
   def request_uncompletion
@@ -202,17 +224,9 @@ class RunsController < ApplicationController
   end
 
   def complete
-    @run.attributes = run_params
-
-    if @run.from_garage_address.present?
-      @run.from_garage_address.the_geom = Address.compute_geom(params[:from_garage_address_lat], params[:from_garage_address_lon])
+    if @run.completable?
+      @run.set_complete!(current_user)
     end
-
-    if @run.to_garage_address.present?
-      @run.to_garage_address.the_geom = Address.compute_geom(params[:to_garage_address_lat], params[:to_garage_address_lon])
-    end
-
-    @run.set_complete!(current_user)
 
     redirect_to run_path(@run)
   end
@@ -239,12 +253,58 @@ class RunsController < ApplicationController
       @run.save(validate: false)
     end
   end
+
+  def reload_drivers
+    @drivers = Driver.active.where(:provider_id=>current_provider_id).default_order
+    date = Date.parse(params[:date]) rescue nil
+    unless params[:from_time].blank?
+      from_time = DateTime.parse(params[:date] + " " + params[:from_time]) rescue nil 
+    end
+    unless params[:to_time].blank?
+      to_time = DateTime.parse(params[:date] + " " + params[:to_time]) rescue nil 
+    end
+    exclude_inactive_drivers(date, from_time, to_time)
+  end
+
+  def reload_vehicles
+    @vehicles = Vehicle.active.where(:provider_id=>current_provider_id).default_order
+    date = Date.parse(params[:date]) rescue nil
+    exclude_inactive_vehicles(date)
+  end
   
   private
   
   def setup_run
     @drivers = Driver.active.where(:provider_id=>@run.provider_id).default_order
+
     @vehicles = Vehicle.active.where(:provider_id=>@run.provider_id).default_order
+
+    unless @readonly
+      exclude_inactive_drivers(@run.date, @run.scheduled_start_time, @run.scheduled_end_time)
+      exclude_inactive_vehicles(@run.date)
+    end
+  end
+
+  def exclude_inactive_drivers(date, from_time, to_time)
+    if date
+      @drivers = @drivers.active_for_date(date)
+      # exclude unavailable drivers for run time range
+      if from_time && to_time
+        driver_ids = []
+        from_time_str = from_time.strftime('%H:%M')
+        to_time_str = to_time.strftime('%H:%M')
+        @drivers.each do |driver|
+          driver_ids << driver.id if driver.available_between?(date, from_time_str, to_time_str) 
+        end
+        @drivers = @drivers.where(id: driver_ids)
+      end
+    end
+  end
+
+  def exclude_inactive_vehicles(date)
+    if date
+      @vehicles = @vehicles.active_for_date(date)
+    end
   end
 
   def date_range(run)
@@ -269,7 +329,6 @@ class RunsController < ApplicationController
       :complete, 
       :actual_start_time, 
       :actual_end_time, 
-      :ntd_reportable,
       :trips_attributes => [
         :id,
         :trip_result_id

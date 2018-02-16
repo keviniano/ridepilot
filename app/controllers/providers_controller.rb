@@ -217,6 +217,12 @@ class ProvidersController < ApplicationController
     redirect_to drivers_provider_path(@provider)
   end
 
+  def change_eta_related_settings
+    @provider.update(eta_related_params)
+
+    redirect_to general_provider_path(@provider, anchor: "eta_related_settings")
+  end
+
   def inactivate
     @provider = Provider.find(params[:id])
     authorize! :edit, @provider
@@ -327,6 +333,17 @@ class ProvidersController < ApplicationController
       :driver_availability_max_hour,
       :driver_availability_interval_min,
       :driver_availability_days_ahead
+      )
+  end
+
+  def eta_related_params
+    params.require(:provider).permit(
+      :passenger_load_min,
+      :passenger_unload_min,
+      :very_early_arrival_threshold_min,
+      :early_arrival_threshold_min,
+      :late_arrival_threshold_min,
+      :very_late_arrival_threshold_min
       )
   end
 

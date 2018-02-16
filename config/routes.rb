@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
     get "admin", :controller => :home, :action => :index
     get "schedule_recurring", :controller => :home, :action => :schedule_recurring
+    get "ntd_funding_sources", :controller => :home, :action => :ntd_funding_sources
+    post "update_ntd_funding_sources", :controller => :home, :action => :update_ntd_funding_sources
 
     devise_for :users
 
@@ -85,12 +87,17 @@ Rails.application.routes.draw do
         get :customer_trip_summary
         post :check_double_booked
         get :report
+        get :update_run_filters
       end
     end
 
     resources :repeating_trips do
       collection do
         get :clone_from_daily_trip
+      end
+
+      member do
+        get :return
       end
     end
     resources :repeating_runs
@@ -115,6 +122,7 @@ Rails.application.routes.draw do
         post :change_eligible_age
         post :change_fields_required_for_run_completion
         post :change_driver_availability_settings
+        post :change_eta_related_settings
         post :save_region
         post :save_viewport
         patch :save_operating_hours
@@ -240,16 +248,20 @@ Rails.application.routes.draw do
         patch :cancel_multiple
         delete :delete_multiple
         get :check_driver_vehicle_availability
+        get :reload_drivers
+        get :reload_vehicles
       end
 
       member do
         get :append_trips
-        get :request_completion
+        get :request_change_locations
+        patch :update_locations
         get :request_uncompletion
         patch :uncomplete
-        patch :complete
+        get :complete
         patch :assign_driver
         patch :unassign_driver
+        get :update_slack_chart
       end
     end
 
@@ -263,6 +275,7 @@ Rails.application.routes.draw do
         get :cancel_run
         get :run_trips
         get :load_trips
+        get :eta
       end
     end
 

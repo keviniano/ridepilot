@@ -81,10 +81,16 @@ class TripFilter
 
   def filter_by_status!
     if @filters[:status_id].present?  
-      if @filters[:status_id].to_i == 1
-        @trips = @trips.where("run_id is NOT NULL or cab = true")
-      else
+      status_id = @filters[:status_id].to_i
+      if status_id == -2
+        # unscheduled
         @trips = @trips.where("run_id is NULL and cab = false")
+      elsif status_id == -1
+        # CAB
+        @trips = @trips.where("run_id is NULL and cab = ?", true)
+      elsif status_id >= 0
+        # Run
+        @trips = @trips.where(run_id: status_id)
       end
     end
   end

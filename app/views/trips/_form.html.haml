@@ -27,9 +27,8 @@
 
   -# the customer id needs to be passed in this action
   = f.hidden_field :customer_id, class: 'trip-customer-id'
-  - unless @is_repeating_trip
-    = f.hidden_field :direction
-    = hidden_field_tag "trip[outbound_trip_id]", @trip.outbound_trip.try(:id)
+  = f.hidden_field :direction
+  = f.hidden_field :linking_trip_id if @trip.outbound_trip
 
   - if @is_repeating_trip 
     .col-sm-12.col-md-6
@@ -39,6 +38,7 @@
       = render 'trips/trip_parameters_panel', f: f, edit_mode: edit_mode
     .col-sm-12.col-md-6
       = render 'repeating_trips/repetition_panel', f: f
+      = render 'trips/eta_settings_panel', f: f, edit_mode: edit_mode
       = render 'trips/eligibility_panel', f: f, edit_mode: edit_mode
       = render 'trips/other_panel', f: f
       - if edit_mode == :show
@@ -53,6 +53,7 @@
       = render 'trips/trip_parameters_panel', f: f, edit_mode: edit_mode
     .col-sm-12.col-md-6
       = render 'trips/tracking_panel', f: f, edit_mode: edit_mode 
+      = render 'trips/eta_settings_panel', f: f, edit_mode: edit_mode
       = render 'trips/eligibility_panel', f: f, edit_mode: edit_mode
       = render 'trips/other_panel', f: f
       - if edit_mode == :show

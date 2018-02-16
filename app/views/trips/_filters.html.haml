@@ -27,7 +27,7 @@
           = render partial: 'shared/weekday_select'
         .col-sm-12{style: 'padding: 5px;'}
           = f.label :status_id, translate_helper(:status)
-          = f.select :status_id, options_for_select( [[translate_helper(:scheduled), 1], [translate_helper(:unscheduled), 2]], session[:trips_status_id]), {:include_blank => translate_helper(:all) }, { :class => 'form-control' }
+          = f.select :status_id, options_for_select( @run_listings, session[:trips_status_id]), {:include_blank => translate_helper(:all) }, { :class => 'form-control' }
         .col-sm-12{style: 'padding: 5px;'}
           = f.label :customer_id, translate_helper(:customer)
           - customer_name = Customer.find_by_id(session[:trips_customer_id]).name unless session[:trips_customer_id].blank?
@@ -55,6 +55,23 @@
     });
     $( "#customer_name" ).on( "autocompleteresponse", function( event, ui ) { 
       $('#customer_id').val('');
+    });
+
+    function update_run_filters() {
+      $.ajax({
+        url: "#{update_run_filters_trips_path}.js",
+        data: {
+          trip_filters: {
+            start: $('#trip_filters_start').val(),
+            end: $('#trip_filters_end').val(),
+            days_of_week: $('#trip_filters_days_of_week').val()
+          }
+        }
+      });
+    }
+
+    $('#trip_filters_start, #trip_filters_end, #weekday_select_buttons input').on('change', function() {
+      update_run_filters();
     });
   });
       

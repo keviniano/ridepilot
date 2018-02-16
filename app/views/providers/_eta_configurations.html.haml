@@ -1,0 +1,26 @@
+%h2.section-header#eta_related_settings= translate_helper("eta_related_settings")
+- if can? :edit, @provider
+  = form_tag change_eta_related_settings_provider_path(@provider) do
+    %fieldset
+      %ol.section.one
+        %li
+          = label_tag translate_helper("passenger_load_min")
+          = number_field_tag "passenger_load_min", @provider.passenger_load_min, name: "provider[passenger_load_min]", min: 0, required: true
+        %li
+          = label_tag translate_helper("passenger_unload_min")
+          = number_field_tag "passenger_unload_min", @provider.passenger_unload_min, name: "provider[passenger_unload_min]", min: 0, required: true
+        %li
+          = label_tag translate_helper("very_early_arrival_threshold_min")
+          = number_field_tag "very_early_arrival_threshold_min", @provider.very_early_arrival_threshold_min, name: "provider[very_early_arrival_threshold_min]", min: 0, required: true
+        %li
+          = label_tag translate_helper("early_arrival_threshold_min")
+          = number_field_tag "early_arrival_threshold_min", @provider.early_arrival_threshold_min, name: "provider[early_arrival_threshold_min]", min: 0, required: true
+        %li
+          = label_tag translate_helper("late_arrival_threshold_min")
+          = number_field_tag "late_arrival_threshold_min", @provider.late_arrival_threshold_min, name: "provider[late_arrival_threshold_min]", min: 0, required: true
+        %li
+          = label_tag translate_helper("very_late_arrival_threshold_min")
+          = number_field_tag "very_late_arrival_threshold_min", @provider.very_late_arrival_threshold_min, name: "provider[very_late_arrival_threshold_min]", min: 0, required: true
+      .actions
+        = submit_tag translate_helper("update_eta_related_settings"), class: 'btn action-button'
+%hr
