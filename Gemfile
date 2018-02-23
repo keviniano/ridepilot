@@ -96,7 +96,7 @@ gem 'ridepilot_cad_avl', github: 'camsys/ridepilot_cad_avl'
 
 # Manage app-specific cron tasks using a Ruby DSL, see config/schedule.rb
 gem 'whenever', :require => false
-# RADAR current version is 0.13.0, but schedule_atts requires > 0.7.0 
+# RADAR current version is 0.13.0, but schedule_atts requires > 0.7.0
 gem 'ice_cube', '~> 0.6.8'
 # Date and time validation plugin for ActiveModel and Rails
 gem 'jc-validates_timeliness'
@@ -109,7 +109,7 @@ gem 'figaro'
 # soft-delete
 gem "paranoia"
 # logging activities for Tracker Action Log
-gem 'public_activity' 
+gem 'public_activity'
 # Manage application-level settings
 gem 'rails-settings-cached'
 # background workder
@@ -120,7 +120,7 @@ gem 'redis-rails'
 gem 'rubyXL'
 
 
-group :integration, :qa, :production do 
+group :integration, :qa, :production do
   gem 'rails_12factor'
   gem 'unicorn'
   gem 'rack-timeout'
@@ -147,9 +147,13 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'web-console', '~> 2.0'
+  gem 'capistrano', '~> 3.7', '>= 3.7.1'
+  gem 'capistrano-rails', '~> 1.2'
+  gem 'capistrano-passenger', '~> 0.2.0'
+  gem 'capistrano-rbenv', '~> 2.1'
 end
 
-group :test do 
+group :test do
   gem 'launchy'
   gem 'selenium-webdriver'
 end
