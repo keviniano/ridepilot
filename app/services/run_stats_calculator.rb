@@ -172,11 +172,12 @@ class RunStatsCalculator
       trip = itin.trip
       next unless trip
 
-      if itin.leg_flag == 1
-        unless TripResult::NON_DISPATCHABLE_CODES.include?(trip.trip_result.try(:code))
-          delta = trip.human_trip_size 
-          ntd_delta = delta if trip.ntd_reportable?
-        end
+      if TripResult::NON_DISPATCHABLE_CODES.include?(trip.try(:trip_result).try(:code))
+        delta = 0
+        ntd_delta = 0
+      elsif itin.leg_flag == 1 
+        delta = trip.human_trip_size 
+        ntd_delta = delta if trip.ntd_reportable?
       elsif itin.leg_flag == 2
         delta = -1 * trip.human_trip_size
         ntd_delta = delta if trip.ntd_reportable?

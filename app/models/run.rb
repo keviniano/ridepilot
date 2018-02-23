@@ -280,13 +280,17 @@ class Run < ApplicationRecord
       self.trips.each do |trip|
         itins << build_itinerary(trip.pickup_time, trip.pickup_address, trip.id, 1)
 
-        if !TripResult::CANCEL_CODES_BUT_KEEP_RUN.include?(trip.trip_result.try(:code))
+        if !TripResult::NON_DISPATCHABLE_CODES.include?(trip.trip_result.try(:code))
           itins << build_itinerary(trip.appointment_time, trip.dropoff_address, trip.id, 2)
         end
       end
 
       # end run
       itins << build_end_run_itinerary unless revenue_only
+    else
+      # exclude non_dispatchable legs
+      exclude_leg_ids = itins.dropoff.joins(trip: :trip_result).where(trip_results: {code: TripResult::NON_DISPATCHABLE_CODES}).pluck(:id).uniq
+      itins = itins.where.not(id: exclude_leg_ids) if exclude_leg_ids.any?
     end
 
     if manifest_order.blank?

@@ -157,7 +157,9 @@ class RepeatingTrip < ApplicationRecord
     return_trip = self.dup 
     return_trip.direction = :return
     return_trip.pickup_address = self.dropoff_address
+    return_trip.pickup_address_notes = self.dropoff_address_notes
     return_trip.dropoff_address = self.pickup_address
+    return_trip.dropoff_address_notes = self.pickup_address_notes
 
     # assume pickup and appt time will be on that date
     return_trip.pickup_time = pickup_time_str

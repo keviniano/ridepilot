@@ -12,3 +12,6 @@ Rails.application.config.action_view.form_with_generates_remote_forms = false
 # Unknown asset fallback will return the path passed in when the given
 # asset is not present in the asset pipeline.
 # Rails.application.config.assets.unknown_asset_fallback = false
+
+# Disable the default rails5 behavior that disables submit button after submission
+Rails.application.config.action_view.automatically_disable_submit_tag = false
