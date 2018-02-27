@@ -2,10 +2,10 @@
 lock "~> 3.10.1"
 
 set :application, "ridepilot"
-set :repo_url, "git@github.com:keviniano/ridepilot.git"
+set :repo_url, "https://github.com/keviniano/ridepilot.git"
 
 # Default branch is :master
-# ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+ask :branch, "rails.5.1"
 
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, "/home/deploy/ridepilot"
