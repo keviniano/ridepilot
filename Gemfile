@@ -67,6 +67,7 @@ gem 'cancancan'
 gem 'devise'
 gem 'devise_account_expireable'
 gem 'devise_security_extension', github: 'camsys/devise_security_extension'
+gem 'simple_token_authentication', '~> 1.15', '>= 1.15.1'
 #gem 'devise_security_extension', path: '~/devise_security_extension'
 
 ### GEOSPATIAL ##############################
