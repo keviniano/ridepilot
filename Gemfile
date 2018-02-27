@@ -119,6 +119,8 @@ gem 'sidekiq'
 gem 'redis-rails'
 # Excel
 gem 'rubyXL'
+# Send emails when the app has an unhandled exception
+gem 'exception_notification'
 
 
 group :integration, :qa, :production do
