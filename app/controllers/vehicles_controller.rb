@@ -23,7 +23,7 @@ class VehiclesController < ApplicationController
     if is_garage_address_blank
       prev_garage_address = @vehicle.garage_address
       @vehicle.garage_address_id = nil
-      new_attrs.except(:garage_address_attributes)
+      new_attrs = new_attrs.except(:garage_address_attributes)
     end
 
     @vehicle.assign_attributes new_attrs
@@ -54,7 +54,7 @@ class VehiclesController < ApplicationController
     new_attrs = vehicle_params
     is_garage_address_blank = check_blank_garage_address
     if is_garage_address_blank
-      new_attrs.except(:garage_address_attributes)
+      new_attrs = new_attrs.except(:garage_address_attributes)
     end
 
     @vehicle.attributes = new_attrs

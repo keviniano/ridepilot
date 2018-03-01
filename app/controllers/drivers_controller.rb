@@ -28,7 +28,7 @@ class DriversController < ApplicationController
     if is_alt_address_blank
       prev_alt_address = @driver.alt_address
       @driver.alt_address_id = nil
-      new_attrs.except(:alt_address_attributes)
+      new_attrs = new_attrs.except(:alt_address_attributes)
     end
 
     is_emergency_contact_blank = check_blank_emergency_contact
@@ -36,16 +36,16 @@ class DriversController < ApplicationController
     if is_emergency_contact_blank
       prev_emergency_contact = @driver.emergency_contact
       @driver.emergency_contact = nil
-      new_attrs.except(:emergency_contact_attributes)
+      new_attrs = new_attrs.except(:emergency_contact_attributes)
     elsif is_geocoded_address_blank
       if @driver.emergency_contact
         prev_emergency_contact_address = @driver.emergency_contact.geocoded_address
         @driver.emergency_contact.geocoded_address_id = nil 
       end
-      new_attrs[:emergency_contact_attributes].except(:geocoded_address_attributes)
+      new_attrs[:emergency_contact_attributes] = new_attrs[:emergency_contact_attributes].except(:geocoded_address_attributes)
     end
 
-    new_attrs.except(:photo_attributes) if new_attrs[:photo_attributes].blank?
+    new_attrs = new_attrs.except(:photo_attributes) if new_attrs[:photo_attributes].blank?
 
     @driver.attributes = new_attrs
 
@@ -80,15 +80,15 @@ class DriversController < ApplicationController
     new_attrs = driver_params
     is_alt_address_blank = check_blank_alt_address
     if is_alt_address_blank
-      new_attrs.except(:alt_address_attributes)
+      new_attrs = new_attrs.except(:alt_address_attributes)
     end
 
     is_emergency_contact_blank = check_blank_emergency_contact
     is_geocoded_address_blank = check_blank_emergency_contact_geocoded_address
     if is_emergency_contact_blank
-      new_attrs.except(:emergency_contact_attributes)
+      new_attrs = new_attrs.except(:emergency_contact_attributes)
     else
-      new_attrs[:emergency_contact_attributes].except(:geocoded_address_attributes) if is_geocoded_address_blank
+      new_attrs[:emergency_contact_attributes] = new_attrs[:emergency_contact_attributes].except(:geocoded_address_attributes) if is_geocoded_address_blank
     end
 
     @driver.attributes = new_attrs

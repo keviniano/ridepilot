@@ -19,7 +19,7 @@
         %td
           %input.trip-selected{type: "checkbox"}
         %td
-          = trip.customer.name
+          = trip.customer.try(:name)
           - if trip.repeating_trip_id.present?
             %span.label.label-info.pull-right
               Recur

@@ -224,7 +224,7 @@ class CustomersController < ApplicationController
     authorize! :update, @customer if !@customer.authorized_for_provider(current_provider.id)
 
     customer_attrs = customer_params
-    customer_attrs.except(:photo_attributes) if customer_attrs[:photo_attributes].blank?
+    customer_attrs = customer_attrs.except(:photo_attributes) if customer_attrs[:photo_attributes].blank?
 
     @customer.assign_attributes customer_attrs
     edit_addresses

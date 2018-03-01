@@ -29,7 +29,7 @@ class UsersController < ApplicationController
           new_attrs = user_params
           is_address_blank = check_blank_address
           if is_address_blank
-            new_attrs.except(:user_address_attributes)
+            new_attrs = new_attrs.except(:user_address_attributes)
           end
 
           if not @user
@@ -97,7 +97,7 @@ class UsersController < ApplicationController
     if is_address_blank
       prev_address = @user.user_address
       @user.address_id = nil
-      new_attrs.except(:user_address_attributes)
+      new_attrs = new_attrs.except(:user_address_attributes)
     end
     
     if @user.update_attributes(new_attrs)

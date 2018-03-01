@@ -18,7 +18,7 @@
       %tr{data: {trip_id: trip.id}}
         %td
           %input.trip-selected{type: "checkbox"}
-        %td= trip.customer.name
+        %td= trip.customer.try(:name)
         %td= simple_format [trip.customer.phone_number_1, trip.customer.phone_number_2].compact.join('<br>')
         %td= format_time_for_listing(trip.pickup_time)
         %td= format_time_for_listing(trip.appointment_time) if trip.appointment_time

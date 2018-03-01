@@ -24,7 +24,7 @@
     <tr>
       <td><%= trip.pickup_time.time %></td>
       <td></td>
-      <td><%= trip.customer.name %></td>
+      <td><%= trip.customer.try(:name) %></td>
       <td><%= trip.trip_purpose_name %></td>
       <td><%= trip.pickup_address.try(:text) || translate_helper("unspecified_address") %></td>
       <td><%= trip.dropoff_address.try(:text) || translate_helper("unspecified_address") %></td>

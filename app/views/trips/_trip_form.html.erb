@@ -3,7 +3,7 @@
     <%= trip.pickup_time.strftime("%l:%M %p") %>
   </td>
   <td>
-    <%= trip.customer.name %>
+    <%= trip.customer.try(:name) %>
   </td>
   <td>
     <% if trip.pickup_address.present? %>
