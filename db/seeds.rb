@@ -46,7 +46,6 @@ ApplicationRecord.transaction do
 
   puts "Creating lookup tables..."
   Rake::Task["ridepilot:seed_lookup_tables"].invoke
-  Rake::Task["ridepilot:seed_provider_lookup_tables"].invoke
 
   puts "Seeding eligibilities"
   Rake::Task["ridepilot:seed_eligibilities"].invoke
