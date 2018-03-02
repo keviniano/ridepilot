@@ -79,6 +79,7 @@ class Ability
       can :manage, VehicleMaintenanceCompliance, :vehicle => {:provider_id => provider.id}
       can :manage, VehicleWarranty, :vehicle => {:provider_id => provider.id}
       can :load,   Address
+      can :manage, FundingSource, :provider_id => role.provider_id
       can :manage, DriverRequirementTemplate, :provider_id => provider.id
       can :manage, VehicleRequirementTemplate, :provider_id => provider.id
       can :manage, VehicleMaintenanceScheduleType, :provider_id => provider.id
