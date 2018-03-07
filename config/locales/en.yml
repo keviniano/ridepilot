@@ -167,6 +167,7 @@ en:
   view_customer_comments_report: 'View Customer Comments Report'
   configure_provider_ada_questions: "Configure ADA Questions"
   provider_ada_questions_link_text: "ADA Question Lookup Table"
+  customer_deleted: "Customer has been deleted"
   
   # Lookup tables
   add_value: "Add Value"
