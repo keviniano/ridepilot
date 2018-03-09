@@ -27,6 +27,11 @@ h2 {
   margin: 0 0 10px;
   line-height: 1.2;
 }
+h3 {
+  font-size: 16px;
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
 
 
 /*
@@ -1015,10 +1020,6 @@ body.reports span.address_separator {
 
 body.reports h1 {
   margin-bottom: 5px;
-}
-
-body.reports h3 {
-  text-decoration: underline;
 }
 
 body.reports div.trip {

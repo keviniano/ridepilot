@@ -394,7 +394,7 @@ class Run < ApplicationRecord
 
   def completable?
     start_odometer.present? && end_odometer.present? && start_odometer < end_odometer &&
-    vehicle_id.present?  && driver_id.present?
+    vehicle_id.present?  && driver_id.present? &&
     (from_garage_address || vehicle.try(:garage_address)) &&
     (to_garage_address || vehicle.try(:garage_address)) &&
     trips.incomplete.empty?  &&

@@ -148,7 +148,8 @@ class RunsController < ApplicationController
   # Cancels multiple runs by id, removing associations with any trips on those runs
   def cancel_multiple
     @runs = Run.where(id: cancel_multiple_params[:run_ids].split(',').map(&:to_i))
-    trips_removed = @runs.cancel_all
+    trips_removed = @runs.joins(:trips).size
+    @runs.cancel_all
     
     @runs.each do |run|
       TrackerActionLog.cancel_run(run, current_user)

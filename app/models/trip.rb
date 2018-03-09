@@ -441,8 +441,12 @@ class Trip < ApplicationRecord
   end
 
   def customer_active
-    if customer && date && !customer.active_for_date?(date)
-      errors.add(:customer, TranslationEngine.translate_text(:customer_inactive_for_trip_date)) 
+    if customer 
+      if customer.deleted?
+        errors.add(:customer, TranslationEngine.translate_text(:customer_deleted))
+      elsif date && !customer.active_for_date?(date)
+        errors.add(:customer, TranslationEngine.translate_text(:customer_inactive_for_trip_date)) 
+      end
     end
   end
 
