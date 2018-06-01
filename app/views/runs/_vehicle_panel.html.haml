@@ -8,4 +8,25 @@
         = f.label :vehicle, translate_helper("vehicle") 
       .col-sm-9
         = f.collection_select :vehicle_id, @vehicles, :id, :name, {include_blank: true}, {class: 'form-control'}
-    
+
+    - if !@is_repeating_run && edit_mode == :edit
+      .form-group.col-sm-12.use_vehicle_garage{style: 'display: none;'}
+        .col-sm-3
+          = label_tag :use_vehicle_garage, translate_helper(:use_vehicle_garage) 
+        .col-sm-9
+          = check_box_tag :use_vehicle_garage, true
+
+- unless @is_repeating_run
+  :javascript
+    $(function() {
+      var prev_vehicle_id = $('#run_vehicle_id').val();
+      $('#run_vehicle_id').change(function() {
+        var new_vehicle_id = $(this).val();
+        if(!new_vehicle_id || new_vehicle_id == prev_vehicle_id) {
+          $('.use_vehicle_garage').hide();
+          $('#use_vehicle_garage').prop("checked", false);
+        } else {
+          $('.use_vehicle_garage').show();
+        }
+      });
+    });

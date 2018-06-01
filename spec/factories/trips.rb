@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :trip do
     association :pickup_address, factory: :address
     association :dropoff_address, factory: :address

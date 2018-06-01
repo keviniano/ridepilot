@@ -1,4 +1,4 @@
-class RepeatingRunManifestOrder < ActiveRecord::Base
+class RepeatingRunManifestOrder < ApplicationRecord
   belongs_to :repeating_run
 
   scope :for_wday, -> (wday) { where(wday: wday) }

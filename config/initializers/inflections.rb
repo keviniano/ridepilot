@@ -13,4 +13,5 @@
 # These inflection rules are supported but not enabled by default:
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.singular 'planned_leaves', 'planned_leave'
+  inflect.acronym 'API'
 end

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :vehicle_compliance do
     vehicle 
     vehicle_requirement_template

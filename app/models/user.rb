@@ -1,6 +1,8 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   acts_as_paranoid # soft delete
   has_paper_trail
+  acts_as_token_authenticatable # token authentication
+  include TokenAuthenticationHelpers
   
   has_many   :roles, dependent: :destroy
   belongs_to :current_provider, class_name: "Provider", foreign_key: :current_provider_id
@@ -11,7 +13,7 @@ class User < ActiveRecord::Base
   has_many :verification_questions, dependent: :destroy
   
   # Include default devise modules. Others available are:
-  # :rememberable, :token_authenticatable, :confirmable, :lockable
+  # :rememberable, :confirmable, :lockable
   devise :database_authenticatable, :recoverable, :trackable, :validatable, 
     :timeoutable, :password_expirable, :password_archivable, :account_expireable
   # Let Devise handle the email format requirement

@@ -1,3 +1,3 @@
-class VehicleMonthlyTracking < ActiveRecord::Base
+class VehicleMonthlyTracking < ApplicationRecord
   belongs_to :provider
 end

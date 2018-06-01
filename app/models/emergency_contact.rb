@@ -1,4 +1,4 @@
-class EmergencyContact < ActiveRecord::Base
+class EmergencyContact < ApplicationRecord
   acts_as_paranoid # soft delete
   belongs_to :driver, -> { with_deleted }
   belongs_to :geocoded_address, -> { with_deleted }

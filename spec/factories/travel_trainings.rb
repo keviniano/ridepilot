@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :travel_training do
     customer
     date { DateTime.current }

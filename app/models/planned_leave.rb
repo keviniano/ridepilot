@@ -1,4 +1,4 @@
-class PlannedLeave < ActiveRecord::Base
+class PlannedLeave < ApplicationRecord
   belongs_to :leavable, polymorphic: true
 
   validates :start_date, presence: true

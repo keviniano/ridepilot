@@ -36,7 +36,7 @@ class RunStatsCalculator
     to_address = itins.first.address
 
     time = @run.scheduled_start_time
-    
+
     deadhead_from_garage = get_drive_distance(from_address, to_address, time)
 
     itins.each_with_index do |itin, index|
@@ -48,13 +48,13 @@ class RunStatsCalculator
 
       dist = get_drive_distance(from_address, to_address, time)
       if itin.capacity.to_f > 0
-        revenuse_miles += dist 
+        revenuse_miles += dist
         passenger_miles += dist * itin.capacity.to_f
       else
         non_revenue_miles += dist
-      end    
+      end
 
-      if itin.ntd_capacity.to_f > 0    
+      if itin.ntd_capacity.to_f > 0
         ntd_revenue_miles += dist
         ntd_passenger_miles += dist * itin.ntd_capacity.to_f
       end
@@ -76,8 +76,8 @@ class RunStatsCalculator
     run_distance.deadhead_to_garage = deadhead_to_garage
     run_distance.passenger_miles = passenger_miles
     #NTD
-    ntd_deadhead_miles += deadhead_from_garage if is_first_leg_ntd 
-    ntd_deadhead_miles += deadhead_to_garage if is_last_leg_ntd 
+    ntd_deadhead_miles += deadhead_from_garage if is_first_leg_ntd
+    ntd_deadhead_miles += deadhead_to_garage if is_last_leg_ntd
     ntd_total = ntd_revenue_miles + ntd_deadhead_miles
 
     run_distance.ntd_total_miles = ntd_total
@@ -104,13 +104,13 @@ class RunStatsCalculator
 
     unless itins.first.is_begin_run?
       puts "adding run begin itin"
-      run_begin_itin = @run.build_begin_run_itinerary
+      run_begin_itin = @run.build_begin_run_itinerary.save
       run_begin_itin.save
-      itins.insert(0, run_begin_itin)  
+      itins.insert(0, run_begin_itin)
     end
-    unless itins.last.is_end_run? 
+    unless itins.last.is_end_run?
       puts "adding end begin itin"
-      run_end_itin = @run.build_end_run_itinerary
+      run_end_itin = @run.build_end_run_itinerary.save
       run_end_itin.save
       itins << run_end_itin
     end
@@ -130,19 +130,21 @@ class RunStatsCalculator
     eta_info = {}
     itin_count = itins.size
     itins.each_with_index do |itin, index|
+      next if itin.arrival_time
+
       if index < (itin_count - 1)
         itin.next = itins[index + 1]
       end
 
       if index > 0
-        itin.prev = itins[index - 1]    
-      end  
+        itin.prev = itins[index - 1]
+      end
 
       if index < (itin_count - 1)
-        itin.calculate_travel_time! 
+        itin.calculate_travel_time!
       end
-      
-      itin.calculate_eta! 
+
+      itin.calculate_eta!
 
       eta_info[itin.itin_id] = {
         scheduled_time: itin.time,
@@ -150,7 +152,7 @@ class RunStatsCalculator
         wait_time: itin.wait_time,
         process_time: itin.process_time,
         depart_time: itin.depart_time,
-        travel_time: itin.travel_time    
+        travel_time: itin.travel_time
       }
     end
 
@@ -172,11 +174,12 @@ class RunStatsCalculator
       trip = itin.trip
       next unless trip
 
-      if itin.leg_flag == 1
-        unless TripResult::NON_DISPATCHABLE_CODES.include?(trip.trip_result.try(:code))
-          delta = trip.human_trip_size 
-          ntd_delta = delta if trip.ntd_reportable?
-        end
+      if TripResult::NON_DISPATCHABLE_CODES.include?(trip.try(:trip_result).try(:code))
+        delta = 0
+        ntd_delta = 0
+      elsif itin.leg_flag == 1
+        delta = trip.human_trip_size
+        ntd_delta = delta if trip.ntd_reportable?
       elsif itin.leg_flag == 2
         delta = -1 * trip.human_trip_size
         ntd_delta = delta if trip.ntd_reportable?
@@ -203,13 +206,13 @@ class RunStatsCalculator
     to_lon = to_addr.try(:longitude)
 
     params = {
-      from_lat: from_lat, 
-      from_lon: from_lon, 
-      to_lat: to_lat, 
-      to_lon: to_lon, 
+      from_lat: from_lat,
+      from_lon: from_lon,
+      to_lat: to_lat,
+      to_lon: to_lon,
       trip_datetime: time
     }
-    
+
     TripDistanceDurationProxy.new(ENV['TRIP_PLANNER_TYPE'], params)
   end
 

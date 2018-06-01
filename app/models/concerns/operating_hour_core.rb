@@ -11,6 +11,8 @@ module OperatingHourCore
     validates_presence_of :operatable
     validate :enforce_hour_sanity
 
+    after_initialize :set_defaults
+
     scope :all_day, -> { where(is_all_day: true) } 
     scope :unavailable, -> { where(is_unavailable: true) } 
     scope :regular, -> { where.not("is_all_day = ? or is_unavailable = ?", true, true) } 
@@ -74,16 +76,16 @@ module OperatingHourCore
     end
 
     def get_available_times(interval: 30.minutes)
-      first_recur_config = self.first
-      if first_recur_config.is_unavailable?
+      first_config = self.first
+      if !first_config || first_config.is_unavailable?
         []
-      elsif first_recur_config.is_all_day?
+      elsif first_config.is_all_day?
         from_time = Time.zone.parse(START_OF_DAY)
         to_time =  from_time + 1.day
         get_times_between(start_time: from_time, end_time: to_time, interval: interval)
       else
-        from_time = self.regular.minimum(:start_time)
-        to_time = self.regular.maximum(:end_time)
+        from_time = first_config.start_time
+        to_time = first_config.end_time
         if to_time == from_time
           from_time = Time.zone.parse(START_OF_DAY)
           to_time = from_time + 1.day
@@ -166,6 +168,12 @@ module OperatingHourCore
   end
 
   private
+
+  def set_defaults
+    if self.end_time && self.start_time && self.end_time < self.start_time
+      self.end_time += 1.day
+    end
+  end
 
   def enforce_hour_sanity
     if is_regular_hours? && (start_time == end_time || (start_time > end_time && end_time.try(:to_s, :time_utc) != START_OF_DAY))

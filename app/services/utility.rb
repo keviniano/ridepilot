@@ -11,7 +11,7 @@ class Utility
     elsif time_param.to_i.to_s == time_param.to_s
       time = Time.zone.at(time_param.to_i)
     else
-      time = Date.strptime(time_param, '%a %b %d, %Y') rescue nil
+      time = Date.parse time_param rescue nil
     end
 
     time.to_date.in_time_zone if time

@@ -1,4 +1,4 @@
-class RepeatingTrip < ActiveRecord::Base
+class RepeatingTrip < ApplicationRecord
   include RequiredFieldValidatorModule
   include RecurringRideCoordinatorScheduler
   include RecurringRideCoordinator
@@ -19,7 +19,7 @@ class RepeatingTrip < ActiveRecord::Base
       {
         repeat:        1,
         interval_unit: "week", 
-        start_date:    trip.pickup_time.to_date.to_s,
+        start_date:    (trip.start_date.try(:to_date) || Date.today).to_s,
         interval:      trip.repetition_interval, 
         monday:        trip.repeats_mondays    ? 1 : 0,
         tuesday:       trip.repeats_tuesdays   ? 1 : 0,
@@ -82,8 +82,6 @@ class RepeatingTrip < ActiveRecord::Base
     outbound_trip_id = self.linking_trip_id if self.is_return? 
     if outbound_trip_id
       outbound_daily_trips = Trip.for_date_range(now, later + 1.day).where(repeating_trip_id: outbound_trip_id).pluck("date(pickup_time)", :id).to_h
-      puts "outboud trips..."
-      puts outbound_daily_trips
     end
 
     # Transaction block ensures that no DB changes will be made if there are any errors
@@ -91,7 +89,7 @@ class RepeatingTrip < ActiveRecord::Base
       # Potentially create a trip for each schedule occurrence in the scheduler window
       for date in schedule.occurrences_between(now, later)
         # Skip if occurrence is outside of schedule's active window
-        next unless date_in_active_range?(date.to_date) && customer && customer.active_for_date?(date)
+        next unless date_in_active_range?(date.to_date) && customer && !customer.deleted? && customer.active_for_date?(date)
         this_trip_pickup_time = Time.zone.local(date.year, date.month, date.day, pickup_time.hour, pickup_time.min, pickup_time.sec)
       
         # Build a trip belonging to the repeating trip for each schedule 
@@ -159,7 +157,9 @@ class RepeatingTrip < ActiveRecord::Base
     return_trip = self.dup 
     return_trip.direction = :return
     return_trip.pickup_address = self.dropoff_address
+    return_trip.pickup_address_notes = self.dropoff_address_notes
     return_trip.dropoff_address = self.pickup_address
+    return_trip.dropoff_address_notes = self.pickup_address_notes
 
     # assume pickup and appt time will be on that date
     return_trip.pickup_time = pickup_time_str

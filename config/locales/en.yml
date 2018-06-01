@@ -167,6 +167,7 @@ en:
   view_customer_comments_report: 'View Customer Comments Report'
   configure_provider_ada_questions: "Configure ADA Questions"
   provider_ada_questions_link_text: "ADA Question Lookup Table"
+  customer_deleted: "Customer has been deleted"
   
   # Lookup tables
   add_value: "Add Value"
@@ -711,6 +712,7 @@ en:
   application_trips_link_text: "Trips"
   application_runs_link_text: "Runs"
   application_cabs_link_text: "Cabs"
+  application_cad_link_text: "CAD/AVL"
   application_customers_link_text: "Customers"
   application_reports_link_text: "Reports"
   application_drivers_link_text: "Drivers"
@@ -905,6 +907,12 @@ en:
   address_group: 'Address Group'
   address_group_label: 'Type'
   new_provider_common_address_dialog_title: "New Address"
+
+  # Fare
+  fare_related_settings: "Fare Configurations"
+  fare_type: "Type"
+  pre_or_post_trip: "Collect during pre-trip or post-trip?"
+  update_fare_related_settings: "Update"
 
   # ETA
   eta_related_settings: "ETA Calculation Related Settings"
@@ -1238,6 +1246,7 @@ en:
   complete_run_dialog_title: "Complete Run"
   uncomplete_run_dialog_title: "Set Run as Incomplete"
   uncomplete_reason: "Reason"
+  use_vehicle_garage: "Vehicle garage as start & end?"
   
   #shared
   generic_error_message:
@@ -1279,6 +1288,7 @@ en:
   medicaid_eligible: "Medicaid Eligible"
   customer_private_notes: "Customer Private Notes"
   trip_donation: "Donation"
+  trip_payment: "Payment"
   trip_service_level: "Service Level"
   trip_mobility_requirements: "Mobility Req."
   trip_mobility_notes: "Mobility notes"

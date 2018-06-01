@@ -5,6 +5,7 @@
 /.bundle
 /.sass-cache
 /.vagrant
+/.byebug_history
 /cookbooks
 /config/app_config.yml
 /config/database.yml
@@ -16,6 +17,7 @@
 /db/legacy
 /log/*.log
 /public/system
+/public/cad_avl_data_archives
 /tmp
 # Ignore application configuration
 /config/application.yml

@@ -1,4 +1,4 @@
-class API::V1::CustomersController < API::ApiController
+class API::V1::CustomersController < API::V1::BaseController
   
   def show
     customer = Customer.where(id: params[:customer_id], token: params[:customer_token]).first

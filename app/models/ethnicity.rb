@@ -1,4 +1,4 @@
-class Ethnicity < ActiveRecord::Base
+class Ethnicity < ApplicationRecord
   acts_as_paranoid # soft delete
   has_paper_trail
 

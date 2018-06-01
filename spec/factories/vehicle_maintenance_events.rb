@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :vehicle_maintenance_event do
     vehicle
     service_date { Date.current }

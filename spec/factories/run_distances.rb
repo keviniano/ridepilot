@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :run_distance do
     run
     total_dist 1.5

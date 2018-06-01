@@ -1,4 +1,4 @@
-class RepeatingItinerary < ActiveRecord::Base
+class RepeatingItinerary < ApplicationRecord
   include ItineraryCore
 
   belongs_to :trip, class_name: 'RepeatingTrip', foreign_key: 'repeating_trip_id'

@@ -99,7 +99,7 @@ class Query
 end
 
 def bind(args)
-  return ActiveRecord::Base.__send__(:sanitize_sql_for_conditions, args, '')
+  return ApplicationRecord.__send__(:sanitize_sql_for_conditions, args, '')
 end
 
 class ReportsController < ApplicationController
@@ -424,7 +424,7 @@ class ReportsController < ApplicationController
     date_range = @query.start_date..@query.end_date
     columns = Trip.column_names.map{|c| "\"#{Trip.table_name}\".\"#{c}\" as \"#{Trip.table_name}.#{c}\""} + Customer.column_names.map{|c| "\"#{Customer.table_name}\".\"#{c}\" as \"#{Customer.table_name}.#{c}\""}
     sql = Trip.select(columns.join(',')).joins(:customer).where(:pickup_time => date_range).order(:pickup_time).to_sql
-    trips = ActiveRecord::Base.connection.select_all(sql)
+    trips = ApplicationRecord.connection.select_all(sql)
     csv_string = CSV.generate do |csv|
       csv << columns.collect{|c| c.split(' as ').last.strip.gsub("\"", "") }
       unless trips.empty?
@@ -521,8 +521,8 @@ class ReportsController < ApplicationController
     @end_date = @query.end_date
 
     @provider = Provider.find(current_provider_id)
-    new_customer_ids = ActiveRecord::Base.connection.select_values(Customer.select('DISTINCT "customers"."id"').joins("LEFT JOIN \"trips\" \"previous_months_trips\" ON \"customers\".\"id\" = \"previous_months_trips\".\"customer_id\" AND (#{ActiveRecord::Base.send(:sanitize_sql_array, ['"previous_months_trips"."pickup_time" < ?', @start_date.to_datetime.in_time_zone.utc])})", "LEFT JOIN \"trips\" \"current_months_trips\" ON \"customers\".\"id\" = \"current_months_trips\".\"customer_id\" AND (#{ActiveRecord::Base.send(:sanitize_sql_array, ['"current_months_trips"."pickup_time" >= ? AND "current_months_trips"."pickup_time" < ?', @start_date.to_datetime.in_time_zone.utc, @end_date.to_datetime.in_time_zone.utc])})").group('"customers"."id"').having('COUNT("previous_months_trips"."id") = 0 AND COUNT("current_months_trips"."id") > 0').except(:order).to_sql)
-    new_driver_ids = ActiveRecord::Base.connection.select_values(Driver.select('DISTINCT "drivers"."id"').joins("LEFT JOIN \"runs\" \"previous_months_runs\" ON \"drivers\".\"id\" = \"previous_months_runs\".\"driver_id\" AND (#{ActiveRecord::Base.send(:sanitize_sql_array, ['"previous_months_runs"."date" < ?', @start_date.to_datetime.in_time_zone.utc])})", "LEFT JOIN \"runs\" \"current_months_runs\" ON \"drivers\".\"id\" = \"current_months_runs\".\"driver_id\" AND (#{ActiveRecord::Base.send(:sanitize_sql_array, ['"current_months_runs"."date" >= ? AND "current_months_runs"."date" < ?', @start_date.to_datetime.in_time_zone.utc, @end_date.to_datetime.in_time_zone.utc])})").group('"drivers"."id"').having('COUNT("previous_months_runs"."id") = 0 AND COUNT("current_months_runs"."id") > 0').except(:order).to_sql)
+    new_customer_ids = ApplicationRecord.connection.select_values(Customer.select('DISTINCT "customers"."id"').joins("LEFT JOIN \"trips\" \"previous_months_trips\" ON \"customers\".\"id\" = \"previous_months_trips\".\"customer_id\" AND (#{ApplicationRecord.send(:sanitize_sql_array, ['"previous_months_trips"."pickup_time" < ?', @start_date.to_datetime.in_time_zone.utc])})", "LEFT JOIN \"trips\" \"current_months_trips\" ON \"customers\".\"id\" = \"current_months_trips\".\"customer_id\" AND (#{ApplicationRecord.send(:sanitize_sql_array, ['"current_months_trips"."pickup_time" >= ? AND "current_months_trips"."pickup_time" < ?', @start_date.to_datetime.in_time_zone.utc, @end_date.to_datetime.in_time_zone.utc])})").group('"customers"."id"').having('COUNT("previous_months_trips"."id") = 0 AND COUNT("current_months_trips"."id") > 0').except(:order).to_sql)
+    new_driver_ids = ApplicationRecord.connection.select_values(Driver.select('DISTINCT "drivers"."id"').joins("LEFT JOIN \"runs\" \"previous_months_runs\" ON \"drivers\".\"id\" = \"previous_months_runs\".\"driver_id\" AND (#{ApplicationRecord.send(:sanitize_sql_array, ['"previous_months_runs"."date" < ?', @start_date.to_datetime.in_time_zone.utc])})", "LEFT JOIN \"runs\" \"current_months_runs\" ON \"drivers\".\"id\" = \"current_months_runs\".\"driver_id\" AND (#{ApplicationRecord.send(:sanitize_sql_array, ['"current_months_runs"."date" >= ? AND "current_months_runs"."date" < ?', @start_date.to_datetime.in_time_zone.utc, @end_date.to_datetime.in_time_zone.utc])})").group('"drivers"."id"').having('COUNT("previous_months_runs"."id") = 0 AND COUNT("current_months_runs"."id") > 0').except(:order).to_sql)
     monthly_base_query = Monthly.where(provider_id: @provider.id, start_date: @start_date..@end_date)
 
     trip_queries = {
@@ -1247,7 +1247,7 @@ class ReportsController < ApplicationController
       redirect_to custom_report_path(custom_report)
     else
       flash[:error] = "Failed to delete #{saved_report.name}."
-      redirect_to :back
+      redirect_back(fallback_location: saved_report_path(@saved_report))
     end
   end
 

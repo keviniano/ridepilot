@@ -25,7 +25,6 @@
 //= require jquery.colorPicker
 //= require idletimeout
 //= require constants
-//= require fullcalendar
 //= require moment
 //= require handlebars
 //= require jquery.geocomplete
@@ -43,6 +42,8 @@
 //= require bootstrap-editable-rails
 //= require jquery.floatThead
 //= require jquery.splitter
+//= require OverlappingMarkerSpiderfier
+//= require cable
 //= require_self
 
 function ISODateFormatToDateObject(str) {

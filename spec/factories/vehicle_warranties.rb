@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :vehicle_warranty do
     vehicle
     description { Faker::Lorem.words(2).join(' ') }

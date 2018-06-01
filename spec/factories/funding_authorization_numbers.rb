@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :funding_authorization_number do
     customer
     number { Faker::Number.number(10)}

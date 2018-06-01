@@ -1,6 +1,6 @@
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :address do
     name { Faker::Lorem.words(2).join(' ') }
     address { Faker::Address.street_address }

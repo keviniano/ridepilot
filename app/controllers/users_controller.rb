@@ -3,7 +3,7 @@ require 'new_user_mailer'
 class UsersController < ApplicationController
   load_and_authorize_resource :provider, only: [:new_user, :create_user]
   before_action :set_user, only: [:show, :edit, :update, :reset_password]
-  skip_before_filter :authenticate_user!, only: [:new_user, :create_user, :get_verification_question, :answer_verification_question]
+  skip_before_action :authenticate_user!, only: [:new_user, :create_user, :get_verification_question, :answer_verification_question], raise: false
 
   def new_user
     authorize! :edit, @provider
@@ -29,7 +29,7 @@ class UsersController < ApplicationController
           new_attrs = user_params
           is_address_blank = check_blank_address
           if is_address_blank
-            new_attrs.except!(:user_address_attributes)
+            new_attrs = new_attrs.except(:user_address_attributes)
           end
 
           if not @user
@@ -97,7 +97,7 @@ class UsersController < ApplicationController
     if is_address_blank
       prev_address = @user.user_address
       @user.address_id = nil
-      new_attrs.except!(:user_address_attributes)
+      new_attrs = new_attrs.except(:user_address_attributes)
     end
     
     if @user.update_attributes(new_attrs)
@@ -130,7 +130,7 @@ class UsersController < ApplicationController
     @user.assign_attributes reset_password_params
     if @user.save
       if @user == current_user
-        sign_in(@user, :bypass => true)
+        bypass_sign_in(@user)
       end
 
       flash.now[:notice] = "Password reset"
@@ -147,7 +147,7 @@ class UsersController < ApplicationController
 
   def change_password
     if current_user.update_password(change_password_params)
-      sign_in(current_user, :bypass => true)
+      bypass_sign_in(current_user)
       flash.now[:notice] = "Password changed"
       redirect_to root_path
     else
@@ -167,7 +167,7 @@ class UsersController < ApplicationController
 
     if @user.update_email(change_email_params)
       if @user == current_user
-        sign_in(current_user, :bypass => true)
+        bypass_sign_in(current_user)
       end
 
       flash.now[:notice] = "Email changed"
@@ -207,7 +207,7 @@ class UsersController < ApplicationController
     if is_on_provider_page
       redirect_to provider_path(provider)
     else
-      redirect_to :back
+      redirect_back(fallback_location: root_path)
     end
   end
 
@@ -222,7 +222,7 @@ class UsersController < ApplicationController
   end
 
   def touch_session
-    render :text => 'OK'
+    render plain: 'OK'
   end
 
   def restore
@@ -235,7 +235,7 @@ class UsersController < ApplicationController
       redirect_to users_provider_path(current_provider)
     else
       flash.now[:alert] = TranslationEngine.translate_text(:unknown_error)
-      redirect_to :back
+      redirect_back(fallback_location: user_path(@user))
     end
   end
   
@@ -249,7 +249,7 @@ class UsersController < ApplicationController
     
     unless @user && @question
       flash[:alert] = TranslationEngine.translate_text(:no_verification_questions_set)
-      redirect_to :back
+      redirect_back(fallback_location: root_path)
     end
   end
   
@@ -259,7 +259,7 @@ class UsersController < ApplicationController
     @user = User.find_by_id(params[:id])
     @question = @user.verification_questions.find_by_id(answer_verification_question_params[:verification_question_id])
     if @question.correct?(answer_verification_question_params[:answer])
-      sign_in(@user, bypass: true)
+      bypass_sign_in(@user)
       redirect_to action: :show_reset_password, id: @user.id
     else
       flash[:alert] = TranslationEngine.translate_text(:verification_question_incorrect_answer)

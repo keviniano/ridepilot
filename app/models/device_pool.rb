@@ -1,4 +1,4 @@
-class DevicePool < ActiveRecord::Base
+class DevicePool < ApplicationRecord
   acts_as_paranoid # soft delete
   has_paper_trail
   

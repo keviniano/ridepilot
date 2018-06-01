@@ -28,7 +28,7 @@ module RecurringComplianceEventScheduler
       self.class.transaction do
         child_ids = self.send(self.class.occurrence_association).incomplete.pluck(:id)
         self.destroy
-        self.class.occurrence_class.destroy_all(id: child_ids)
+        self.class.occurrence_class.where(id: child_ids).destroy_all
       end
     end
 

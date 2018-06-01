@@ -1,4 +1,4 @@
-class AdaQuestion < ActiveRecord::Base
+class AdaQuestion < ApplicationRecord
   belongs_to :provider
 
   has_many   :customer_ada_questions, dependent: :destroy

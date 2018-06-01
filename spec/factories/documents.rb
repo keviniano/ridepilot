@@ -1,8 +1,8 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :document, aliases: [:driver_document] do
     description { Faker::Lorem.words(2).join(' ') }
     
-    # Avoid using fixture_file_upload with FactoryGirl and Paperclip
+    # Avoid using fixture_file_upload with FactoryBot and Paperclip
     # http://goo.gl/jBc5lS
     document_file_name { 'test.pdf' }
     document_content_type { 'application/pdf' }

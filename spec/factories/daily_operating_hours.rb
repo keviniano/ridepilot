@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :daily_operating_hour do
     date "2017-11-22 00:00:00"
     start_time "00:00:00"

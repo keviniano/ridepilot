@@ -1,5 +1,6 @@
 class TripDistanceCalculationWorker
   include Sidekiq::Worker
+  sidekiq_options queue: 'default'
 
   def perform(trip_id)
     Rails.logger.info "TripDistanceCalculationWorker#perform, Trip ID = #{trip_id}"

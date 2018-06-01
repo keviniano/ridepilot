@@ -1,3 +1,3 @@
-class DriverRequirementTemplate < ActiveRecord::Base
+class DriverRequirementTemplate < ApplicationRecord
   include RequirementTemplate
 end

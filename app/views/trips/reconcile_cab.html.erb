@@ -15,7 +15,7 @@
   <% @trips.each do |trip| %>
     <tr>
       <td><%= trip.pickup_time.to_s %></td>
-      <td><%= trip.customer.name %></td>
+      <td><%= trip.customer.try(:name) %></td>
       <td><%= trip.pickup_address.text %></td>
       <td><%= trip.dropoff_address.text %></td>
       <td><%= display_trip_result trip.trip_result %></td>

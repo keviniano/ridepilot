@@ -1,4 +1,4 @@
-class CustomerEligibility < ActiveRecord::Base
+class CustomerEligibility < ApplicationRecord
   belongs_to :customer, -> { with_deleted }
   belongs_to :eligibility
 

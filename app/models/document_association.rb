@@ -1,4 +1,4 @@
-class DocumentAssociation < ActiveRecord::Base
+class DocumentAssociation < ApplicationRecord
   belongs_to :document, inverse_of: :document_associations
   belongs_to :associable, polymorphic: true, inverse_of: :document_associations
   

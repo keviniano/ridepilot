@@ -16,7 +16,7 @@
               = per_page
       :javascript
         $('#per_page_select').on('change', function(){
-          var params = #{@params.to_json};
+          var params = #{@params.to_json.html_safe};
           params.per_page = $(this).val();
           window.location.href = "#{reporting.report_results_path(@report)}?" + $.param(params);
         });

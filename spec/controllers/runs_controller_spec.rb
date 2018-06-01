@@ -22,14 +22,14 @@ RSpec.describe RunsController, type: :controller do
   describe "GET #index" do
     it "assigns all runs as @runs" do
       run = create(:run, :provider => @current_user.current_provider)
-      get :index, {}
+      get :index, params: {}
       expect(assigns(:runs)).to eq([run])
     end
   end
 
   describe "GET #new" do
     it "assigns a new run as @run" do
-      get :new, {}
+      get :new, params: {}
       expect(assigns(:run)).to be_a_new(Run)
     end
   end
@@ -37,7 +37,7 @@ RSpec.describe RunsController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested run as @run" do
       run = create(:run, :provider => @current_user.current_provider)
-      get :edit, {:id => run.to_param}
+      get :edit, params: {:id => run.to_param}
       expect(assigns(:run)).to eq(run)
     end
   end
@@ -46,30 +46,30 @@ RSpec.describe RunsController, type: :controller do
     context "with valid params" do
       it "creates a new Run" do
         expect {
-          post :create, {:run => valid_attributes}
+          post :create, params: {:run => valid_attributes}
         }.to change(Run, :count).by(1)
       end
 
       it "assigns a newly created run as @run" do
-        post :create, {:run => valid_attributes}
+        post :create, params: {:run => valid_attributes}
         expect(assigns(:run)).to be_a(Run)
         expect(assigns(:run)).to be_persisted
       end
 
       it "redirects to the created run" do
-        post :create, {:run => valid_attributes}
+        post :create, params: {:run => valid_attributes}
         expect(response).to redirect_to(run_path(assigns(:run)))
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved run as @run" do
-        post :create, {:run => invalid_attributes}
+        post :create, params: {:run => invalid_attributes}
         expect(assigns(:run)).to be_a_new(Run)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:run => invalid_attributes}
+        post :create, params: {:run => invalid_attributes}
         expect(response).to render_template("new")
       end
     end
@@ -98,29 +98,19 @@ RSpec.describe RunsController, type: :controller do
       it "updates the requested run" do
         run = create(:run, :provider => @current_user.current_provider, :name => "Something")
         expect {
-          put :update, {:id => run.to_param, :run => new_attributes}
+          put :update, params: {:id => run.to_param, :run => new_attributes}
         }.to change{ run.reload.name }.from("Something").to("MyString")
-      end
-
-      it "accepts nested trip attributes" do        
-        run = create(:run, :provider => @current_user.current_provider)
-        trip = create(:trip, :provider => @current_user.current_provider, :run => run, :trip_result => create(:trip_result, name: "Missing"))
-        expect {
-          put :update, {:id => run.to_param, :run => new_attributes.merge({
-            :trips_attributes => { "0" => { :id => trip.id, :trip_result_id => create(:trip_result, name: "No Show").id }}}
-          )}
-        }.to change{ trip.reload.trip_result.name }.from("Missing").to("No Show")
       end
 
       it "assigns the requested run as @run" do
         run = create(:run, :provider => @current_user.current_provider)
-        put :update, {:id => run.to_param, :run => valid_attributes}
+        put :update, params: {:id => run.to_param, :run => valid_attributes}
         expect(assigns(:run)).to eq(run)
       end
 
       it "redirects to the run" do
         run = create(:run, :provider => @current_user.current_provider)
-        put :update, {:id => run.to_param, :run => valid_attributes}
+        put :update, params: {:id => run.to_param, :run => valid_attributes}
         expect(response).to redirect_to(run_path(run))
       end
     end
@@ -128,13 +118,13 @@ RSpec.describe RunsController, type: :controller do
     context "with invalid params" do
       it "assigns the run as @run" do
         run = create(:run, :provider => @current_user.current_provider)
-        put :update, {:id => run.to_param, :run => invalid_attributes}
+        put :update, params: {:id => run.to_param, :run => invalid_attributes}
         expect(assigns(:run)).to eq(run)
       end
 
       it "re-renders the 'edit' template" do
         run = create(:run, :provider => @current_user.current_provider)
-        put :update, {:id => run.to_param, :run => invalid_attributes}
+        put :update, params: {:id => run.to_param, :run => invalid_attributes}
         expect(response).to render_template("edit")
       end
     end
@@ -144,13 +134,13 @@ RSpec.describe RunsController, type: :controller do
     it "destroys the requested run" do
       run = create(:run, :provider => @current_user.current_provider)
       expect {
-        delete :destroy, {:id => run.to_param}
+        delete :destroy, params: {:id => run.to_param}
       }.to change(Run, :count).by(-1)
     end
 
     it "redirects to the runs list" do
       run = create(:run, :provider => @current_user.current_provider)
-      delete :destroy, {:id => run.to_param}
+      delete :destroy, params: {:id => run.to_param}
       expect(response).to redirect_to(runs_path(date_range(run)))
     end
   end
@@ -161,20 +151,20 @@ RSpec.describe RunsController, type: :controller do
       run_2 = create(:run, :provider => @current_user.current_provider, :date => Date.yesterday.in_time_zone)
       run_3 = create(:run, :provider => @current_user.current_provider, :date => Date.yesterday.in_time_zone)
       run_3.update_attribute(:complete, true)
-      get :for_date, {:date => Date.yesterday.in_time_zone}
+      get :for_date, params: {:date => Date.yesterday.in_time_zone}
       expect(assigns(:runs)).to_not include(run_1)
       expect(assigns(:runs)).to_not include(run_3)
       expect(assigns(:runs)).to include(run_2)
     end
     
     it "responds with JSON" do
-      get :for_date, {:date => Date.yesterday.in_time_zone}
+      get :for_date, params: {:date => Date.yesterday.in_time_zone}
       expect(response.content_type).to eq("application/json")
     end
 
     it "include matching address info in the json response" do
       run = create(:run, :provider => @current_user.current_provider, :date => Date.today.in_time_zone)
-      get :for_date, {:date => Date.today.in_time_zone}
+      get :for_date, params: {:date => Date.today.in_time_zone}
       json = JSON.parse(response.body)
       expect(json).to be_a(Array)
       expect(json.first["id"]).to be_a(Integer)
@@ -182,7 +172,7 @@ RSpec.describe RunsController, type: :controller do
     end
 
     it "include a new cab trip in the json response" do
-      get :for_date, {:date => Date.today.in_time_zone}
+      get :for_date, params: {:date => Date.today.in_time_zone}
       json = JSON.parse(response.body)
       expect(json).to be_a(Array)
       expect(json.first["id"]).to be_a(Integer)
@@ -196,13 +186,13 @@ RSpec.describe RunsController, type: :controller do
       run_1 = create(:run, :provider => @current_user.current_provider)
       run_1.update_attribute(:complete, true)
       run_2 = create(:run, :provider => @current_user.current_provider)
-      get :uncompleted_runs, {}
+      get :uncompleted_runs, params: {}
       expect(assigns(:runs)).to_not include(run_1)
       expect(assigns(:runs)).to include(run_2)
     end
 
     it "renders the 'index' template" do
-      get :uncompleted_runs, {}
+      get :uncompleted_runs, params: {}
       expect(response).to render_template("index")
     end
   end
@@ -227,7 +217,7 @@ RSpec.describe RunsController, type: :controller do
       expect(run_3.trips.count).to eq(0)
       trip_count = Trip.count
       
-      patch :cancel_multiple, { cancel_multiple_runs: { run_ids: Run.pluck(:id).join(',') } }
+      patch :cancel_multiple, params: { cancel_multiple_runs: { run_ids: Run.pluck(:id).join(',') } }
     
       expect(run_1.trips.count).to eq(0)
       expect(run_2.trips.count).to eq(0)
@@ -239,7 +229,7 @@ RSpec.describe RunsController, type: :controller do
       trip_count = Trip.count      
       expect(Run.where(id: [run_1.id, run_2.id, run_3.id]).count).to eq(3)
       
-      delete :delete_multiple, { delete_multiple_runs: { run_ids: Run.pluck(:id).join(',') } }
+      delete :delete_multiple, params: { delete_multiple_runs: { run_ids: Run.pluck(:id).join(',') } }
       
       expect(Run.where(id: [run_1.id, run_2.id, run_3.id]).count).to eq(0)
       expect(Trip.count).to eq(trip_count)

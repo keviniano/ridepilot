@@ -1,0 +1,54 @@
+.panel.panel-primary#trip_fare_panel
+  .panel-heading
+    %h3.panel-title
+      = translate_helper(:fare_related_settings)
+  .panel-body{style: 'padding: 5px;'}
+    - @trip.fare = current_provider.fare.try(:dup) unless @trip.fare
+    = f.fields_for :fare do |ff|
+      .form-group.col-sm-12
+        .col-sm-3
+          = ff.label :fare_type, translate_helper("fare_type")
+        .col-sm-9
+          = ff.select :fare_type, [["Free", 'free'], ["Donation", 'donation'], ["Payment", 'payment']], {}, {class: 'form-control'}
+    
+      .form-group.col-sm-12.fare_pre_trip
+        .col-sm-3
+          = ff.label :pre_trip, translate_helper("pre_or_post_trip")
+        .col-sm-9
+          = ff.select :pre_trip, [["Pre-trip", true], ["Post-trip", false]],  {}, {class: 'form-control'}
+    
+    - fare = @trip.fare
+    .form-group.col-sm-12.trip_donation{style: fare.try(:is_donation?) ? "": "display: none;"}
+      .col-sm-3
+        = f.label :customer_donation, translate_helper("trip_donation")
+      .col-sm-6.col-md-3
+        = number_field_tag :customer_donation, nil, min: 0, step: 0.01, :size => 8, class: 'form-control', value: params[:customer_donation] || @trip.donation.try(:amount)
+    .form-group.col-sm-12.trip_payment{style: fare.try(:is_payment?) ? "": "display: none;"}
+      .col-sm-3
+        = f.label :fare_amount, translate_helper("trip_payment")
+      .col-sm-6.col-md-3
+        = f.number_field :fare_amount, min: 0, step: 0.01, :size => 8, class: 'form-control'
+
+    :javascript
+      $(function() {
+        $('#trip_fare_attributes_fare_type').on('change', function() {
+          if($(this).val() == 'free') {
+            $('.fare_pre_trip').hide();
+            $('.trip_donation').hide();
+            $('.trip_payment').hide();
+            $('#trip_fare_amount').val('');
+            $('#customer_donation').val('');
+          } else {
+            $('.fare_pre_trip').show();
+            if($(this).val() == 'payment') {
+              $('.trip_payment').show();
+              $('.trip_donation').hide();
+              $('#customer_donation').val('');
+            } else {
+              $('.trip_donation').show();
+              $('.trip_payment').hide();
+              $('#trip_fare_amount').val('');
+            }
+          }
+        });
+      });

@@ -1,6 +1,7 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
+require './app/controllers/concerns/json_response_helper.rb'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -12,7 +13,7 @@ module Ridepilot
 
       ActiveSupport.on_load(:active_record) do
         if url = ENV['DATABASE_URL']
-          ActiveRecord::Base.connection_pool.disconnect!
+          ApplicationRecord.connection_pool.disconnect!
           parsed_url = URI.parse(url)
           config =  {
             adapter:             'postgis',
@@ -36,15 +37,37 @@ module Ridepilot
     config.autoload_paths += %W(#{config.root}/app/services/distance_duration_services)
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
-    # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
+    # Run "rails -D time" for a list of tasks for finding time zone names. Default is UTC.
     config.time_zone = 'Mountain Time (US & Canada)'
 
     config.i18n.enforce_available_locales = false
     config.i18n.default_locale = :en
 
+    config.action_controller.per_form_csrf_tokens = true
+
+    # become time zone aware
+    config.active_record.time_zone_aware_types = [:datetime, :time]
+
+    # Set default CORS settings
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*' # /http:\/\/localhost:(\d*)/
+        resource '*',
+          # headers: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept',
+          #   'Authorization', 'X-User-Token', 'X-User-Email',
+          #   'Access-Control-Request-Headers', 'Access-Control-Request-Method'
+          # ],
+          headers: :any, # fixes CORS errors on OPTIONS requests
+          methods: [:get, :post, :put, :delete, :options]
+        end
+    end
+
+    # Sends back appropriate JSON 400 response if a bad JSON request is sent.
+    config.middleware.insert_before Rack::Head, JsonResponseHelper::CatchJsonParseErrors
+
     config.generators do |g|
       g.test_framework :rspec, fixture: false
-      g.fixture_replacement :factory_girl, dir: 'spec/factories'
+      g.fixture_replacement :factory_bot, dir: 'spec/factories'
       g.view_specs false
       g.helper_specs false
       

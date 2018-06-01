@@ -2,14 +2,14 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
-  skip_before_filter :verify_authenticity_token, if: -> { controller_name == 'sessions' && action_name == 'create' }
+  skip_before_action :verify_authenticity_token, if: -> { controller_name == 'sessions' && action_name == 'create' }
 
-  before_filter :apply_application_settings
-  before_filter :do_not_track
-  before_filter :authenticate_user!
-  before_filter :get_providers
-  before_filter :set_locale
-  before_filter :set_cache_buster_for_xhr
+  before_action :apply_application_settings
+  before_action :do_not_track
+  before_action :authenticate_user!
+  before_action :get_providers
+  before_action :set_locale
+  before_action :set_cache_buster_for_xhr
   
   rescue_from CanCan::AccessDenied do |exception|
     render :file => "#{Rails.root}/public/403.html", :status => 403
@@ -29,10 +29,6 @@ class ApplicationController < ActionController::Base
       end
     end
     @provider_map.sort!{|a, b| a[0] <=> b[0] }
-  end
-
-  def test_exception_notification
-    raise 'Testing, 1 2 3.'
   end
 
   private

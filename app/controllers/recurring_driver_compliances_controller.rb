@@ -1,9 +1,9 @@
 class RecurringDriverCompliancesController < ApplicationController
   load_and_authorize_resource skip: [:schedule_preview, :future_schedule_preview, :compliance_based_schedule_preview]
   
-  before_filter :prep_form, only: [:new, :edit, :create, :update]  
-  before_filter :prep_preview, only: [:schedule_preview, :future_schedule_preview, :compliance_based_schedule_preview]
-  before_filter :generate_schedule_previews, only: [:show, :edit, :create, :update]
+  before_action :prep_form, only: [:new, :edit, :create, :update]  
+  before_action :prep_preview, only: [:schedule_preview, :future_schedule_preview, :compliance_based_schedule_preview]
+  before_action :generate_schedule_previews, only: [:show, :edit, :create, :update]
   
   # GET /recurring_driver_compliances
   def index

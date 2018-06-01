@@ -1,4 +1,4 @@
-class SavedCustomReport < ActiveRecord::Base
+class SavedCustomReport < ApplicationRecord
   belongs_to :custom_report
   belongs_to :provider
 

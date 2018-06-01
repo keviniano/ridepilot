@@ -12,4 +12,4 @@ AttributeNormalizer.configure do |config|
   end
 end
 
-ActiveRecord::Base.send :include, AttributeNormalizer
+ApplicationRecord.send :include, AttributeNormalizer

@@ -6,8 +6,8 @@ class DocumentsController < ApplicationController
   # Load documents through their associated parent
   load_and_authorize_resource :document, through: [:driver, :vehicle]
     
-  before_filter :set_parent
-  before_filter :authorize_parent
+  before_action :set_parent
+  before_action :authorize_parent
 
   respond_to :html, :js
 

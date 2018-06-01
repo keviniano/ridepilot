@@ -1,4 +1,4 @@
-class DriverHistory < ActiveRecord::Base
+class DriverHistory < ApplicationRecord
   include DocumentAssociable
   
   has_paper_trail

@@ -1,4 +1,3 @@
-- edit_mode = :edit if !defined? edit_mode
 %table.ride_trips
   %thead
     %tr
@@ -14,8 +13,4 @@
       %th=translate_helper("trip_result_column")
   %tbody
     - @run.trips.each do |trip| 
-      - if edit_mode == :edit
-        = fields_for 'trips_attributes[]', trip do |trip_fields|
-          = render 'editable_trip_row', :trip_fields => trip_fields, :trip => trip
-      - else
-        = render 'non_editable_trip_row', :trip => trip
+      = render 'non_editable_trip_row', :trip => trip

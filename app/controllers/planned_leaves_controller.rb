@@ -47,7 +47,10 @@ class PlannedLeavesController < ApplicationController
     @planned_leave = PlannedLeave.find_by_id(params[:id])
     @planned_leave.destroy
     respond_to do |format|
-      format.html { redirect_to :back, notice: 'Vehicle warranty was successfully destroyed.' }
+      format.html {
+        flash[:notice] = 'Vehicle warranty was successfully destroyed.'
+        redirect_back(fallback_location: @leavable) 
+      }
       format.js
     end
   end

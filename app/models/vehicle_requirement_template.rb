@@ -1,3 +1,3 @@
-class VehicleRequirementTemplate < ActiveRecord::Base
+class VehicleRequirementTemplate < ApplicationRecord
   include RequirementTemplate
 end

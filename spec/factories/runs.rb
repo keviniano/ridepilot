@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :run do
     name { Faker::Lorem.words(2).join(' ') }
     vehicle

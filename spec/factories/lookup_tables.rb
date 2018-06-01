@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :lookup_table do
     caption "Trip Purpose"
     name "TripPurpose"

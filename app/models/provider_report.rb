@@ -1,4 +1,4 @@
-class ProviderReport < ActiveRecord::Base
+class ProviderReport < ApplicationRecord
   belongs_to :provider, -> { with_deleted }
   belongs_to :custom_report
 

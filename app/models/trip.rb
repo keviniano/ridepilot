@@ -1,4 +1,4 @@
-class Trip < ActiveRecord::Base
+class Trip < ApplicationRecord
   include RequiredFieldValidatorModule
   include TripCore
   include PublicActivity::Common
@@ -19,6 +19,9 @@ class Trip < ActiveRecord::Base
   has_many   :ridership_mobilities, class_name: "TripRidershipMobility", foreign_key: :host_id, dependent: :destroy
   has_many   :itineraries, dependent: :destroy
 
+  belongs_to :fare
+  accepts_nested_attributes_for :fare
+
   delegate :label, to: :run, prefix: :run, allow_nil: true
   delegate :code, :name, to: :trip_result, prefix: :trip_result, allow_nil: true
 
@@ -32,6 +35,8 @@ class Trip < ActiveRecord::Base
 
   before_update :check_eta_settings_change
   after_update :apply_eta_settings_change
+
+  before_create :find_fare_settings
 
   scope :after,              -> (pickup_time) { where('pickup_time > ?', pickup_time.utc) }
   scope :after_today,        -> { where('pickup_time > ?', Date.today.end_of_day) }
@@ -204,6 +209,10 @@ class Trip < ActiveRecord::Base
     cloned_trip.outbound_trip = nil
     cloned_trip.direction = :outbound
 
+    cloned_trip.fare = self.fare.try(:dup) || self.provider.try(:fare).try(:dup)
+    cloned_trip.fare_amount = nil 
+    cloned_trip.fare_collected_time = nil
+
     cloned_trip.ridership_mobilities = self.ridership_mobilities.has_capacity.collect{|m| m.dup}
 
     cloned_trip
@@ -214,7 +223,9 @@ class Trip < ActiveRecord::Base
     return_trip = self.dup 
     return_trip.direction = :return
     return_trip.pickup_address = self.dropoff_address
+    return_trip.pickup_address_notes = self.dropoff_address_notes
     return_trip.dropoff_address = self.pickup_address
+    return_trip.dropoff_address_notes = self.pickup_address_notes
 
     # Set date to outbound trip date, and assume pickup and appt time will be on that date
     return_trip.date = self.date
@@ -226,6 +237,10 @@ class Trip < ActiveRecord::Base
     return_trip.drive_distance = nil
     return_trip.trip_result = nil
     return_trip.result_reason = nil
+
+    return_trip.fare = self.fare.try(:dup) || self.provider.try(:fare).try(:dup)
+    return_trip.fare_amount = nil 
+    return_trip.fare_collected_time = nil
 
     return_trip.ridership_mobilities = self.ridership_mobilities.has_capacity.collect{|m| m.dup}
 
@@ -439,18 +454,23 @@ class Trip < ActiveRecord::Base
   end
 
   def customer_active
-    if customer && date && !customer.active_for_date?(date)
-      errors.add(:customer, TranslationEngine.translate_text(:customer_inactive_for_trip_date)) 
+    if customer 
+      if customer.deleted?
+        errors.add(:customer, TranslationEngine.translate_text(:customer_deleted))
+      elsif date && !customer.active_for_date?(date)
+        errors.add(:customer, TranslationEngine.translate_text(:customer_inactive_for_trip_date)) 
+      end
     end
   end
 
   def fit_run_schedule
-    if run 
+    if run && !self.run_disrupted_by_trip_changes?
       run_start_time = run.scheduled_start_time
       run_end_time = run.scheduled_end_time
 
       if run_start_time && run_end_time && pickup_time
         is_valid = (time_portion(self.pickup_time) >= time_portion(run_start_time)) && 
+        (time_portion(self.pickup_time) < time_portion(run_end_time)) && 
         (self.appointment_time.nil? || time_portion(self.appointment_time) <= time_portion(run_end_time))
 
         errors.add(:base, TranslationEngine.translate_text(:not_fit_in_run_schedule)) unless is_valid
@@ -469,8 +489,23 @@ class Trip < ActiveRecord::Base
 
   def apply_eta_settings_change
     if self.run
-      self.run.itineraries.clear_times! if @clear_itineraries_times
+      if @clear_itineraries_times
+        self.run.manifest_changed = true 
+        self.run.save(validate: false)
+        
+        self.run.itineraries.clear_times!
+      end 
     end
+    true
+  end
+
+  def find_fare_settings
+    unless self.fare
+      if self.provider && self.provider.fare 
+        self.fare = self.provider.fare.dup
+      end
+    end
+
     true
   end
 end

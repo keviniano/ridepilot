@@ -12,7 +12,7 @@ module Lookupable
     normalize_attribute :name, :with => [ :strip ]
 
     def model
-      (model_name || name.classify).constantize
+      (model_name_str || name.classify).constantize
     end
 
     def find_by_value(value)

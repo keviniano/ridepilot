@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :recurring_vehicle_maintenance_compliance do
     provider
     event_name { Faker::Lorem.words(2).join(' ') }

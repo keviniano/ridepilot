@@ -1,4 +1,4 @@
-class CreateRepeatingItineraries < ActiveRecord::Migration
+class CreateRepeatingItineraries < ActiveRecord::Migration[5.1]
   def change
     create_table :repeating_itineraries do |t|
       t.datetime :time

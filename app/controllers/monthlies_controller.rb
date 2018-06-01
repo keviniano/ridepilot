@@ -1,6 +1,6 @@
 class MonthliesController < ApplicationController
   load_and_authorize_resource
-  before_filter :prep_edit
+  before_action :prep_edit
 
   def index
     @monthlies = @monthlies.order(:start_date)

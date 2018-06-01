@@ -7,7 +7,7 @@
 #   1. do a global search using above key words in your code directory, save search results to a text file
 #     - this is not smart enough, you need to search twice with each key word, then combine the results together
 #   2. run following rake cmd: 
-#       rake utility:find_missing_translation_keys FILE_PATH={search_results_file_path}
+#       rails utility:find_missing_translation_keys FILE_PATH={search_results_file_path}
 #   3. It will output missing keys and not-being-used keys onto console
 #   4. Still should be careful check one by one. This utility is helpful narrowing down the scope.
 # ----------------------

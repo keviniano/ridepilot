@@ -1,0 +1,21 @@
+# config/app.yml
+# default ApplicationSettings
+defaults: &defaults
+  devise:
+    expire_password_after: false
+    password_archiving_count: 4  
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+integration:
+  <<: *defaults
+
+qa:
+  <<: *defaults
+
+production:
+  <<: *defaults

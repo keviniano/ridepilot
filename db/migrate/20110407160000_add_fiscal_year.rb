@@ -1,6 +1,6 @@
 class AddFiscalYear < ActiveRecord::Migration
   def self.up
-    ActiveRecord::Base.connection.execute "
+    ApplicationRecord.connection.execute "
 -- ensure that the plpgsql language exists
 CREATE OR REPLACE FUNCTION public.create_plpgsql_language ()
         RETURNS TEXT
@@ -67,7 +67,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
   end
 
   def self.down
-ActiveRecord::Base.connection.execute "
+ApplicationRecord.connection.execute "
 drop function fiscal_year(date);
 drop function fiscal_month(date);
 "

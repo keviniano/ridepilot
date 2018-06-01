@@ -15,7 +15,7 @@
         %td
           = link_to(translate_helper("view"), repeating_trip_path(trip))
         %td
-          - customer_name = trip.customer.name
+          - customer_name = trip.customer.try(:name)
           .hidden
             = customer_name
           = link_to customer_name, trip.customer, :title => translate_helper("view_customer_record_link_text") 

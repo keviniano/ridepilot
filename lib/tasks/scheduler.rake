@@ -26,5 +26,8 @@ namespace :scheduler do
 
     # Update Vehicle monthly tracking numbers
     Vehicle.update_monthly_tracking
+
+    # Archilve CAD data
+    GpsLocationPartition.archilve_old_data
   end
 end

@@ -1,4 +1,4 @@
-class CustomReport < ActiveRecord::Base
+class CustomReport < ApplicationRecord
   has_many :provider_reports
   has_many :providers, through: :provider_reports
 

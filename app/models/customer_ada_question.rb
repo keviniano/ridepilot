@@ -1,4 +1,4 @@
-class CustomerAdaQuestion < ActiveRecord::Base
+class CustomerAdaQuestion < ApplicationRecord
   belongs_to :customer, -> { with_deleted }
   belongs_to :ada_question
 

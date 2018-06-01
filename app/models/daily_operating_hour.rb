@@ -1,4 +1,4 @@
-class DailyOperatingHour < ActiveRecord::Base
+class DailyOperatingHour < ApplicationRecord
   include OperatingHourCore
   validates_presence_of :date
 

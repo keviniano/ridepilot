@@ -1,4 +1,4 @@
-class VehicleMaintenanceSchedule < ActiveRecord::Base
+class VehicleMaintenanceSchedule < ApplicationRecord
   belongs_to :vehicle_maintenance_schedule_type
   has_one :document, as: :documentable, dependent: :destroy, inverse_of: :documentable
   accepts_nested_attributes_for :document, allow_destroy: true

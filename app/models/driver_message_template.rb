@@ -1,0 +1,2 @@
+class DriverMessageTemplate < MessageTemplate
+end

@@ -1,4 +1,4 @@
-class Monthly < ActiveRecord::Base
+class Monthly < ApplicationRecord
   
   belongs_to :provider, -> { with_deleted }
   belongs_to :funding_source, -> { with_deleted }

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :vehicle_requirement_template do
     provider nil
 name "MyString"

@@ -61,6 +61,7 @@ class RecurringTripScheduler
 
     if run_start_time && run_end_time
       (time_portion(@trip.pickup_time) >= time_portion(run_start_time)) && 
+      (time_portion(@trip.pickup_time) < time_portion(run_end_time)) && 
       (@trip.appointment_time.nil? || time_portion(@trip.appointment_time) <= time_portion(run_end_time))
     else
       true

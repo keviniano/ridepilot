@@ -18,8 +18,8 @@ Dependencies
 
 This application requires:
 
-- Ruby 2.2.1
-- Rails 4.1
+- Ruby 2.5
+- Rails 5.1
 - Postgresql 9.3+
 - PostGIS 2.1+
 - Imagemagick
@@ -32,23 +32,22 @@ Set up development environment
 
 2. Application setup
     - `bundle install`
+    - Copy `config/application.example.yml` to `config/application.yml` and update the values.
 
 3. Database setup
-
     - Copy `config/database.yml.example.pg` to `config/database.yml` and update the values for specific environment (at least __development__ and __test__).
 
-    - `rake db:setup`
+    - `rails db:setup`
+    - 'rails sql:create_gps_locations_partition'
 
 4. Testing
     - set up test database if not yet
       - make sure `config/database.yml` has the configurations for __test__ environment
     - update schema and locales
-      - `rake db:test:prepare`
+      - `rails db:test:prepare`
     - `rspec`
 
 5. Start application
-    - Copy `config/application.example.yml` to `config/application.yml` and update the values.
-    - Copy `config/app_config_template.yml` to `config/app_config.yml`. # might be deprecated
     - `rails s`
 
 License

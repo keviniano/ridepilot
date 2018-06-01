@@ -1,4 +1,4 @@
-class LookupTable < ActiveRecord::Base  
+class LookupTable < ApplicationRecord  
   include Lookupable
 
   has_paper_trail

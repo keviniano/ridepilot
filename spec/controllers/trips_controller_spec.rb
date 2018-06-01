@@ -26,7 +26,7 @@ RSpec.describe TripsController, type: :controller do
     
     context "when responding to a :json request" do
       it "responds with JSON" do
-        get :index, {:format => "json"}
+        get :index, params: {:format => "json"}
         expect(response.content_type).to eq("application/json")
       end
 
@@ -34,7 +34,7 @@ RSpec.describe TripsController, type: :controller do
         current_day = Time.now.in_time_zone
         trip_1 = create(:trip, :provider => @current_user.current_provider, :pickup_time => current_day)
         trip_2 = create(:trip, :provider => @current_user.current_provider, :pickup_time => current_day + 1.day)
-        get :index, {:format => "json"}
+        get :index, params: {:format => "json"}
         expect(assigns(:trips)).to include(trip_1)
         expect(assigns(:trips)).to_not include(trip_2)
       end
@@ -43,7 +43,7 @@ RSpec.describe TripsController, type: :controller do
         it "assigns trips for the requested week as @trips" do
           trip_1 = create(:trip, :provider => @current_user.current_provider, :pickup_time => Time.now.in_time_zone)
           trip_2 = create(:trip, :provider => @current_user.current_provider, :pickup_time => 1.week.from_now.in_time_zone)
-          get :index, {
+          get :index, params: {
             trip_filters: {
             :start => 1.week.from_now.in_time_zone.at_beginning_of_week.to_i, 
             :end => 1.week.from_now.in_time_zone.at_end_of_week.to_i
@@ -91,7 +91,7 @@ RSpec.describe TripsController, type: :controller do
 
       context "when by default" do
         before do 
-          get :customer_trip_summary, {:format => "json", :customer_id => customer_id}
+          get :customer_trip_summary, params: {:format => "json", :customer_id => customer_id}
         end
 
         it "returns past trips" do 
@@ -104,7 +104,7 @@ RSpec.describe TripsController, type: :controller do
 
       context "when show past 5 trips" do
         before do 
-          get :customer_trip_summary, {:format => "json", :customer_id => customer_id, :past_trips => 5}
+          get :customer_trip_summary, params: {:format => "json", :customer_id => customer_id, :past_trips => 5}
         end
 
         it "returns past trips" do 
@@ -117,7 +117,7 @@ RSpec.describe TripsController, type: :controller do
 
       context "when show future 5 trips" do
         before do 
-          get :customer_trip_summary, {:format => "json", :customer_id => customer_id, :future_trips => 5}
+          get :customer_trip_summary, params: {:format => "json", :customer_id => customer_id, :future_trips => 5}
         end
 
         it "returns past trips" do 
@@ -131,7 +131,7 @@ RSpec.describe TripsController, type: :controller do
       context "when date range params are given" do
         context "start date is given but not end date" do 
           before do 
-            get :customer_trip_summary, {:format => "json", :customer_id => customer_id, :start_date => Date.tomorrow} 
+            get :customer_trip_summary, params: {:format => "json", :customer_id => customer_id, :start_date => Date.tomorrow} 
           end
 
           it "returns correct trips" do
@@ -140,7 +140,7 @@ RSpec.describe TripsController, type: :controller do
         end
         context "end date is given but not start date" do 
           before do 
-            get :customer_trip_summary, {:format => "json", :customer_id => customer_id, :end_date => Date.today} 
+            get :customer_trip_summary, params: {:format => "json", :customer_id => customer_id, :end_date => Date.today} 
           end
 
           it "returns correct trips" do
@@ -150,7 +150,7 @@ RSpec.describe TripsController, type: :controller do
         end
         context "both start and end dates are given" do 
           before do 
-            get :customer_trip_summary, {:format => "json", :customer_id => customer_id, :start_date => Date.today, :end_date => Date.today} 
+            get :customer_trip_summary, params: {:format => "json", :customer_id => customer_id, :start_date => Date.today, :end_date => Date.today} 
           end
 
           it "returns correct trips" do
@@ -163,20 +163,20 @@ RSpec.describe TripsController, type: :controller do
 
   describe "GET #new" do
     it "assigns a new trip as @trip" do
-      get :new, {}
+      get :new, params: {}
       expect(assigns(:trip)).to be_a_new(Trip)
     end
     
     context "when responding to :html request" do
       it "renders the 'new' template" do
-        get :new, {}
+        get :new, params: {}
         expect(response).to render_template("new")
       end
     end
     
     context "when responding to a :js request" do
       it "responds with JSON" do
-        get :new, {:format => "js"}
+        get :new, params: {:format => "js"}
         expect(response.content_type).to eq("text/json")
       end
       
@@ -184,7 +184,7 @@ RSpec.describe TripsController, type: :controller do
         render_views
         
         skip "responds with the 'new' form partial in the JS response" do
-          get :new, {:format => "js"}
+          get :new, params: {:format => "js"}
           json = JSON.parse(response.body)
           expect(json["form"]).to be_a(String)
           expect(json["form"]).to include("action=\"#{trips_path}\"")
@@ -196,14 +196,14 @@ RSpec.describe TripsController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested trip as @trip" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      get :edit, {:id => trip.to_param}
+      get :edit, params: {:id => trip.to_param}
       expect(assigns(:trip)).to eq(trip)
     end
     
     context "when responding to :html request" do
       it "renders the 'edit' template" do
         trip = create(:trip, :provider => @current_user.current_provider)
-        get :edit, {:id => trip.to_param}
+        get :edit, params: {:id => trip.to_param}
         expect(response).to render_template("edit")
       end
     end
@@ -211,7 +211,7 @@ RSpec.describe TripsController, type: :controller do
     context "when responding to a :js request" do
       it "responds with JSON" do
         trip = create(:trip, :provider => @current_user.current_provider)
-        get :edit, {:id => trip.to_param, :format => "js"}
+        get :edit, params: {:id => trip.to_param, :format => "js"}
         expect(response.content_type).to eq("text/json")
       end
       
@@ -220,7 +220,7 @@ RSpec.describe TripsController, type: :controller do
         
         it "responds with the 'edit' form partial in the JS response" do
           trip = create(:trip, :provider => @current_user.current_provider)
-          get :edit, {:id => trip.to_param, :format => "js"}
+          get :edit, params: {:id => trip.to_param, :format => "js"}
           json = JSON.parse(response.body)
           expect(json["form"]).to be_a(String)
           expect(json["form"]).to include("action=\"#{trip_path(trip)}\"")
@@ -233,12 +233,12 @@ RSpec.describe TripsController, type: :controller do
     context "with valid params" do
       it "creates a new Trip" do
         expect {
-          post :create, {:trip => valid_attributes}
+          post :create, params: {:trip => valid_attributes}
         }.to change(Trip, :count).by(1)
       end
 
       it "assigns a newly created trip as @trip" do
-        post :create, {:trip => valid_attributes}
+        post :create, params: {:trip => valid_attributes}
         expect(assigns(:trip)).to be_a(Trip)
         expect(assigns(:trip)).to be_persisted
       end
@@ -246,13 +246,13 @@ RSpec.describe TripsController, type: :controller do
 
     context "with invalid params" do
       it "assigns a newly created but unsaved trip as @trip" do
-        post :create, {:trip => invalid_attributes}
+        post :create, params: {:trip => invalid_attributes}
         expect(assigns(:trip)).to be_a_new(Trip)
       end
 
       context "when responding to :html request" do
         it "re-renders the 'new' template" do
-          post :create, {:trip => invalid_attributes}
+          post :create, params: {:trip => invalid_attributes}
           expect(response).to render_template("new")
         end
       end
@@ -287,20 +287,20 @@ RSpec.describe TripsController, type: :controller do
       it "updates the requested trip" do
         trip = create(:trip, :provider => @current_user.current_provider, :trip_purpose => create(:trip_purpose, name: 'Something'))
         expect {
-          put :update, {:id => trip.to_param, :trip => new_attributes}
+          put :update, params: {:id => trip.to_param, :trip => new_attributes}
         }.to change{ trip.reload.trip_purpose.name }.from("Something").to("New purpose")
       end
 
       it "assigns the requested trip as @trip" do
         trip = create(:trip, :provider => @current_user.current_provider)
-        put :update, {:id => trip.to_param, :trip => valid_attributes}
+        put :update, params: {:id => trip.to_param, :trip => valid_attributes}
         expect(assigns(:trip)).to eq(trip)
       end
 
       context "when responding to :html request" do
         it "redirects to the trips list" do
           trip = create(:trip, :provider => @current_user.current_provider)
-          put :update, {:id => trip.to_param, :trip => valid_attributes}
+          put :update, params: {:id => trip.to_param, :trip => valid_attributes}
           expect(response).to redirect_to(trip_url(trip))
         end
       end
@@ -308,13 +308,13 @@ RSpec.describe TripsController, type: :controller do
       context "when responding to a :js request" do
         it "responds with JSON" do
           trip = create(:trip, :provider => @current_user.current_provider)
-          put :update, {:id => trip.to_param, :trip => valid_attributes, :format => "js"}
+          put :update, params: {:id => trip.to_param, :trip => valid_attributes, :format => "js"}
           expect(response.content_type).to eq("text/json")
         end
 
         it "includes a successful status in the JS response" do
           trip = create(:trip, :provider => @current_user.current_provider)
-          put :update, {:id => trip.to_param, :trip => valid_attributes, :format => "js"}
+          put :update, params: {:id => trip.to_param, :trip => valid_attributes, :format => "js"}
           json = JSON.parse(response.body)
           expect(json["status"]).to be_a(String)
           expect(json["status"]).to eq("success")
@@ -325,14 +325,14 @@ RSpec.describe TripsController, type: :controller do
     context "with invalid params" do
       it "assigns the trip as @trip" do
         trip = create(:trip, :provider => @current_user.current_provider)
-        put :update, {:id => trip.to_param, :trip => invalid_attributes}
+        put :update, params: {:id => trip.to_param, :trip => invalid_attributes}
         expect(assigns(:trip)).to eq(trip)
       end
 
       context "when responding to :html request" do
         it "re-renders the 'edit' template" do
           trip = create(:trip, :provider => @current_user.current_provider)
-          put :update, {:id => trip.to_param, :trip => invalid_attributes}
+          put :update, params: {:id => trip.to_param, :trip => invalid_attributes}
           expect(response).to render_template("edit")
         end
       end
@@ -340,13 +340,13 @@ RSpec.describe TripsController, type: :controller do
       context "when responding to a :js request" do
         it "responds with JSON" do
           trip = create(:trip, :provider => @current_user.current_provider)
-          put :update, {:id => trip.to_param, :trip => invalid_attributes, :format => "js"}
+          put :update, params: {:id => trip.to_param, :trip => invalid_attributes, :format => "js"}
           expect(response.content_type).to eq("text/json")
         end
         
         it "includes a error status in the JS response" do
           trip = create(:trip, :provider => @current_user.current_provider)
-          put :update, {:id => trip.to_param, :trip => invalid_attributes, :format => "js"}
+          put :update, params: {:id => trip.to_param, :trip => invalid_attributes, :format => "js"}
           json = JSON.parse(response.body)
           expect(json["status"]).to be_a(String)
           expect(json["status"]).to eq("error")
@@ -357,7 +357,7 @@ RSpec.describe TripsController, type: :controller do
           
           it "responds with the 'edit' form partial in the JS response" do
             trip = create(:trip, :provider => @current_user.current_provider)
-            put :update, {:id => trip.to_param, :trip => invalid_attributes, :format => "js"}
+            put :update, params: {:id => trip.to_param, :trip => invalid_attributes, :format => "js"}
             json = JSON.parse(response.body)
             expect(json["form"]).to be_a(String)
             expect(json["form"]).to include("action=\"#{trip_path(trip)}\"")
@@ -371,14 +371,14 @@ RSpec.describe TripsController, type: :controller do
     it "destroys the requested trip" do
       trip = create(:trip, :provider => @current_user.current_provider)
       expect {
-        delete :destroy, {:id => trip.to_param}
+        delete :destroy, params: {:id => trip.to_param}
       }.to change(Trip, :count).by(-1)
     end
 
     context "when responding to :html request" do
       it "redirects to the trips list" do
         trip = create(:trip, :provider => @current_user.current_provider)
-        delete :destroy, {:id => trip.to_param}
+        delete :destroy, params: {:id => trip.to_param}
         expect(response).to redirect_to(trips_url)
       end
     end
@@ -386,13 +386,13 @@ RSpec.describe TripsController, type: :controller do
     context "when responding to a :js request" do
       it "responds with JSON" do
         trip = create(:trip, :provider => @current_user.current_provider)
-        delete :destroy, {:id => trip.to_param, :format => "js"}
+        delete :destroy, params: {:id => trip.to_param, :format => "js"}
         expect(response.content_type).to eq("text/json")
       end
 
       it "includes a successful status in the JS response" do
         trip = create(:trip, :provider => @current_user.current_provider)
-        delete :destroy, {:id => trip.to_param, :format => "js"}
+        delete :destroy, params: {:id => trip.to_param, :format => "js"}
         json = JSON.parse(response.body)
         expect(json["status"]).to be_a(String)
         expect(json["status"]).to eq("success")
@@ -403,7 +403,7 @@ RSpec.describe TripsController, type: :controller do
   describe "POST #confirm" do
     it "assigns the requested trip as @trip" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :confirm, {:trip_id => trip.to_param}
+      post :confirm, params: {:trip_id => trip.to_param}
       expect(assigns(:trip)).to eq(trip)
     end
     
@@ -412,13 +412,13 @@ RSpec.describe TripsController, type: :controller do
       appointment_time = Time.current
       trip = create(:trip, :pickup_time => (appointment_time - 30.minutes), :appointment_time => appointment_time, :provider => @current_user.current_provider)
       expect {
-        post :confirm, {:trip_id => trip.to_param}
+        post :confirm, params: {:trip_id => trip.to_param}
       }.to change{ trip.reload.trip_result.try(:code) }.to("COMP")
     end
 
     it "redirects to the unscheduled action" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :confirm, {:trip_id => trip.to_param}
+      post :confirm, params: {:trip_id => trip.to_param}
       expect(response).to redirect_to(unscheduled_trips_path)
     end
   end
@@ -426,7 +426,7 @@ RSpec.describe TripsController, type: :controller do
   describe "POST #no_show" do
     it "assigns the requested trip as @trip" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :no_show, {:trip_id => trip.to_param}
+      post :no_show, params: {:trip_id => trip.to_param}
       expect(assigns(:trip)).to eq(trip)
     end
     
@@ -434,13 +434,13 @@ RSpec.describe TripsController, type: :controller do
       comp_result = create(:trip_result, code:"NS", name: 'No-show')
       trip = create(:trip, :provider => @current_user.current_provider)
       expect {
-        post :no_show, {:trip_id => trip.to_param}
+        post :no_show, params: {:trip_id => trip.to_param}
       }.to change{ trip.reload.trip_result.try(:code) }.to("NS")
     end
 
     it "redirects to the reconcile_cab action" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :no_show, {:trip_id => trip.to_param}
+      post :no_show, params: {:trip_id => trip.to_param}
       expect(response).to redirect_to(reconcile_cab_trips_path)
     end
   end
@@ -448,14 +448,14 @@ RSpec.describe TripsController, type: :controller do
   describe "POST #reached" do
     it "assigns the requested trip as @trip" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :reached, {:trip_id => trip.to_param}
+      post :reached, params: {:trip_id => trip.to_param}
       expect(assigns(:trip)).to eq(trip)
     end
     
     it "mark the user as having been informed that their trip has been approved or turned down" do
       trip = create(:trip, :provider => @current_user.current_provider)
       expect {
-        post :reached, {:trip_id => trip.to_param}
+        post :reached, params: {:trip_id => trip.to_param}
       }.to change{[
         trip.reload.called_back_by,
         trip.reload.customer_informed
@@ -465,7 +465,7 @@ RSpec.describe TripsController, type: :controller do
 
     it "redirects to the trips_requiring_callback action" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :reached, {:trip_id => trip.to_param}
+      post :reached, params: {:trip_id => trip.to_param}
       expect(response).to redirect_to(trips_requiring_callback_trips_path)
     end
   end
@@ -473,7 +473,7 @@ RSpec.describe TripsController, type: :controller do
   describe "POST #send_to_cab" do
     it "assigns the requested trip as @trip" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :send_to_cab, {:trip_id => trip.to_param}
+      post :send_to_cab, params: {:trip_id => trip.to_param}
       expect(assigns(:trip)).to eq(trip)
     end
     
@@ -482,7 +482,7 @@ RSpec.describe TripsController, type: :controller do
       current_time = Time.current
       trip = create(:trip, :pickup_time => (current_time - 30.minutes), :appointment_time => current_time, :provider => @current_user.current_provider)
       expect {
-        post :send_to_cab, {:trip_id => trip.to_param}
+        post :send_to_cab, params: {:trip_id => trip.to_param}
       }.to change{[
         trip.reload.trip_result.try(:code),
         trip.reload.cab,
@@ -496,7 +496,7 @@ RSpec.describe TripsController, type: :controller do
 
     it "redirects to the reconcile_cab action" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :send_to_cab, {:trip_id => trip.to_param}
+      post :send_to_cab, params: {:trip_id => trip.to_param}
       expect(response).to redirect_to(reconcile_cab_trips_path)
     end
   end
@@ -504,7 +504,7 @@ RSpec.describe TripsController, type: :controller do
   describe "POST #turndown" do
     it "assigns the requested trip as @trip" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :turndown, {:trip_id => trip.to_param}
+      post :turndown, params: {:trip_id => trip.to_param}
       expect(assigns(:trip)).to eq(trip)
     end
     
@@ -512,13 +512,13 @@ RSpec.describe TripsController, type: :controller do
       comp_result = create(:trip_result, code:"TD", name: 'Turned down')
       trip = create(:trip, :provider => @current_user.current_provider)
       expect {
-        post :turndown, {:trip_id => trip.to_param}
+        post :turndown, params: {:trip_id => trip.to_param}
       }.to change{ trip.reload.trip_result.try(:code) }.to("TD")
     end
 
     it "redirects to the unscheduled action" do
       trip = create(:trip, :provider => @current_user.current_provider)
-      post :turndown, {:trip_id => trip.to_param}
+      post :turndown, params: {:trip_id => trip.to_param}
       expect(response).to redirect_to(unscheduled_trips_path)
     end
   end  
@@ -538,7 +538,7 @@ RSpec.describe TripsController, type: :controller do
       trip_2 = create(:cab_trip, :provider => @current_user.current_provider, :trip_result => comp_result, :pickup_time => (current_time - 30.minutes), :appointment_time => current_time)
       trip_3 = create(:trip, :provider => @current_user.current_provider, :trip_result => comp_result, :pickup_time => (current_time - 30.minutes), :appointment_time => current_time)
       trip_4 = create(:cab_trip, :provider => @current_user.current_provider, :trip_result => td_result)
-      get :reconcile_cab, {}
+      get :reconcile_cab, params: {}
       expect(assigns(:trips)).to include(trip_1)
       expect(assigns(:trips)).to include(trip_2)
       expect(assigns(:trips)).to_not include(trip_3)
@@ -557,7 +557,7 @@ RSpec.describe TripsController, type: :controller do
       trip_1 = create(:trip, :provider => @current_user.current_provider, :customer_informed => false, :pickup_time => Date.tomorrow.in_time_zone)
       trip_2 = create(:trip, :provider => @current_user.current_provider, :customer_informed => true,  :pickup_time => Date.tomorrow.in_time_zone)
       trip_3 = create(:trip, :provider => @current_user.current_provider, :customer_informed => false, :pickup_time => Date.yesterday.in_time_zone)
-      get :trips_requiring_callback, {}
+      get :trips_requiring_callback, params: {}
       expect(assigns(:trips)).to include(trip_1)
       expect(assigns(:trips)).to_not include(trip_2)
       expect(assigns(:trips)).to_not include(trip_3)
@@ -574,7 +574,7 @@ RSpec.describe TripsController, type: :controller do
       trip_1 = create(:trip, :provider => @current_user.current_provider, :trip_result => nil,   :pickup_time => Date.tomorrow.in_time_zone)
       trip_2 = create(:trip, :provider => @current_user.current_provider, :trip_result => ns_result, :pickup_time => Date.tomorrow.in_time_zone)
       trip_3 = create(:trip, :provider => @current_user.current_provider, :trip_result => nil,   :pickup_time => Date.yesterday.in_time_zone)
-      get :unscheduled, {}
+      get :unscheduled, params: {}
       expect(assigns(:trips)).to include(trip_1)
       expect(assigns(:trips)).to_not include(trip_2)
       expect(assigns(:trips)).to_not include(trip_3)
@@ -596,7 +596,7 @@ RSpec.describe TripsController, type: :controller do
         format: :js
       }
       
-      post :check_double_booked, check_double_booked_params
+      post :check_double_booked, params: check_double_booked_params
       trips = JSON.parse(response.body)["trips"]
       expect(trips.count).to eq(2)
       expect(trips.map{|t| t["id"]}.sort).to eq([trip_2.id, trip_3.id].sort)

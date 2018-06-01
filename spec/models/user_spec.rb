@@ -79,7 +79,7 @@ RSpec.describe User, type: :model do
       end
 
       it "must be a valid format" do
-        user = build :user, email: "m@m"
+        user = build :user, email: "m@"
         expect(user.valid?).to be_falsey
         expect(user.errors.keys).to include :email
 
@@ -220,7 +220,7 @@ RSpec.describe User, type: :model do
     end
 
     after do
-      Devise.password_archiving_count = ApplicationSetting.defaults['devise.password_archiving_count']
+      Devise.password_archiving_count = ApplicationSetting['devise.password_archiving_count']
     end
 
     it "does not allow a user to reuse x number of previous passwords" do

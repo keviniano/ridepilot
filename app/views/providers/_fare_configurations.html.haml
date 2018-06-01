@@ -1,0 +1,26 @@
+%h2.section-header#fare_related_settings= translate_helper("fare_related_settings")
+- if can? :edit, @provider
+  - fare = @provider.fare || @provider.build_fare
+  = form_tag change_fare_related_settings_provider_path(@provider) do
+    %fieldset
+      %ol.section.one
+        %li
+          = label_tag translate_helper("fare_type")
+          = select_tag "fare_type", options_for_select( [["Free", 'free'], ["Donation", 'donation'], ["Payment", 'payment']], fare.fare_type), name: "fare[fare_type]"
+        %li{style: (fare.is_free? ? "display: none;" : "") }
+          = label_tag translate_helper("pre_or_post_trip")
+          = select_tag "pre_or_post_trip", options_for_select( [["Pre-trip", true], ["Post-trip", false]], fare.pre_trip), name: "fare[pre_trip]"
+      .actions
+        = submit_tag translate_helper("update_fare_related_settings"), class: 'btn action-button'
+%hr
+
+:javascript
+  $(function() {
+    $('#fare_type').on('change', function() {
+      if($(this).val() == 'free') {
+        $('#pre_or_post_trip').parents('li').hide();
+      } else {
+        $('#pre_or_post_trip').parents('li').show();
+      }
+    });
+  });

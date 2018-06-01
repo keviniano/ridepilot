@@ -3,5 +3,5 @@
 # See `bundle exec whenever --help` for details
 
 every 1.day, :at => '12:00 am' do
-  rake "scheduler:run"
+  rails "scheduler:run"
 end

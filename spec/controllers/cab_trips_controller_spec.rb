@@ -28,7 +28,7 @@ RSpec.describe CabTripsController, type: :controller do
     end
 
     it "assigns all currently accessible cab trips as @cab_trips" do
-      get :edit_multiple, {:start => @cab_trips[0].pickup_time.beginning_of_day.to_i}
+      get :edit_multiple, params: {:start => @cab_trips[0].pickup_time.beginning_of_day.to_i}
       expect(assigns(:cab_trips)).to include(@cab_trips[0])
       expect(assigns(:cab_trips)).to include(@cab_trips[1])
       expect(assigns(:cab_trips)).to include(@cab_trips[2])
@@ -56,7 +56,7 @@ RSpec.describe CabTripsController, type: :controller do
           attendant_count: 2
         }
       }
-      put 'update_multiple', cab_trips: cab_trip_params
+      put 'update_multiple', params: { cab_trips: cab_trip_params }
     end
 
     it "should be successful" do

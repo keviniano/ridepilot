@@ -1,4 +1,4 @@
-class Provider < ActiveRecord::Base
+class Provider < ApplicationRecord
   include PublicActivity::Common
   include Operatable
   has_paper_trail
@@ -26,6 +26,8 @@ class Provider < ActiveRecord::Base
   has_many :documents, as: :documentable, dependent: :destroy, inverse_of: :documentable
 
   has_one :address_upload_flag
+
+  belongs_to :fare
 
   belongs_to :business_address, -> { with_deleted }, class_name: 'ProviderBusinessAddress', foreign_key: 'business_address_id'
   belongs_to :mailing_address, -> { with_deleted }, class_name: 'ProviderMailingAddress', foreign_key: 'mailing_address_id'

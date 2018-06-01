@@ -1,5 +1,9 @@
+<% if @has_finished_itinerary %>
+  show_alert_dialog("This trip can not be rescheduled as partly finished.");
+<% end %>
+
 var prev_run_id = <%= params[:prev_run_id] || false %> || null;
-<% if @scheduler.errors.empty? %>
+<% if !@scheduler || @scheduler.errors.empty? %>
   var trip_id = <%= params[:trip_id] || false %> || null;
   <% if @prev_run.present? %>
     $('#run_trips_panel_' + "<%= @prev_run.id %>").replaceWith("<%= j render('dispatchers/run_trips_panel', run: @prev_run) %>");

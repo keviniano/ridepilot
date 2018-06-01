@@ -1,4 +1,4 @@
-class Vehicle < ActiveRecord::Base
+class Vehicle < ApplicationRecord
   include RequiredFieldValidatorModule 
   include Inactivateable
   include PublicActivity::Common

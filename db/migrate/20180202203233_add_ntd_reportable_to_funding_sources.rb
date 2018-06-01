@@ -1,4 +1,4 @@
-class AddNtdReportableToFundingSources < ActiveRecord::Migration
+class AddNtdReportableToFundingSources < ActiveRecord::Migration[5.1]
   def change
     add_column :funding_sources, :ntd_reportable, :boolean
     remove_column :trips, :ntd_reportable, :boolean, default: true

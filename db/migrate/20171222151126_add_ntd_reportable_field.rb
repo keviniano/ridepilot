@@ -1,4 +1,4 @@
-class AddNtdReportableField < ActiveRecord::Migration
+class AddNtdReportableField < ActiveRecord::Migration[5.1]
   def change
     add_column :trips, :ntd_reportable, :boolean, default: true
     add_column :repeating_trips, :ntd_reportable, :boolean, default: true

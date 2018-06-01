@@ -1,0 +1,4 @@
+= render 'update_eta' if @eta_info
+$("#run_trips_panel_#{@run.id} .dispatch-action.publish_manifest").hide();
+$("#run_trips_panel_#{@run.id} .publish_manifest").toggleClass('link_disabled');
+$("#run_trips_panel_#{@run.id} .publish_manifest_icon").toggleClass('fa-spin');

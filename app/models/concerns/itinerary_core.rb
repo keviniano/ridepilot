@@ -7,7 +7,7 @@ module ItineraryCore
   included do
     #belongs_to :trip
     #belongs_to :run
-    belongs_to :address
+    belongs_to :address, -> { with_deleted }
 
     scope :revenue, -> { where.not(trip: nil) }
     scope :deadhead, -> { where(trip: nil) }
@@ -19,10 +19,6 @@ module ItineraryCore
 
     def self.clear_times!
       self.where.not("eta is NULL AND travel_time is NULL AND depart_time is NULL").update_all(eta: nil, travel_time: nil, depart_time: nil)
-    end
-
-    def trip_id
-      @trip_id ||= trip.id
     end
 
     def prev=(prev_itin)
@@ -55,6 +51,19 @@ module ItineraryCore
 
     def is_dropoff?
       leg_flag == 2
+    end
+
+    def label
+      case leg_flag
+      when 0
+        "Start"
+      when 3
+        "End"
+      when 1
+        "Pick up #{self.trip.try(:customer).try(:name)}"
+      when 2
+        "Drop off #{self.trip.try(:customer).try(:name)}"
+      end
     end
 
     def ordinal 
@@ -111,7 +120,7 @@ module ItineraryCore
       when 0 
         "run_begin"
       when 1..2 # Pickup or dropoff
-        "trip_#{trip_id}_leg_#{leg_flag}"
+        "trip_#{trip.try(:id)}_leg_#{leg_flag}"
       when 3 
         "run_end"
       end
@@ -119,7 +128,11 @@ module ItineraryCore
 
     def calculate_eta! 
       # previous leg depart_time + travel_time
-      self.eta = if @prev && @prev.depart_time && @prev.travel_time
+      self.eta = if @prev && @prev.departure_time && @prev.travel_time
+        # actual departure time
+        @prev.departure_time + @prev.travel_time.seconds 
+      elsif @prev && @prev.depart_time && @prev.travel_time
+        # estimated departure time
         @prev.depart_time + @prev.travel_time.seconds 
       else
         time
@@ -132,7 +145,7 @@ module ItineraryCore
 
     def update_depart_time
       new_time = (self.eta + process_time.to_i.minutes) if self.eta
-      self.depart_time = if trip && !trip.early_pickup_allowed
+      self.depart_time = if trip && !trip.early_pickup_allowed && time
         new_time > time ? new_time : time
       else
         new_time

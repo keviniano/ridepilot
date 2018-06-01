@@ -1,4 +1,4 @@
-class VehicleWarrantyTemplate < ActiveRecord::Base
+class VehicleWarrantyTemplate < ApplicationRecord
   belongs_to :provider
 
   validates :name, presence: true, uniqueness: { :case_sensitive => false, scope: :provider }

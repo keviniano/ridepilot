@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :document_association, aliases: [:driver_compliance_document_association] do
     transient do
       allow_invalid_owners false

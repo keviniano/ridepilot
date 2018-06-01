@@ -1,4 +1,4 @@
-class RecurringVehicleMaintenanceCompliance < ActiveRecord::Base
+class RecurringVehicleMaintenanceCompliance < ApplicationRecord
   include RecurringComplianceEventScheduler
   creates_occurrences_for :vehicle_maintenance_compliances, on: :vehicles
   generates_occurrences_with do |recurrence, collection|

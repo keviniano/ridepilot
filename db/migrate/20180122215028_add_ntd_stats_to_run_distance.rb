@@ -1,4 +1,4 @@
-class AddNtdStatsToRunDistance < ActiveRecord::Migration
+class AddNtdStatsToRunDistance < ActiveRecord::Migration[5.1]
   def change
     add_column :run_distances, :ntd_total_miles, :float
     add_column :run_distances, :ntd_total_revenue_miles, :float

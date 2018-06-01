@@ -1,4 +1,4 @@
-class AddressUploadFlag < ActiveRecord::Base
+class AddressUploadFlag < ApplicationRecord
   belongs_to :provider
 
   def uploaded!

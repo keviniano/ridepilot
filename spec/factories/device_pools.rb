@@ -1,6 +1,6 @@
 require 'faker'
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :device_pool do
     name { Faker::Company.name }
     color { SecureRandom.hex(3) }

@@ -308,7 +308,7 @@ namespace :ridepilot do
         puts "file invalid"
       end
     else
-      puts "please specifiy file path following: rake ridepilot:seed_user_data CSV_PATH=xxx"
+      puts "please specifiy file path following: rails ridepilot:seed_user_data CSV_PATH=xxx"
     end
   end
 
@@ -394,5 +394,15 @@ namespace :ridepilot do
       r.scheduled_end_time_string = r.scheduled_end_time.try(:to_s, :time_utc)
       r.save(validate: false)
     end
+  end
+
+  desc 'Update runs scheduled time string'
+  task :mark_today_future_manifest_changed => :environment do
+    run_ids = Run.today_and_future.where(manifest_changed: [nil, false]).pluck(:id)
+    has_trip_itin_run_ids = Itinerary.revenue.where(run_id: run_ids).pluck(:run_id)
+    published_run_ids = PublicItinerary.where(run_id: run_ids).pluck(:run_id)
+
+    # these runs has itineraries, but not published, so need to mark as manifest changed
+    Run.where(id: (has_trip_itin_run_ids - published_run_ids)).update_all(manifest_changed: true)
   end
 end

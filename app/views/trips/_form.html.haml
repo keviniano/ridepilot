@@ -55,6 +55,7 @@
       = render 'trips/tracking_panel', f: f, edit_mode: edit_mode 
       = render 'trips/eta_settings_panel', f: f, edit_mode: edit_mode
       = render 'trips/eligibility_panel', f: f, edit_mode: edit_mode
+      = render 'trips/fare_panel', f: f, edit_mode: edit_mode
       = render 'trips/other_panel', f: f
       - if edit_mode == :show
         - logs = TrackerActionLog.for(@trip).order(created_at: :desc)

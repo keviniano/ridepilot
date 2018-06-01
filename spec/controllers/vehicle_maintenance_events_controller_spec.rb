@@ -28,17 +28,17 @@ RSpec.describe VehicleMaintenanceEventsController, type: :controller do
 
     describe "GET #new" do
       it "assigns a new vehicle_maintenance_event as @vehicle_maintenance_event" do
-        get :new, {vehicle_id: @vehicle.to_param}
+        get :new, params: {vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_maintenance_event)).to be_a_new(VehicleMaintenanceEvent)
       end
 
       it "assigns the vehicle as @vehicle" do
-        get :new, {vehicle_id: @vehicle.to_param}
+        get :new, params: {vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle)).to eq(@vehicle)
       end
 
       it "sets @vehicle as the parent object on @vehicle_maintenance_event" do
-        get :new, {vehicle_id: @vehicle.to_param}
+        get :new, params: {vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_maintenance_event).vehicle).to eq(@vehicle)
       end
     end
@@ -46,19 +46,19 @@ RSpec.describe VehicleMaintenanceEventsController, type: :controller do
     describe "GET #edit" do
       it "assigns the requested vehicle_maintenance_event as @vehicle_maintenance_event" do
         vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-        get :edit, {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
+        get :edit, params: {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_maintenance_event)).to eq(vehicle_maintenance_event)
       end
 
       it "assigns the vehicle as @vehicle" do
         vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-        get :edit, {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
+        get :edit, params: {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle)).to eq(@vehicle)
       end
 
       it "sets @vehicle as the parent object on @vehicle_maintenance_event" do
         vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-        get :edit, {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
+        get :edit, params: {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_maintenance_event).vehicle).to eq(@vehicle)
       end
     end
@@ -67,23 +67,23 @@ RSpec.describe VehicleMaintenanceEventsController, type: :controller do
       context "with valid params" do
         it "creates a new vehicleCompliance" do
           expect {
-            post :create, {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
+            post :create, params: {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
           }.to change(VehicleMaintenanceEvent, :count).by(1)
         end
 
         it "assigns a newly created vehicle_maintenance_event as @vehicle_maintenance_event" do
-          post :create, {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_maintenance_event)).to be_a(VehicleMaintenanceEvent)
           expect(assigns(:vehicle_maintenance_event)).to be_persisted
         end
 
         it "sets @vehicle as the parent object on the new vehicle_maintenance_event" do
-          post :create, {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_maintenance_event).vehicle).to eq(@vehicle)
         end
 
         it "redirects back to the vehicle" do
-          post :create, {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to redirect_to(@vehicle)
         end
       end
@@ -91,13 +91,13 @@ RSpec.describe VehicleMaintenanceEventsController, type: :controller do
       context "with invalid params" do
         it "assigns a newly created but unsaved vehicle_maintenance_event as @vehicle_maintenance_event" do
           skip("Nothing is required, and the model has no validations")
-          post :create, {:vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_maintenance_event)).to be_a_new(VehicleMaintenanceEvent)
         end
 
         it "re-renders the 'new' template" do
           skip("Nothing is required, and the model has no validations")
-          post :create, {:vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to render_template("new")
         end
       end
@@ -111,20 +111,20 @@ RSpec.describe VehicleMaintenanceEventsController, type: :controller do
 
         it "updates the requested vehicle_maintenance_event" do
           vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-          put :update, {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => new_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => new_attributes, vehicle_id: @vehicle.to_param}
           vehicle_maintenance_event.reload
           expect(vehicle_maintenance_event.odometer).to eq(5432.1)
         end
 
         it "assigns the requested vehicle_maintenance_event as @vehicle_maintenance_event" do
           vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-          put :update, {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_maintenance_event)).to eq(vehicle_maintenance_event)
         end
 
         it "redirects back to the vehicle" do
           vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-          put :update, {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to redirect_to(@vehicle)
         end
       end
@@ -133,14 +133,14 @@ RSpec.describe VehicleMaintenanceEventsController, type: :controller do
         it "assigns the vehicle_maintenance_event as @vehicle_maintenance_event" do
           skip("Nothing is required, and the model has no validations")
           vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-          put :update, {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_maintenance_event)).to eq(vehicle_maintenance_event)
         end
 
         it "re-renders the 'edit' template" do
           skip("Nothing is required, and the model has no validations")
           vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-          put :update, {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_maintenance_event.to_param, :vehicle_maintenance_event => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to render_template("edit")
         end
       end
@@ -150,13 +150,13 @@ RSpec.describe VehicleMaintenanceEventsController, type: :controller do
       it "destroys the requested vehicle_maintenance_event" do
         vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
         expect {
-          delete :destroy, {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
+          delete :destroy, params: {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
         }.to change(VehicleMaintenanceEvent, :count).by(-1)
       end
 
       it "redirects back to the vehicle" do
         vehicle_maintenance_event = create :vehicle_maintenance_event, vehicle: @vehicle
-        delete :destroy, {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
+        delete :destroy, params: {:id => vehicle_maintenance_event.to_param, vehicle_id: @vehicle.to_param}
         expect(response).to redirect_to(@vehicle)
       end
     end

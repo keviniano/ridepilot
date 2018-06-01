@@ -1,0 +1,2 @@
+id,lat,lng,bearing,speed,log_time,accuracy,provider_id,run_id,itinerary_id,created_at,updated_at
+8,1.5,1.5,1.5,1.5,2018-03-28 06:00:00,1,3427,207,1,2018-03-28 17:18:56.115208,2018-03-28 17:18:56.115208

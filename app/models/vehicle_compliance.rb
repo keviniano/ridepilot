@@ -1,4 +1,4 @@
-class VehicleCompliance < ActiveRecord::Base
+class VehicleCompliance < ApplicationRecord
   include ComplianceCore
 
   has_paper_trail

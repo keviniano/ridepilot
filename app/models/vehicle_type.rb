@@ -1,4 +1,4 @@
-class VehicleType < ActiveRecord::Base
+class VehicleType < ApplicationRecord
   has_many :vehicle_capacity_configurations, dependent: :destroy
   belongs_to :provider
 

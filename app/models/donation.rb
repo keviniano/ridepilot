@@ -1,4 +1,4 @@
-class Donation < ActiveRecord::Base
+class Donation < ApplicationRecord
   has_paper_trail
   
   belongs_to :customer, -> { with_deleted }, inverse_of: :donations

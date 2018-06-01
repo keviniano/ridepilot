@@ -83,7 +83,7 @@ class ProviderCommonAddressesController < AddressesController
     @addresses = ProviderCommonAddress.accessible_by(current_ability).for_provider(@provider).where(customer_id: nil).order(:address, :name).search_for_term(@term)
 
     respond_to do |format|
-      format.json { render :text => render_to_string(:partial => "results.html") }
+      format.json { render :plain => render_to_string(:partial => "results.html") }
     end
   end
 

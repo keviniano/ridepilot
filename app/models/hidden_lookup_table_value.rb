@@ -1,4 +1,4 @@
-class HiddenLookupTableValue < ActiveRecord::Base
+class HiddenLookupTableValue < ApplicationRecord
   has_paper_trail
   
   belongs_to :provider

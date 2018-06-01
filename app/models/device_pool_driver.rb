@@ -1,4 +1,4 @@
-class DevicePoolDriver < ActiveRecord::Base
+class DevicePoolDriver < ApplicationRecord
   belongs_to :device_pool
   belongs_to :driver
   belongs_to :vehicle

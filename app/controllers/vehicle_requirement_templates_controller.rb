@@ -1,8 +1,12 @@
 class VehicleRequirementTemplatesController < ApplicationController
   load_and_authorize_resource except: [:create]
-  before_action :guard_system_template_permission, except: [:create]
+  before_action :guard_system_template_permission, except: [:index, :create]
 
   def index
+    if params[:provider_id].blank? || (current_provider_id.to_s != params[:provider_id].to_s)
+      authorize! :manage, :system_vehicle_requirement_template
+    end
+
     if params[:provider_id].blank?
       @vehicle_requirement_templates = VehicleRequirementTemplate.system_wide
     else
@@ -21,6 +25,8 @@ class VehicleRequirementTemplatesController < ApplicationController
 
   def create
     @vehicle_requirement_template = VehicleRequirementTemplate.new template_params
+
+    @vehicle_requirement_template.provider_id = current_provider_id unless @is_system_template
 
     if @vehicle_requirement_template.provider_id.blank?
       authorize! :manage, :system_vehicle_requirement_template
@@ -54,12 +60,13 @@ class VehicleRequirementTemplatesController < ApplicationController
   private
 
   def template_params
-    params.require(:vehicle_requirement_template).permit(:name, :provider_id, :legal, :reoccuring)
+    params.require(:vehicle_requirement_template).permit(:name, :legal, :reoccuring)
   end
 
   def guard_system_template_permission
-    if params[:provider_id].blank?
+    if params[:provider_id].blank? && @vehicle_requirement_template.try(:provider_id).blank?
       authorize! :manage, :system_vehicle_requirement_template
+      @is_system_template = true
     end
   end
 end

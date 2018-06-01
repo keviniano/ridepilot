@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :itinerary do
     time "2018-01-16 8:00:00"
     eta "2018-01-16 8:20:00"

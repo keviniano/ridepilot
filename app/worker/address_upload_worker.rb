@@ -1,5 +1,6 @@
 class AddressUploadWorker
   include Sidekiq::Worker
+  sidekiq_options queue: 'low'
 
   def perform(filename, provider_id)
     Rails.logger.info "AddressUploadWorker#perform, url=#{filename}"

@@ -1,4 +1,4 @@
-class VehicleMaintenanceEvent < ActiveRecord::Base
+class VehicleMaintenanceEvent < ApplicationRecord
   include DocumentAssociable
 
   has_paper_trail

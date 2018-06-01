@@ -1,4 +1,4 @@
-class Capacity < ActiveRecord::Base
+class Capacity < ApplicationRecord
   belongs_to :capacity_type
 
   validates :capacity_type, presence: true, uniqueness: {scope: [:type, :host_id]}

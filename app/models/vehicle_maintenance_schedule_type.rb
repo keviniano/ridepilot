@@ -1,4 +1,4 @@
-class VehicleMaintenanceScheduleType < ActiveRecord::Base
+class VehicleMaintenanceScheduleType < ApplicationRecord
   has_many :vehicle_maintenance_schedules, dependent: :destroy
   belongs_to :provider
 

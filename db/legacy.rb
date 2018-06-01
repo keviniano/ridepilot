@@ -23,7 +23,7 @@ CSV.foreach(File.join(Rails.root,'db','legacy','tblDestination.txt'),headers: tr
   a.save! 
   puts a.id if a.id.modulo(100) == 0
 end
-ActiveRecord::Base.connection.execute("SELECT setval('addresses_id_seq',#{Address.maximum(:id)})")
+ApplicationRecord.connection.execute("SELECT setval('addresses_id_seq',#{Address.maximum(:id)})")
 
 puts 'Customers:'
 CSV.foreach(File.join(Rails.root,'db','legacy','tblClient.txt'),headers: true) do |r|
@@ -67,7 +67,7 @@ CSV.foreach(File.join(Rails.root,'db','legacy','tblClient.txt'),headers: true) d
     puts c.id if c.id.modulo(100) == 0
   end
 end
-ActiveRecord::Base.connection.execute("SELECT setval('customers_id_seq',#{Customer.maximum(:id)})")
+ApplicationRecord.connection.execute("SELECT setval('customers_id_seq',#{Customer.maximum(:id)})")
 
 puts 'Trips:'
 CSV.foreach(File.join(Rails.root,'db','legacy','tblRide.txt'),headers: true) do |r|
@@ -112,7 +112,7 @@ CSV.foreach(File.join(Rails.root,'db','legacy','tblRide.txt'),headers: true) do 
     puts t.id if t.id.modulo(100) == 0
   end
 end
-ActiveRecord::Base.connection.execute("SELECT setval('trips_id_seq',#{Trip.maximum(:id)})")
+ApplicationRecord.connection.execute("SELECT setval('trips_id_seq',#{Trip.maximum(:id)})")
 #end
 
 puts 'Vehicles:'
@@ -129,7 +129,7 @@ CSV.foreach(File.join(Rails.root,'db','legacy','tblVehicle.txt'),headers: true) 
   v.save!
   puts v.id
 end
-ActiveRecord::Base.connection.execute("SELECT setval('vehicles_id_seq',#{Vehicle.maximum(:id)})")
+ApplicationRecord.connection.execute("SELECT setval('vehicles_id_seq',#{Vehicle.maximum(:id)})")
 
 puts 'Vehicle Maintenance'
 CSV.foreach(File.join(Rails.root,'db','legacy','tblVehicleMaintenance.txt'),headers: true) do |r|
@@ -149,4 +149,4 @@ CSV.foreach(File.join(Rails.root,'db','legacy','tblVehicleMaintenance.txt'),head
     puts vm.id
   end
 end
-ActiveRecord::Base.connection.execute("SELECT setval('vehicle_maintenance_events_id_seq',#{VehicleMaintenanceEvent.maximum(:id)})")
+ApplicationRecord.connection.execute("SELECT setval('vehicle_maintenance_events_id_seq',#{VehicleMaintenanceEvent.maximum(:id)})")

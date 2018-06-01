@@ -1,4 +1,4 @@
-class FieldConfig < ActiveRecord::Base
+class FieldConfig < ApplicationRecord
   has_paper_trail
   
   belongs_to :provider

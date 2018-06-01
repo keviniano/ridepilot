@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :vehicle_maintenance_schedule do
     name { Faker::Lorem.words(2).join(' ') }
     mileage 1

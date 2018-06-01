@@ -1,4 +1,4 @@
-class AddReportableDefault < ActiveRecord::Migration
+class AddReportableDefault < ActiveRecord::Migration[5.1]
   def up
     change_column_default :vehicles, :reportable, true
   end

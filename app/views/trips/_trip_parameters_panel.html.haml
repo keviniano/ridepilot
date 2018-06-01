@@ -33,7 +33,7 @@
           = c.label :phone_number_1, translate_helper("customer_phone")
         .col-sm-9
           - if edit_mode != :show
-            = c.text_field :phone_number_1, :class => :full, class: 'form-control'
+            = c.text_field :phone_number_1, class: 'form-control'
           - else
             = format_phone_number(c.object.phone_number_1)
 

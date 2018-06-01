@@ -30,17 +30,17 @@ RSpec.describe DriverCompliancesController, type: :controller do
 
     describe "GET #new" do
       it "assigns a new driver_compliance as @driver_compliance" do
-        get :new, {driver_id: @driver.to_param}
+        get :new, params: {driver_id: @driver.to_param}
         expect(assigns(:driver_compliance)).to be_a_new(DriverCompliance)
       end
 
       it "assigns the driver as @driver" do
-        get :new, {driver_id: @driver.to_param}
+        get :new, params: {driver_id: @driver.to_param}
         expect(assigns(:driver)).to eq(@driver)
       end
 
       it "sets @driver as the parent object on @driver_compliance" do
-        get :new, {driver_id: @driver.to_param}
+        get :new, params: {driver_id: @driver.to_param}
         expect(assigns(:driver_compliance).driver).to eq(@driver)
       end
     end
@@ -48,19 +48,19 @@ RSpec.describe DriverCompliancesController, type: :controller do
     describe "GET #edit" do
       it "assigns the requested driver_compliance as @driver_compliance" do
         driver_compliance = create :driver_compliance, driver: @driver
-        get :edit, {:id => driver_compliance.to_param, driver_id: @driver.to_param}
+        get :edit, params: {:id => driver_compliance.to_param, driver_id: @driver.to_param}
         expect(assigns(:driver_compliance)).to eq(driver_compliance)
       end
 
       it "assigns the driver as @driver" do
         driver_compliance = create :driver_compliance, driver: @driver
-        get :edit, {:id => driver_compliance.to_param, driver_id: @driver.to_param}
+        get :edit, params: {:id => driver_compliance.to_param, driver_id: @driver.to_param}
         expect(assigns(:driver)).to eq(@driver)
       end
 
       it "sets @driver as the parent object on @driver_compliance" do
         driver_compliance = create :driver_compliance, driver: @driver
-        get :edit, {:id => driver_compliance.to_param, driver_id: @driver.to_param}
+        get :edit, params: {:id => driver_compliance.to_param, driver_id: @driver.to_param}
         expect(assigns(:driver_compliance).driver).to eq(@driver)
       end
     end
@@ -69,35 +69,35 @@ RSpec.describe DriverCompliancesController, type: :controller do
       context "with valid params" do
         it "creates a new DriverCompliance" do
           expect {
-            post :create, {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
+            post :create, params: {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
           }.to change(DriverCompliance, :count).by(1)
         end
 
         it "assigns a newly created driver_compliance as @driver_compliance" do
-          post :create, {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
+          post :create, params: {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
           expect(assigns(:driver_compliance)).to be_a(DriverCompliance)
           expect(assigns(:driver_compliance)).to be_persisted
         end
 
         it "sets @driver as the parent object on the new driver_compliance" do
-          post :create, {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
+          post :create, params: {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
           expect(assigns(:driver_compliance).driver).to eq(@driver)
         end
 
         it "redirects back to the driver" do
-          post :create, {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
+          post :create, params: {:driver_compliance => valid_attributes, driver_id: @driver.to_param}
           expect(response).to redirect_to(@driver)
         end
       end
 
       context "with invalid params" do
         it "assigns a newly created but unsaved driver_compliance as @driver_compliance" do
-          post :create, {:driver_compliance => invalid_attributes, driver_id: @driver.to_param}
+          post :create, params: {:driver_compliance => invalid_attributes, driver_id: @driver.to_param}
           expect(assigns(:driver_compliance)).to be_a_new(DriverCompliance)
         end
 
         it "re-renders the 'new' template" do
-          post :create, {:driver_compliance => invalid_attributes, driver_id: @driver.to_param}
+          post :create, params: {:driver_compliance => invalid_attributes, driver_id: @driver.to_param}
           expect(response).to render_template("new")
         end
       end
@@ -111,20 +111,20 @@ RSpec.describe DriverCompliancesController, type: :controller do
 
         it "updates the requested driver_compliance" do
           driver_compliance = create :driver_compliance, driver: @driver
-          put :update, {:id => driver_compliance.to_param, :driver_compliance => new_attributes, driver_id: @driver.to_param}
+          put :update, params: {:id => driver_compliance.to_param, :driver_compliance => new_attributes, driver_id: @driver.to_param}
           driver_compliance.reload
           expect(driver_compliance.event).to eq("My New Compliance Event")
         end
 
         it "assigns the requested driver_compliance as @driver_compliance" do
           driver_compliance = create :driver_compliance, driver: @driver
-          put :update, {:id => driver_compliance.to_param, :driver_compliance => valid_attributes, driver_id: @driver.to_param}
+          put :update, params: {:id => driver_compliance.to_param, :driver_compliance => valid_attributes, driver_id: @driver.to_param}
           expect(assigns(:driver_compliance)).to eq(driver_compliance)
         end
 
         it "redirects back to the driver" do
           driver_compliance = create :driver_compliance, driver: @driver
-          put :update, {:id => driver_compliance.to_param, :driver_compliance => valid_attributes, driver_id: @driver.to_param}
+          put :update, params: {:id => driver_compliance.to_param, :driver_compliance => valid_attributes, driver_id: @driver.to_param}
           expect(response).to redirect_to(@driver)
         end
       end
@@ -132,13 +132,13 @@ RSpec.describe DriverCompliancesController, type: :controller do
       context "with invalid params" do
         it "assigns the driver_compliance as @driver_compliance" do
           driver_compliance = create :driver_compliance, driver: @driver
-          put :update, {:id => driver_compliance.to_param, :driver_compliance => invalid_attributes, driver_id: @driver.to_param}
+          put :update, params: {:id => driver_compliance.to_param, :driver_compliance => invalid_attributes, driver_id: @driver.to_param}
           expect(assigns(:driver_compliance)).to eq(driver_compliance)
         end
 
         it "re-renders the 'edit' template" do
           driver_compliance = create :driver_compliance, driver: @driver
-          put :update, {:id => driver_compliance.to_param, :driver_compliance => invalid_attributes, driver_id: @driver.to_param}
+          put :update, params: {:id => driver_compliance.to_param, :driver_compliance => invalid_attributes, driver_id: @driver.to_param}
           expect(response).to render_template("edit")
         end
       end
@@ -148,13 +148,13 @@ RSpec.describe DriverCompliancesController, type: :controller do
       it "destroys the requested driver_compliance" do
         driver_compliance = create :driver_compliance, driver: @driver
         expect {
-          delete :destroy, {:id => driver_compliance.to_param, driver_id: @driver.to_param}
+          delete :destroy, params: {:id => driver_compliance.to_param, driver_id: @driver.to_param}
         }.to change(DriverCompliance, :count).by(-1)
       end
 
       it "redirects back to the driver" do
         driver_compliance = create :driver_compliance, driver: @driver
-        delete :destroy, {:id => driver_compliance.to_param, driver_id: @driver.to_param}
+        delete :destroy, params: {:id => driver_compliance.to_param, driver_id: @driver.to_param}
         expect(response).to redirect_to(@driver)
       end
     end

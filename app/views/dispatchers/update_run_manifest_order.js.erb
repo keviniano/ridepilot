@@ -1,3 +1,9 @@
+<% if @has_finished_itinerary %>
+  show_alert_dialog("You cannot move this itinerary as it's finished.");
+<% elsif @move_to_invalid_position %>
+  show_alert_dialog("You cannot put this before a finished itinerary.");
+<% end %>
+
 <% if @run %>
   $('#run_trips_panel_' + "<%= @run.id %>").replaceWith("<%= j render('dispatchers/run_trips_panel', run: @run) %>");
 <% end %>

@@ -1,4 +1,4 @@
-class CreateSavedCustomReports < ActiveRecord::Migration
+class CreateSavedCustomReports < ActiveRecord::Migration[5.1]
   def change
     create_table :saved_custom_reports do |t|
       t.references :custom_report, index: true

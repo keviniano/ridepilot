@@ -1,4 +1,4 @@
-class RecurringDriverCompliance < ActiveRecord::Base
+class RecurringDriverCompliance < ApplicationRecord
   include RecurringComplianceEventScheduler
   creates_occurrences_for :driver_compliances, on: :drivers
   

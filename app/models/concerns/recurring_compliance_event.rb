@@ -26,7 +26,7 @@ module RecurringComplianceEvent
   # fired during a cascade delete from a driver!
   def prevent_destroy_on_recurring_events
     errors.add(:base, "Automatically generated events cannot be deleted") if is_recurring?
-    errors.empty?
+    throw :abort unless errors.empty?
   end
 
   # Only allow updating the compliance_date field if the record is associated 

@@ -6,7 +6,7 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-ActiveRecord::Base.transaction do
+ApplicationRecord.transaction do
   puts "Seeding..."
 
   puts "Creating first provider and system admin..."
@@ -46,7 +46,6 @@ ActiveRecord::Base.transaction do
 
   puts "Creating lookup tables..."
   Rake::Task["ridepilot:seed_lookup_tables"].invoke
-  Rake::Task["ridepilot:seed_provider_lookup_table_configurations"].invoke
 
   puts "Seeding eligibilities"
   Rake::Task["ridepilot:seed_eligibilities"].invoke

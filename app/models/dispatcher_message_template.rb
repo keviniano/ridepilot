@@ -1,0 +1,2 @@
+class DispatcherMessageTemplate < MessageTemplate
+end

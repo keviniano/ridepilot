@@ -28,27 +28,33 @@ class DispatchersController < ApplicationController
     if @run
       trip = Trip.find_by_id params[:trip_id]
 
-      from_label = if @prev_run
-        @prev_run.name
-      elsif trip.is_stand_by
-        "Standby"
-      elsif trip.cab?
-        "Cab"
-      else
-        "Unscheduled"
+      if @prev_run && trip.itineraries.finished.any?
+        @has_finished_itinerary = true
       end
 
-      @scheduler = TripScheduler.new(params[:trip_id], params[:run_id])
-      @scheduler.execute
+      unless @has_finished_itinerary
+        from_label = if @prev_run
+          @prev_run.name
+        elsif trip.is_stand_by
+          "Standby"
+        elsif trip.cab?
+          "Cab"
+        else
+          "Unscheduled"
+        end
 
-      #if @prev_run
-      #  TrackerActionLog.trips_removed_from_run(@prev_run, [trip], current_user)
-      #end
+        @scheduler = TripScheduler.new(params[:trip_id], params[:run_id])
+        @scheduler.execute
 
-      #TrackerActionLog.trips_added_to_run(@run, [trip], current_user)
-          
-      TrackerActionLog.trip_scheduled_to_run(trip, current_user, from_label, @run.name)
+        #if @prev_run
+        #  TrackerActionLog.trips_removed_from_run(@prev_run, [trip], current_user)
+        #end
 
+        #TrackerActionLog.trips_added_to_run(@run, [trip], current_user)
+            
+        TrackerActionLog.trip_scheduled_to_run(trip, current_user, from_label, @run.name)
+      end
+    
       query_trips_runs
       prepare_unassigned_trip_schedule_options
     end
@@ -120,6 +126,17 @@ class DispatchersController < ApplicationController
     end
   end
 
+  def publish_manifest
+    @run = Run.find_by_id params[:run_id]
+
+    # requires eta
+    if @run.itineraries.where(eta: nil).any?
+      calculate_eta
+    end
+
+    @run.publish_manifest!
+  end
+
   def run_trips
     @run = Run.find_by_id params[:run_id]
   end
@@ -164,23 +181,46 @@ class DispatchersController < ApplicationController
 
   def update_run_manifest_order
     @run = Run.find_by_id params[:run_id]
+    itin_id = params[:itin_id]
+    trip_id = itin_id.split('_')[1]
+    itin_leg_flag = itin_id.split('_')[3]
+    @itin = @run.itineraries.where(trip_id: trip_id, leg_flag: itin_leg_flag).first
 
-    if @run && params[:manifest_order].present?
-      new_order = params[:manifest_order].split(',').uniq
-      @run.manifest_order = new_order 
-      @run.save(validate: false)
-      @run.itineraries.clear_times! #clear itins times
+    if @run && @itin && params[:manifest_order].present?
+      if @itin.finish_time
+        # you can't move a finished itin
+        @has_finished_itinerary = true
+      else
+        new_order = params[:manifest_order].split(',').uniq
+        # you can't move to before a finished itin
+        idx = new_order.index(itin_id)
+        if idx
+          next_itin_id = new_order[idx+1]
+          if next_itin_id
+            next_itin_trip_id = next_itin_id.split('_')[1]
+            next_itin_leg_flag = next_itin_id.split('_')[3]
+            next_itin = @run.itineraries.where(trip_id: next_itin_trip_id, leg_flag: next_itin_leg_flag).first
+            if next_itin && next_itin.finish_time
+              @move_to_invalid_position = true
+            end
+          end
+        end
 
-      #TrackerActionLog.rearrange_trip_itineraries(@run, current_user)
+        unless @move_to_invalid_position
+          @run.manifest_order = new_order 
+          @run.save(validate: false)
+          @run.itineraries.clear_times! #clear itins times
+
+          #TrackerActionLog.rearrange_trip_itineraries(@run, current_user)
+        end
+      end
     end
   end
 
   def eta
     @run = Run.find_by_id params[:run_id]
 
-    if @run
-      @eta_info = RunStatsCalculator.new(@run.id).process_eta
-    end
+    calculate_eta
   end
 
   def update_slack_chart
@@ -247,6 +287,8 @@ class DispatchersController < ApplicationController
   def unschedule_trips
     @need_to_update_trips_panel = @new_status_id == session[:unassigned_trip_status_id].try(:to_i)
     target_trips = Trip.where(id: @target_trip_ids)
+    @trip_ids_with_finished_itins = Itinerary.where(trip_id: @target_trip_ids).finished.pluck(:trip_id).uniq
+    target_trips = target_trips.where.not(id: @trip_ids_with_finished_itins) # ignore trips with finished itins
     if target_trips.any?
       prev_run_ids = target_trips.pluck(:run_id).uniq
       case @new_status_id
@@ -266,6 +308,12 @@ class DispatchersController < ApplicationController
           end
         end
       end
+    end
+  end
+
+  def calculate_eta
+    if @run
+      @eta_info = RunStatsCalculator.new(@run.id).process_eta
     end
   end
 

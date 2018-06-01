@@ -1,4 +1,4 @@
-class AddEtaColumns < ActiveRecord::Migration
+class AddEtaColumns < ActiveRecord::Migration[5.1]
   def change
     add_column :providers,  "passenger_load_min", :integer
     add_column :providers,  "passenger_unload_min", :integer

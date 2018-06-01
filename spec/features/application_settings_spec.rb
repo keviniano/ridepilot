@@ -2,7 +2,11 @@ require "rails_helper"
 
 RSpec.describe "ApplicationSettings" do
   after do
-    ApplicationSetting.update_settings ApplicationSetting.defaults
+    default_settings = {}
+    default_settings['devise.expire_password_after'] = false
+    default_settings['devise.password_archiving_count'] = 4
+
+    ApplicationSetting.update_settings default_settings
     ApplicationSetting.apply!
   end
 
@@ -75,8 +79,8 @@ RSpec.describe "ApplicationSettings" do
       click_button "Submit"
   
       expect(page).to have_content "Application settings were successfully updated."
-      expect(ApplicationSetting['devise.expire_password_after']).to equal 1.days.to_i
-      expect(ApplicationSetting['devise.password_archiving_count']).to equal 2
+      expect(ApplicationSetting['devise.expire_password_after']).to eq(1.days.to_i)
+      expect(ApplicationSetting['devise.password_archiving_count']).to eq(2)
     end
   end
 end

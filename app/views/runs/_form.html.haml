@@ -2,26 +2,26 @@
   edit_mode = :edit if !defined? edit_mode
   @is_repeating_run = @run.is_a?(RepeatingRun)
 
-= render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'runs' 
+= render 'shared/highlight_active_tab_js', is_primary_nav: true, tab_class: 'runs'
 
-= form_for @run, :html => (@remote ? {"data-remote" => true, class: 'run_form'} : {class: 'run_form'} ) do |f| 
+= form_for @run, :html => (@remote ? {"data-remote" => true, class: 'run_form'} : {class: 'run_form'} ) do |f|
   = hidden_field_tag :from_dispatch, params[:from_dispatch]
   - if @is_repeating_run
-    = render 'repeating_runs/form_header', edit_mode: edit_mode, f: f 
-  - else  
-    = render 'runs/form_header', edit_mode: edit_mode, f: f 
-  - if @run.errors.any? 
+    = render 'repeating_runs/form_header', edit_mode: edit_mode, f: f
+  - else
+    = render 'runs/form_header', edit_mode: edit_mode, f: f
+  - if @run.errors.any?
     #error_explanation
       %h2= translate_helper("run_form_error_message", count: @run.errors.count)
 
       %ul
-        - @run.errors.full_messages.each do |msg| 
+        - @run.errors.full_messages.each do |msg|
           %li= msg
 
   .col-sm-12
     .col-sm-12.col-md-6.form-group
       .col-sm-3
-        = f.label :name, translate_helper("name") 
+        = f.label :name, translate_helper("name")
       .col-sm-9
         = f.text_field :name, class: 'form-control', required: true
 
@@ -32,8 +32,8 @@
       = render 'runs/tracking_panel' if current_provider.run_tracking?
   .col-sm-12.col-md-6
     = render 'repeating_runs/repetition_panel', f: f if @is_repeating_run
-    = render 'runs/vehicle_panel', f: f 
-    = render 'runs/driver_panel', f: f 
+    = render 'runs/vehicle_panel', f: f , edit_mode: edit_mode
+    = render 'runs/driver_panel', f: f
     = render 'runs/run_completion_panel', f: f, edit_mode: edit_mode if !@is_repeating_run
     - if edit_mode == :show
       - logs = TrackerActionLog.for(@run).order(created_at: :desc)
@@ -41,8 +41,8 @@
 
   - unless @is_repeating_run
     .col-sm-12
-      - if edit_mode != :new 
-        = render 'runs/trip_list', f: f, edit_mode: edit_mode 
+      - if edit_mode != :new
+        = render 'runs/trip_list', f: f, edit_mode: edit_mode
 
 - if edit_mode != :show
   :javascript
@@ -58,7 +58,8 @@
         $.ajax({
           url: "#{reload_vehicles_runs_path}",
           data: {
-            date: $('#run_date').val()
+            date: $('#run_date').val(),
+            vehicle_id: $('#run_vehicle_id').val()
           }
         });
       }
@@ -69,7 +70,8 @@
           data: {
             date: $('#run_date').val(),
             from_time: $('#run_scheduled_start_time').val(),
-            to_time: $('#run_scheduled_end_time').val()
+            to_time: $('#run_scheduled_end_time').val(),
+            driver_id: $('#run_driver_id').val()
           }
         });
       }
@@ -79,14 +81,14 @@
         reload_drivers();
       });
 
-      $('input.time_field_hour, input.time_field_minute').on('change', function() {
+      $('.scheduled_time input.time_field_hour, .scheduled_time input.time_field_minute').on('change', function() {
         // use time_out to wait for #run_scheduled_start_time value updated
         setTimeout(function() {
           reload_drivers();
         }, 10);
       });
 
-      $(document).on('click', 'button.am-pm', function() {
+      $(document).on('click', '.scheduled_time button.am-pm', function() {
         // use time_out to wait for #run_scheduled_start_time value updated
         setTimeout(function() {
           reload_drivers();
@@ -140,8 +142,8 @@
     });
 
 - if @is_repeating_run
-  = render 'shared/hide_invisible_form_fields_js', model_name: "repeatingrun", table_name: 'repeating_runs', provider_id:  current_provider.try(:id) 
+  = render 'shared/hide_invisible_form_fields_js', model_name: "repeatingrun", table_name: 'repeating_runs', provider_id:  current_provider.try(:id)
 - else
-  = render 'shared/hide_invisible_form_fields_js', model_name: "run", table_name: 'runs', provider_id:  current_provider.try(:id) 
+  = render 'shared/hide_invisible_form_fields_js', model_name: "run", table_name: 'runs', provider_id:  current_provider.try(:id)
 
 = render 'shared/time_inputs_javascript' if edit_mode != :show

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :driver_history do
     driver
     event { Faker::Lorem.words(2).join(' ') }

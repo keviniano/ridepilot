@@ -1,4 +1,4 @@
-class TripPurpose < ActiveRecord::Base
+class TripPurpose < ApplicationRecord
   acts_as_paranoid # soft delete
   has_paper_trail
   

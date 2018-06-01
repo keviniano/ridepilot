@@ -54,32 +54,32 @@
             %div#customerTripSummaryTable{style: 'max-height: 300px; overflow: auto;'}
 
 :javascript 
-$(function() {
-  $('#customerTripSummaryDialog').on('show.bs.modal', function() {
-    // if datepicker is not initialized, then do it now
-    if($(this).find('.ui-datepicker-trigger').length == 0) {
-      makeDatePickers();
-    }
-    // hide by default as date_range is not the default filter mode
-    $('.date_range').find('.ui-datepicker-trigger').hide();
-  });
+  $(function() {
+    $('#customerTripSummaryDialog').on('show.bs.modal', function() {
+      // if datepicker is not initialized, then do it now
+      if($(this).find('.ui-datepicker-trigger').length == 0) {
+        makeDatePickers();
+      }
+      // hide by default as date_range is not the default filter mode
+      $('.date_range').find('.ui-datepicker-trigger').hide();
+    });
 
 
-  $('input[name=customer_trip_summary_options]').change(function(e) {
-    var selected = $('input[name=customer_trip_summary_options]:checked').val();
-    if(selected == 'date_range') {
-      $('.date_range').find('.ui-datepicker-trigger').show();
-      $('#past_trips').attr('disabled', 'disabled');
-      $('#future_trips').attr('disabled', 'disabled');
-    } else if(selected == 'past_trips') {
-      $('.date_range').find('.ui-datepicker-trigger').hide();
-      $('#future_trips').attr('disabled', 'disabled');
-      $('#past_trips').removeAttr('disabled');
-    } else if(selected == 'future_trips') {
-      $('.date_range').find('.ui-datepicker-trigger').hide();
-      $('#past_trips').attr('disabled', 'disabled');
-      $('#future_trips').removeAttr('disabled');
-    }
+    $('input[name=customer_trip_summary_options]').change(function(e) {
+      var selected = $('input[name=customer_trip_summary_options]:checked').val();
+      if(selected == 'date_range') {
+        $('.date_range').find('.ui-datepicker-trigger').show();
+        $('#past_trips').attr('disabled', 'disabled');
+        $('#future_trips').attr('disabled', 'disabled');
+      } else if(selected == 'past_trips') {
+        $('.date_range').find('.ui-datepicker-trigger').hide();
+        $('#future_trips').attr('disabled', 'disabled');
+        $('#past_trips').removeAttr('disabled');
+      } else if(selected == 'future_trips') {
+        $('.date_range').find('.ui-datepicker-trigger').hide();
+        $('#past_trips').attr('disabled', 'disabled');
+        $('#future_trips').removeAttr('disabled');
+      }
+    });
   });
-});
     

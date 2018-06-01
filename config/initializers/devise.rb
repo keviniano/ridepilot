@@ -256,7 +256,7 @@ Devise.setup do |config|
   # Configure security extension for devise
 
   # Should the password expire (e.g 3.months)
-  config.expire_password_after = ApplicationSetting.defaults['devise.expire_password_after']
+  config.expire_password_after = ApplicationSetting['devise.expire_password_after']
 
   # Need 1 char of A-Z, a-z and 0-9
   # config.password_regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/
@@ -266,7 +266,7 @@ Devise.setup do |config|
   # containing passwords 1, 2, 3, and 4. With a password_archiving_count of 4,
   # changing it a 5th time results in password 5 being added and password 1
   # being dropped, and thus able to be used again after 5 changes.
-  config.password_archiving_count = ApplicationSetting.defaults['devise.password_archiving_count']
+  config.password_archiving_count = ApplicationSetting['devise.password_archiving_count']
 
   # Deny old password (true, false, count)
   config.deny_old_passwords = true

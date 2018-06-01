@@ -1,4 +1,4 @@
-class VehicleCapacityConfiguration < ActiveRecord::Base
+class VehicleCapacityConfiguration < ApplicationRecord
   belongs_to :vehicle_type
   has_many :vehicle_capacities, dependent: :destroy, foreign_key: :host_id
 

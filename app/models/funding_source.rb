@@ -1,4 +1,4 @@
-class FundingSource < ActiveRecord::Base
+class FundingSource < ApplicationRecord
   acts_as_paranoid # soft delete
   has_paper_trail
 

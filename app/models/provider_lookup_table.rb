@@ -1,4 +1,4 @@
-class ProviderLookupTable < ActiveRecord::Base  
+class ProviderLookupTable < ApplicationRecord  
   include Lookupable
   
   has_paper_trail

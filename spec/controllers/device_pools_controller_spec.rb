@@ -20,7 +20,7 @@ RSpec.describe DevicePoolsController, type: :controller do
 
   describe "GET #new" do
     it "assigns a new device_pool as @device_pool" do
-      get :new, {}
+      get :new, params: {}
       expect(assigns(:device_pool)).to be_a_new(DevicePool)
     end
   end
@@ -28,7 +28,7 @@ RSpec.describe DevicePoolsController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested device_pool as @device_pool" do
       device_pool = create(:device_pool, :provider => @current_user.current_provider)
-      get :edit, {:id => device_pool.to_param}
+      get :edit, params: {:id => device_pool.to_param}
       expect(assigns(:device_pool)).to eq(device_pool)
     end
   end
@@ -37,30 +37,30 @@ RSpec.describe DevicePoolsController, type: :controller do
     context "with valid params" do
       it "creates a new DevicePool" do
         expect {
-          post :create, {:device_pool => valid_attributes}
+          post :create, params: {:device_pool => valid_attributes}
         }.to change(DevicePool, :count).by(1)
       end
 
       it "assigns a newly created device_pool as @device_pool" do
-        post :create, {:device_pool => valid_attributes}
+        post :create, params: {:device_pool => valid_attributes}
         expect(assigns(:device_pool)).to be_a(DevicePool)
         expect(assigns(:device_pool)).to be_persisted
       end
 
       it "redirects to the current user's provider" do
-        post :create, {:device_pool => valid_attributes}
+        post :create, params: {:device_pool => valid_attributes}
         expect(response).to redirect_to(@current_user.current_provider)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved device_pool as @device_pool" do
-        post :create, {:device_pool => invalid_attributes}
+        post :create, params: {:device_pool => invalid_attributes}
         expect(assigns(:device_pool)).to be_a_new(DevicePool)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:device_pool => invalid_attributes}
+        post :create, params: {:device_pool => invalid_attributes}
         expect(response).to render_template("new")
       end
     end
@@ -78,19 +78,19 @@ RSpec.describe DevicePoolsController, type: :controller do
       it "updates the requested device_pool" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider, :name => "Green")
         expect {
-          put :update, {:id => device_pool.to_param, :device_pool => new_attributes}
+          put :update, params: {:id => device_pool.to_param, :device_pool => new_attributes}
         }.to change { device_pool.reload.name }.from("Green").to("Name")
       end
       
       it "assigns the requested device_pool as @device_pool" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider)
-        put :update, {:id => device_pool.to_param, :device_pool => valid_attributes}
+        put :update, params: {:id => device_pool.to_param, :device_pool => valid_attributes}
         expect(assigns(:device_pool)).to eq(device_pool)
       end
 
       it "redirects to the current user's provider" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider)
-        put :update, {:id => device_pool.to_param, :device_pool => valid_attributes}
+        put :update, params: {:id => device_pool.to_param, :device_pool => valid_attributes}
         expect(response).to redirect_to(@current_user.current_provider)
       end
     end
@@ -98,13 +98,13 @@ RSpec.describe DevicePoolsController, type: :controller do
     context "with invalid params" do
       it "assigns the device_pool as @device_pool" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider)
-        put :update, {:id => device_pool.to_param, :device_pool => invalid_attributes}
+        put :update, params: {:id => device_pool.to_param, :device_pool => invalid_attributes}
         expect(assigns(:device_pool)).to eq(device_pool)
       end
 
       it "re-renders the 'edit' template" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider)
-        put :update, {:id => device_pool.to_param, :device_pool => invalid_attributes}
+        put :update, params: {:id => device_pool.to_param, :device_pool => invalid_attributes}
         expect(response).to render_template("edit")
       end
     end
@@ -114,14 +114,14 @@ RSpec.describe DevicePoolsController, type: :controller do
     it "destroys the requested device_pool" do
       device_pool = create(:device_pool, :provider => @current_user.current_provider)
       expect {
-        delete :destroy, {:id => device_pool.to_param}
+        delete :destroy, params: {:id => device_pool.to_param}
       }.to change(DevicePool, :count).by(-1)
     end
 
     context "when responding to :html request" do
       it "redirects to the current user's provider" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider)
-        delete :destroy, {:id => device_pool.to_param}
+        delete :destroy, params: {:id => device_pool.to_param}
         expect(response).to redirect_to(@current_user.current_provider)
       end
     end
@@ -129,13 +129,13 @@ RSpec.describe DevicePoolsController, type: :controller do
     context "when responding to a :js request" do
       it "responds with JS" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider)
-        delete :destroy, {:id => device_pool.to_param, :format => "js"}
+        delete :destroy, params: {:id => device_pool.to_param, :format => "js"}
         expect(response.content_type).to eq("text/javascript")
       end
 
       it "includes the deleted device_pool in the JS response" do
         device_pool = create(:device_pool, :provider => @current_user.current_provider)
-        delete :destroy, {:id => device_pool.to_param, :format => "js"}
+        delete :destroy, params: {:id => device_pool.to_param, :format => "js"}
         json = JSON.parse(response.body)
         expect(json["device_pool"]["attr"]).to be_a(Hash)
         expect(json["device_pool"]["attr"]["data-id"]).to be_a(Integer)

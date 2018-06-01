@@ -18,7 +18,7 @@ RSpec.describe CustomersController, type: :controller do
     it "assigns all active customers as @customers" do
       customer_1 = create(:customer, :provider => @current_user.current_provider)
       customer_2 = create(:customer, :provider => @current_user.current_provider, :active => false)
-      get :index, {}
+      get :index, params: {}
       expect(assigns(:customers)).to include(customer_1)
       expect(assigns(:customers)).to_not include(customer_2)
     end
@@ -27,14 +27,14 @@ RSpec.describe CustomersController, type: :controller do
   describe "GET #show" do
     it "assigns the requested customer as @customer" do
       customer = create(:customer, :provider => @current_user.current_provider)
-      get :show, {:id => customer.to_param}
+      get :show, params: {:id => customer.to_param}
       expect(assigns(:customer)).to eq(customer)
     end
   end
 
   describe "GET #new" do
     it "assigns a new customer as @customer" do
-      get :new, {}
+      get :new, params: {}
       expect(assigns(:customer)).to be_a_new(Customer)
     end
   end
@@ -42,7 +42,7 @@ RSpec.describe CustomersController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested customer as @customer" do
       customer = create(:customer, :provider => @current_user.current_provider)
-      get :edit, {:id => customer.to_param}
+      get :edit, params: {:id => customer.to_param}
       expect(assigns(:customer)).to eq(customer)
     end
   end
@@ -51,19 +51,19 @@ RSpec.describe CustomersController, type: :controller do
     context "with valid params" do
       it "creates a new Customer" do
         expect {
-          post :create, {:customer => valid_attributes}
+          post :create, params: {:customer => valid_attributes}
         }.to change(Customer, :count).by(1)
       end
 
       it "assigns a newly created customer as @customer" do
-        post :create, {:customer => valid_attributes}
+        post :create, params: {:customer => valid_attributes}
         expect(assigns(:customer)).to be_a(Customer)
         expect(assigns(:customer)).to be_persisted
       end
 
       it "should tell me if a duplicate customer exists" do
         customer = create(:customer, email: "abc@def.ghi", provider: @current_user.current_provider)
-        put :create, {customer: customer.dup.attributes}
+        put :create, params: {customer: customer.dup.attributes}
         expect(flash.keys).to include("alert")
         expect(flash["alert"]).to include('There is already a customer with a similar name or the same email address')
         expect(assigns(:customer)).to_not be_persisted
@@ -72,19 +72,19 @@ RSpec.describe CustomersController, type: :controller do
 
       it "redirects to the created customer" do
         skip 'somehow the outcome is not stable which caused the failure'
-        post :create, {:customer => valid_attributes}
+        post :create, params: {:customer => valid_attributes}
         expect(response).to redirect_to(Customer.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved customer as @customer" do
-        post :create, {:customer => invalid_attributes}
+        post :create, params: {:customer => invalid_attributes}
         expect(assigns(:customer)).to be_a_new(Customer)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:customer => invalid_attributes}
+        post :create, params: {:customer => invalid_attributes}
         expect(response).to render_template("new")
       end
     end
@@ -132,19 +132,19 @@ RSpec.describe CustomersController, type: :controller do
       it "updates the requested customer" do
         customer = create(:customer, :provider => @current_user.current_provider, :first_name => "Foo")
         expect {
-          put :update, {:id => customer.to_param, :customer => new_attributes}
+          put :update, params: {:id => customer.to_param, :customer => new_attributes}
         }.to change{ customer.reload.first_name }.from("Foo").to("MyString")
       end
 
       it "assigns the requested customer as @customer" do
         customer = create(:customer, :provider => @current_user.current_provider)
-        put :update, {:id => customer.to_param, :customer => valid_attributes}
+        put :update, params: {:id => customer.to_param, :customer => valid_attributes}
         expect(assigns(:customer)).to eq(customer)
       end
 
       it "redirects to the customer" do
         customer = create(:customer, :provider => @current_user.current_provider)
-        put :update, {:id => customer.to_param, :customer => valid_attributes}
+        put :update, params: {:id => customer.to_param, :customer => valid_attributes}
         expect(response).to redirect_to(customer)
       end
       
@@ -157,7 +157,7 @@ RSpec.describe CustomersController, type: :controller do
         original_tt_ids = customer.travel_trainings.pluck(:id)
         expect(customer.travel_trainings.count).to eq(3)
         
-        put :update, id: customer.to_param, customer: new_attributes, travel_trainings: new_tt_json
+        put :update, params: {id: customer.to_param, customer: new_attributes, travel_trainings: new_tt_json}
         customer.reload
         
         new_tt_ids = customer.travel_trainings.pluck(:id)
@@ -177,7 +177,7 @@ RSpec.describe CustomersController, type: :controller do
         original_fn_ids = customer.funding_authorization_numbers.pluck(:id)
         expect(customer.funding_authorization_numbers.count).to eq(3)
         
-        put :update, id: customer.to_param, customer: new_attributes, funding_authorization_numbers: new_fn_json
+        put :update, params: {id: customer.to_param, customer: new_attributes, funding_authorization_numbers: new_fn_json}
         customer.reload
         
         new_fn_ids = customer.funding_authorization_numbers.pluck(:id)
@@ -191,13 +191,13 @@ RSpec.describe CustomersController, type: :controller do
     context "with invalid params" do
       it "assigns the customer as @customer" do
         customer = create(:customer, :provider => @current_user.current_provider)
-        put :update, {:id => customer.to_param, :customer => invalid_attributes}
+        put :update, params: {:id => customer.to_param, :customer => invalid_attributes}
         expect(assigns(:customer)).to eq(customer)
       end
 
       it "re-renders the 'edit' template" do
         customer = create(:customer, :provider => @current_user.current_provider)
-        put :update, {:id => customer.to_param, :customer => invalid_attributes}
+        put :update, params: {:id => customer.to_param, :customer => invalid_attributes}
         expect(response).to render_template("edit")
       end
     end
@@ -207,13 +207,13 @@ RSpec.describe CustomersController, type: :controller do
     it "destroys the requested customer" do
       customer = create(:customer, :provider => @current_user.current_provider)
       expect {
-        delete :destroy, {:id => customer.to_param}
+        delete :destroy, params: {:id => customer.to_param}
       }.to change(Customer, :count).by(-1)
     end
 
     it "redirects to the customers list" do
       customer = create(:customer, :provider => @current_user.current_provider)
-      delete :destroy, {:id => customer.to_param}
+      delete :destroy, params: {:id => customer.to_param}
       expect(response).to redirect_to(customers_url)
     end
   end
@@ -222,27 +222,27 @@ RSpec.describe CustomersController, type: :controller do
     it "permanently inactivates a customer" do 
       customer = create(:customer, :provider => @current_user.current_provider, :active => true)
       expect {
-        post :inactivate, {:id => customer.id, customer: {active: false}}
+        post :inactivate, params: {:id => customer.id, customer: {active: false}}
       }.to change{ customer.reload.permanent_inactivated? }.from(false).to(true)
     end
 
     it "temporarily inactivates a customer" do 
       customer = create(:customer, :provider => @current_user.current_provider, :active => true)
       expect {
-        post :inactivate, {:id => customer.id, customer: {active: true, inactivated_start_date: Date.today}}
+        post :inactivate, params: {:id => customer.id, customer: {active: true, inactivated_start_date: Date.today}}
       }.to change{ customer.reload.temporarily_inactivated? }.from(false).to(true)
     end
 
     it "removes temporary inactivation from a customer" do 
       customer = create(:customer, :provider => @current_user.current_provider, :active => true, inactivated_start_date: Date.today)
       expect {
-        post :inactivate, {:id => customer.id, customer: {active: true, inactivated_start_date: nil}}
+        post :inactivate, params: {:id => customer.id, customer: {active: true, inactivated_start_date: nil}}
       }.to change{ customer.reload.temporarily_inactivated? }.from(true).to(false)
     end
 
     it "redirects to @customer" do
       customer = create(:customer, :provider => @current_user.current_provider, :active => true)
-      post :inactivate, {:id => customer.id, customer: {active: false}}
+      post :inactivate, params: {:id => customer.id, customer: {active: false}}
       expect(response).to redirect_to(customer)
     end
   end
@@ -251,30 +251,30 @@ RSpec.describe CustomersController, type: :controller do
     it "activates the requested Customer" do
       customer = create(:customer, :provider => @current_user.current_provider, :active => false)
       expect {
-        post :reactivate, {:id => customer.id}
+        post :reactivate, params: {:id => customer.id}
       }.to change{ customer.reload.active }.from(false).to(true)
     end
 
     it "redirects to the @customer" do
       customer = create(:customer, :provider => @current_user.current_provider, :active => false)
-      post :reactivate, {:id => customer.id}
+      post :reactivate, params: {:id => customer.id}
       expect(response).to redirect_to(customer)
     end
   end
   
   describe "GET #found" do
     it "redirects to :search when :customer_id is blank" do
-      get :found, {:customer_id => "", :customer_name => "foooo"}
+      get :found, params: {:customer_id => "", :customer_name => "foooo"}
       expect(response).to redirect_to(search_customers_path(:term => "foooo"))
     end
     
     it "redirects to new_trip_path when :commit starts_with \"new trip\"" do
-      get :found, {:customer_id => "1", :commit => "new trip"}
+      get :found, params: {:customer_id => "1", :commit => "new trip"}
       expect(response).to redirect_to(new_trip_path(:customer_id => "1"))
     end
     
     it "otherwise redirects to the requested customer" do
-      get :found, {:customer_id => "1", :commit => ""}
+      get :found, params: {:customer_id => "1", :commit => ""}
       expect(response).to redirect_to(customer_path("1"))
     end
   end
@@ -290,13 +290,13 @@ RSpec.describe CustomersController, type: :controller do
     }
 
     it "responds with JSON" do
-      get :autocomplete, autocomplete_terms
+      get :autocomplete, params: autocomplete_terms
       expect(response.content_type).to eq("application/json")
     end
 
     it "include matching address info in the json response" do
       customer = create(:customer, :provider => @current_user.current_provider, :first_name => "foooo")
-      get :autocomplete, autocomplete_terms
+      get :autocomplete, params: autocomplete_terms
       json = JSON.parse(response.body)
       expect(json).to be_a(Array)
       expect(json.first["id"]).to be_a(Integer)
@@ -316,7 +316,7 @@ RSpec.describe CustomersController, type: :controller do
       customer_2 = create(:customer, :provider => @current_user.current_provider, :last_name => "foooo")
       customer_3 = create(:customer, :provider => @current_user.current_provider)
       customer_4 = create(:customer, :first_name => "foooo")
-      get :search, search_terms
+      get :search, params: search_terms
       expect(assigns(:customers)).to include(customer_1)
       expect(assigns(:customers)).to include(customer_2)
       expect(assigns(:customers)).to_not include(customer_3)
@@ -324,7 +324,7 @@ RSpec.describe CustomersController, type: :controller do
     end
 
     it "renders the 'index' template" do
-      get :search, search_terms
+      get :search, params: search_terms
       expect(response).to render_template("index")
     end
   end

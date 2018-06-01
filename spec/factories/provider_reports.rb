@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :provider_report do
     provider
     custom_report

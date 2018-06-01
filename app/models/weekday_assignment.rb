@@ -1,4 +1,4 @@
-class WeekdayAssignment < ActiveRecord::Base
+class WeekdayAssignment < ApplicationRecord
   belongs_to :repeating_trip
   belongs_to :repeating_run
 

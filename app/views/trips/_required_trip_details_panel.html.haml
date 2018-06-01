@@ -98,7 +98,7 @@
 :javascript
   $(function() {
     // initialize place picker
-    var geocoder_bounds = #{Utility.new.get_provider_bounds(current_provider).try(:to_json) || {}};
+    var geocoder_bounds = #{(Utility.new.get_provider_bounds(current_provider).try(:to_json) || {}).html_safe};
     init_place_picker(
       ".trip-address-picker",
       geocoder_bounds

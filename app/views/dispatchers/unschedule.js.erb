@@ -1,8 +1,13 @@
+<% if @trip_ids_with_finished_itins.any? %>
+  show_alert_dialog("Note that there are trips can not be unscheduled as partly finished.");
+<% end %>
+
 <% if @target_trip_ids.any? %>
   <% if @prev_run.present? %>
     var prev_run_id = "<%= @prev_run.id %>";
     $('#run_trips_panel_' + prev_run_id).replaceWith("<%= j render('dispatchers/run_trips_panel', run: @prev_run) %>");
     $('#runs_panel table tbody tr[data-run-id=' + prev_run_id + '] td.trips_count').html(<%= @prev_run.reload.trips.count%>);
+    $("#run_trips_panel_" + prev_run_id + " .dispatch-action.publish_manifest").show();
   <% end %>
 
   <% if @need_to_update_trips_panel %>

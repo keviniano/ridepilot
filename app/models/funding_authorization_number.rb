@@ -1,4 +1,4 @@
-class FundingAuthorizationNumber < ActiveRecord::Base
+class FundingAuthorizationNumber < ApplicationRecord
   belongs_to :funding_source
   belongs_to :customer, inverse_of: :funding_authorization_numbers
 

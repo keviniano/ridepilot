@@ -26,15 +26,9 @@
         .col-sm-9
           = f.text_area :result_reason, class: 'form-control'
 
-      .form-group.col-sm-12.donation
-        .col-sm-3
-          = f.label :customer_donation, translate_helper("trip_donation")
-        .col-sm-6.col-md-3
-          = number_field_tag :customer_donation, nil, min: 0, step: 0.01, :size => 8, class: 'form-control', value: params[:customer_donation] || @trip.donation.try(:amount)
-
       :javascript
         $(document).ready(function() {
-          var reasonNeededCodes = #{TripResult.reason_needed_result_ids.map(&:to_s)};
+          var reasonNeededCodes = #{TripResult.reason_needed_result_ids.map(&:to_s).to_json.html_safe};
           $('#trip_trip_result_id').change(function() {
             if (reasonNeededCodes.indexOf($(this).val()) >= 0) {
               $('.result_reason').show();

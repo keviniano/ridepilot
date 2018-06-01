@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :saved_custom_report do
     name  { Faker::Lorem.words(5).join(' ') }
     custom_report 

@@ -1,5 +1,5 @@
 class CabTripsController < ApplicationController
-  before_filter :set_date_params
+  before_action :set_date_params
 
   def index
     @dates_in_range = (@week_start.to_date..@week_end.to_date).to_a

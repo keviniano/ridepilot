@@ -1,4 +1,4 @@
-class DriverCompliance < ActiveRecord::Base
+class DriverCompliance < ApplicationRecord
   include ComplianceCore
   include RecurringComplianceEvent
 

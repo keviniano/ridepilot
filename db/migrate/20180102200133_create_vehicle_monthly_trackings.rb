@@ -1,4 +1,4 @@
-class CreateVehicleMonthlyTrackings < ActiveRecord::Migration
+class CreateVehicleMonthlyTrackings < ActiveRecord::Migration[5.1]
   def change
     create_table :vehicle_monthly_trackings do |t|
       t.references :provider, index: true

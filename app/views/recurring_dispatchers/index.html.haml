@@ -82,7 +82,7 @@
 
   // scroll to a rendered run manifest panel
   function scroll_to_run_trips_panel(run_id) {
-    $('html, body').animate({
+    $('#dispatch_runs_container').animate({
       scrollTop: $("#run_trips_panel_" + run_id).offset().top
     }, 1000);
   }

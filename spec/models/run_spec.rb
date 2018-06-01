@@ -103,12 +103,16 @@ RSpec.describe Run, type: :model do
     let!(:run) { create(:run, :today, :scheduled_morning, provider: provider_a, scheduled_start_time: Date.today.beginning_of_day, scheduled_end_time: Date.today.end_of_day) }
     let(:trip) { create(:trip, run: run) }
 
+    it "has 2 itineraries without any trips" do
+      expect(run.itineraries.size).to eq(2)
+    end
+
     describe "#add_trip_manifest!" do 
       before do 
       end
 
       it "add itineraries" do
-        expect{run.add_trip_manifest!(trip.id)}.to change{run.itineraries.count}.from(0).to(2)
+        expect{run.add_trip_manifest!(trip.id)}.to change{run.itineraries.count}.from(2).to(4)
       end
 
       it "updates manifest_order" do 
@@ -123,7 +127,7 @@ RSpec.describe Run, type: :model do
       end
 
       it "remove itineraries" do
-        expect{run.delete_trip_manifest!(trip.id)}.to change{run.itineraries.count}.from(2).to(0)
+        expect{run.delete_trip_manifest!(trip.id)}.to change{run.itineraries.count}.from(4).to(2)
       end
 
       it "updates manifest_order" do 
@@ -144,8 +148,8 @@ RSpec.describe Run, type: :model do
 
       it "returns correct itineraries in order" do 
         sorted_itineraries = run.sorted_itineraries
-        expect(sorted_itineraries.size).to eq(4)
-        expect(sorted_itineraries.collect(&:itin_id)).to match_array(["trip_#{@trip_1.id}_leg_1", "trip_#{@trip_2.id}_leg_1", "trip_#{@trip_1.id}_leg_2", "trip_#{@trip_2.id}_leg_2"])
+        expect(sorted_itineraries.size).to eq(6)
+        expect(sorted_itineraries.collect(&:itin_id)).to match_array(["run_begin", "trip_#{@trip_1.id}_leg_1", "trip_#{@trip_2.id}_leg_1", "trip_#{@trip_1.id}_leg_2", "trip_#{@trip_2.id}_leg_2", "run_end"])
       end
 
       it "is in sync with manifest_order" do 

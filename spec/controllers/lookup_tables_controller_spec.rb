@@ -27,12 +27,12 @@ RSpec.describe LookupTablesController, type: :controller do
       @table = create(:lookup_table)
     end
     it "assigns the requested lookup table to @lookup_table" do 
-      get :show, id: @table 
+      get :show, params: {id: @table} 
       expect(assigns(:lookup_table)).to eq(@table)
     end
 
     it "renders the #show view" do 
-      get :show, id: @table 
+      get :show, params: {id: @table} 
       expect(response).to render_template :show
     end
   end
@@ -40,7 +40,7 @@ RSpec.describe LookupTablesController, type: :controller do
   describe "POST #add_value" do 
     before do 
       @table = create(:lookup_table)
-      post :add_value, id: @table, lookup_table: {value: 'New Purpose'}
+      post :add_value, params: {id: @table, lookup_table: {value: 'New Purpose'}}
     end
     it "assigns the added value to @item" do 
       expect(assigns(:item)).to eq(@table.find_by_value('New Purpose'))
@@ -51,7 +51,7 @@ RSpec.describe LookupTablesController, type: :controller do
     before do 
       @table = create(:lookup_table)
       existing_purpose = create(:trip_purpose, name: 'Sample Purpose')
-      put :update_value, id: @table, old_value: existing_purpose.name, value: 'New Purpose'
+      put :update_value, params: {id: @table, old_value: existing_purpose.name, value: 'New Purpose'}
     end
     it "assigns the updated value to @item" do 
       expect(assigns(:item)).to eq(@table.find_by_value('New Purpose'))
@@ -62,7 +62,7 @@ RSpec.describe LookupTablesController, type: :controller do
     before do 
       @table = create(:lookup_table)
       existing_purpose = create(:trip_purpose, name: 'Sample Purpose')
-      put :destroy_value, id: @table, value: existing_purpose.name
+      put :destroy_value, params: {id: @table, value: existing_purpose.name}
     end
   end
 end

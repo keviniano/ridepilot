@@ -9,6 +9,6 @@
       %th{style: 'text-align: right;'}= translate_helper("run_manifest_table_header_scheduled_time") 
       %th{style: 'border-right: 2px black solid;'}
     %tbody
-      - itins = get_itineraries(run)
+      - itins = get_public_itineraries(run, true)
       - itins.each_with_index do |itin, index|
         = render "reports/manifest/itinerary#{@is_pdf ? '.html.haml' : ''}", itinerary: itin

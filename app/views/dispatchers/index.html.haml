@@ -83,13 +83,14 @@
   }
 
   // update run manifest order
-  function change_run_manifest_order(run_id, new_manifest_order) {
+  function change_run_manifest_order(run_id, itin_id, new_manifest_order) {
     // re-schedule a trip
     $.ajax({
       url: "#{update_run_manifest_order_dispatchers_path}",
       method: 'post',
       data: {
         run_id: run_id,
+        itin_id: itin_id,
         manifest_order: new_manifest_order.join(',')
       }
     });
@@ -97,7 +98,7 @@
 
   // scroll to a rendered run manifest panel
   function scroll_to_run_trips_panel(run_id) {
-    $('html, body').animate({
+    $('#dispatch_runs_container').animate({
       scrollTop: $("#run_trips_panel_" + run_id).offset().top
     }, 1000);
   }
@@ -177,7 +178,7 @@
     var id_array = [];
     var loaded_run_id_string = localStorage.getItem('dispatch_loaded_run_ids');
     if(loaded_run_id_string) {
-      id_array = loaded_run_id_string.split(',');
+      id_array = $.unique(loaded_run_id_string.split(',')).sort();
     }
 
     return id_array;
@@ -197,7 +198,7 @@
     }
 
     var loaded_run_ids = get_loaded_run_id_array();
-    if(loaded_run_ids.indexOf(target_run_id) < 0) {
+    if(target_run_id && loaded_run_ids.indexOf(target_run_id) < 0 && loaded_run_ids.indexOf(target_run_id.toString()) < 0) {
       loaded_run_ids.push(target_run_id);
     }
     if(loaded_run_ids.length > 0) {
@@ -282,6 +283,8 @@
        return $table.closest('.panel-body');
       }
     });
+
+    update_trips_panel_height();
   }
 
   function change_trips_trip_result(trip_ids, result_id, reason) {

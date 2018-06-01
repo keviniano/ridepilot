@@ -30,17 +30,17 @@ RSpec.describe VehicleWarrantiesController, type: :controller do
 
     describe "GET #new" do
       it "assigns a new vehicle_warranty as @vehicle_warranty" do
-        get :new, {vehicle_id: @vehicle.to_param}
+        get :new, params: {vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_warranty)).to be_a_new(VehicleWarranty)
       end
 
       it "assigns the vehicle as @vehicle" do
-        get :new, {vehicle_id: @vehicle.to_param}
+        get :new, params: {vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle)).to eq(@vehicle)
       end
 
       it "sets @vehicle as the parent object on @vehicle_warranty" do
-        get :new, {vehicle_id: @vehicle.to_param}
+        get :new, params: {vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_warranty).vehicle).to eq(@vehicle)
       end
     end
@@ -48,19 +48,19 @@ RSpec.describe VehicleWarrantiesController, type: :controller do
     describe "GET #edit" do
       it "assigns the requested vehicle_warranty as @vehicle_warranty" do
         vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-        get :edit, {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
+        get :edit, params: {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_warranty)).to eq(vehicle_warranty)
       end
 
       it "assigns the vehicle as @vehicle" do
         vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-        get :edit, {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
+        get :edit, params: {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle)).to eq(@vehicle)
       end
 
       it "sets @vehicle as the parent object on @vehicle_warranty" do
         vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-        get :edit, {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
+        get :edit, params: {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
         expect(assigns(:vehicle_warranty).vehicle).to eq(@vehicle)
       end
     end
@@ -69,35 +69,35 @@ RSpec.describe VehicleWarrantiesController, type: :controller do
       context "with valid params" do
         it "creates a new VehicleWarranty" do
           expect {
-            post :create, {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
+            post :create, params: {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
           }.to change(VehicleWarranty, :count).by(1)
         end
 
         it "assigns a newly created vehicle_warranty as @vehicle_warranty" do
-          post :create, {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_warranty)).to be_a(VehicleWarranty)
           expect(assigns(:vehicle_warranty)).to be_persisted
         end
 
         it "sets @vehicle as the parent object on the new vehicle_warranty" do
-          post :create, {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_warranty).vehicle).to eq(@vehicle)
         end
 
         it "redirects back to the vehicle" do
-          post :create, {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to redirect_to(@vehicle)
         end
       end
 
       context "with invalid params" do
         it "assigns a newly created but unsaved vehicle_warranty as @vehicle_warranty" do
-          post :create, {:vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_warranty)).to be_a_new(VehicleWarranty)
         end
 
         it "re-renders the 'new' template" do
-          post :create, {:vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
+          post :create, params: {:vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to render_template("new")
         end
       end
@@ -111,20 +111,20 @@ RSpec.describe VehicleWarrantiesController, type: :controller do
 
         it "updates the requested vehicle_warranty" do
           vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-          put :update, {:id => vehicle_warranty.to_param, :vehicle_warranty => new_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_warranty.to_param, :vehicle_warranty => new_attributes, vehicle_id: @vehicle.to_param}
           vehicle_warranty.reload
           expect(vehicle_warranty.description).to eq("My New Warranty")
         end
 
         it "assigns the requested vehicle_warranty as @vehicle_warranty" do
           vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-          put :update, {:id => vehicle_warranty.to_param, :vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_warranty.to_param, :vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_warranty)).to eq(vehicle_warranty)
         end
 
         it "redirects back to the vehicle" do
           vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-          put :update, {:id => vehicle_warranty.to_param, :vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_warranty.to_param, :vehicle_warranty => valid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to redirect_to(@vehicle)
         end
       end
@@ -132,13 +132,13 @@ RSpec.describe VehicleWarrantiesController, type: :controller do
       context "with invalid params" do
         it "assigns the vehicle_warranty as @vehicle_warranty" do
           vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-          put :update, {:id => vehicle_warranty.to_param, :vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_warranty.to_param, :vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(assigns(:vehicle_warranty)).to eq(vehicle_warranty)
         end
 
         it "re-renders the 'edit' template" do
           vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-          put :update, {:id => vehicle_warranty.to_param, :vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
+          put :update, params: {:id => vehicle_warranty.to_param, :vehicle_warranty => invalid_attributes, vehicle_id: @vehicle.to_param}
           expect(response).to render_template("edit")
         end
       end
@@ -148,13 +148,13 @@ RSpec.describe VehicleWarrantiesController, type: :controller do
       it "destroys the requested vehicle_warranty" do
         vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
         expect {
-          delete :destroy, {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
+          delete :destroy, params: {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
         }.to change(VehicleWarranty, :count).by(-1)
       end
 
       it "redirects back to the vehicle" do
         vehicle_warranty = create :vehicle_warranty, vehicle: @vehicle
-        delete :destroy, {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
+        delete :destroy, params: {:id => vehicle_warranty.to_param, vehicle_id: @vehicle.to_param}
         expect(response).to redirect_to(@vehicle)
       end
     end

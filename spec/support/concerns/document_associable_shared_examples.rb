@@ -34,7 +34,7 @@ RSpec.shared_examples "an associable for a document" do
       3.times { create :document_association, document: create(:document, documentable: @owner), associable: @example }
       expect(@example.document_associations.count).to eql 3
       
-      @example.document_associations_attributes = @example.document_associations(true).collect { |association| association.attributes.merge({:_destroy => "1"}) }
+      @example.document_associations_attributes = @example.document_associations.reload.collect { |association| association.attributes.merge({:_destroy => "1"}) }
       expect {
         @example.save
       }.to change(DocumentAssociation, :count).by(-3)

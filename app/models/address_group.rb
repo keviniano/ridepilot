@@ -1,4 +1,4 @@
-class AddressGroup < ActiveRecord::Base
+class AddressGroup < ApplicationRecord
 
   validates :name, uniqueness: { case_insensitive: true }, presence: true
 

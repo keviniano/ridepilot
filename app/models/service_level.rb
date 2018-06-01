@@ -1,4 +1,4 @@
-class ServiceLevel < ActiveRecord::Base
+class ServiceLevel < ApplicationRecord
   acts_as_paranoid # soft delete
   
   validates :name, presence: true, uniqueness: { :case_sensitive => false }

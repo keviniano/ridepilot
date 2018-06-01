@@ -4,13 +4,15 @@ Rails.application.routes.draw do
   scope "(:locale)", locale: TranslationEngine.available_locales do
 
     mount TranslationEngine::Engine => "/translation_engine"
+    mount RidepilotCadAvl::Engine => "/ridepilot_cad_avl"
+    mount ActionCable.server => '/cable'
 
     root :to => "dispatchers#index"
 
-    get "admin", :controller => :home, :action => :index
-    get "schedule_recurring", :controller => :home, :action => :schedule_recurring
-    get "ntd_funding_sources", :controller => :home, :action => :ntd_funding_sources
-    post "update_ntd_funding_sources", :controller => :home, :action => :update_ntd_funding_sources
+    get "admin", to: "home#index"
+    get "schedule_recurring", to: "home#schedule_recurring"
+    get "ntd_funding_sources", to: "home#ntd_funding_sources"
+    post "update_ntd_funding_sources", to: "home#update_ntd_funding_sources"
 
     devise_for :users
 
@@ -27,13 +29,13 @@ Rails.application.routes.draw do
       get "restore_user" => "users#restore"
     end
 
-    resources :users, only: [:show, :edit, :update] do 
-      member do 
+    resources :users, only: [:show, :edit, :update] do
+      member do
         get :show_reset_password
         patch :reset_password
         post "answer_verification_question" => "users#answer_verification_question"
       end
-      
+
       collection do
         get "get_verification_question" => "users#get_verification_question"
         post "get_verification_question" => "users#get_verification_question"
@@ -106,9 +108,9 @@ Rails.application.routes.draw do
       post :change_role
       post :delete_role
 
-      resources :users, only: [] do 
-        collection do 
-          get :new_user 
+      resources :users, only: [] do
+        collection do
+          get :new_user
           post :create_user
         end
       end
@@ -123,6 +125,7 @@ Rails.application.routes.draw do
         post :change_fields_required_for_run_completion
         post :change_driver_availability_settings
         post :change_eta_related_settings
+        post :change_fare_related_settings
         post :save_region
         post :save_viewport
         patch :save_operating_hours
@@ -151,24 +154,24 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :driver_requirement_templates 
-    resources :vehicle_requirement_templates 
-    resources :vehicle_maintenance_schedule_types do 
+    resources :driver_requirement_templates
+    resources :vehicle_requirement_templates
+    resources :vehicle_maintenance_schedule_types do
       resources :vehicle_maintenance_schedules, except: [:show]
     end
-    resources :vehicle_types do 
-      resources :vehicle_capacity_configurations, except: [:show] do 
-        collection do 
-          get :list 
+    resources :vehicle_types do
+      resources :vehicle_capacity_configurations, except: [:show] do
+        collection do
+          get :list
         end
       end
     end
 
     resources :mobility_capacities, only: [:index] do
-      collection do 
+      collection do
         get :batch_edit
         post :batch_update
-      end 
+      end
     end
 
     resources :recurring_vehicle_maintenance_compliances do
@@ -207,11 +210,11 @@ Rails.application.routes.draw do
     end
 
     resources :drivers do
-      collection do 
+      collection do
         get :availability_forecast
         get :daily_availability_forecast
       end
-      
+
       member do
         get :delete_photo
         post :inactivate
@@ -233,7 +236,7 @@ Rails.application.routes.draw do
       resources :vehicle_warranties, :except => [:index]
       resources :vehicle_compliances
 
-      member do 
+      member do
         get  :edit_initial_mileage
         post :update_initial_mileage
         post :inactivate
@@ -272,6 +275,7 @@ Rails.application.routes.draw do
         post :schedule_multiple
         post :batch_change_same_run_trip_result
         post :update_run_manifest_order
+        put  :publish_manifest
         get :cancel_run
         get :run_trips
         get :load_trips
@@ -294,15 +298,15 @@ Rails.application.routes.draw do
     end
 
 
-    resources :operating_hours, only: [:new] do 
-      collection do 
-        post :add 
+    resources :operating_hours, only: [:new] do
+      collection do
+        post :add
         delete :remove
       end
     end
-    resources :daily_operating_hours, only: [:new] do 
-      collection do 
-        post :add 
+    resources :daily_operating_hours, only: [:new] do
+      collection do
+        post :add
         delete :remove
       end
     end
@@ -316,19 +320,27 @@ Rails.application.routes.draw do
       end
     end
 
-    scope :via => :post, :constraints => { :format => "json" , :protocol => "https://" } do
-      match "device_pool_drivers/" => "v1/device_pool_drivers#index", :as => "v1_device_pool_drivers"
-      match "v1/device_pool_drivers/:id" => "v1/device_pool_drivers#update", :as => "v1_device_pool_driver"
+    get "custom_reports/:id", to: "reports#show", as: :custom_report
+    get "saved_reports/:id", to: "reports#saved_report", as: :saved_report
+    get "show_saved_reports/:id", to: "reports#show_saved_report", as: :show_saved_report
+    delete "delete_saved_reports/:id", to: "reports#delete_saved_report", as: :delete_saved_report
+
+    namespace 'reports' do
+      ["age_and_ethnicity", "cab", "cancellations_report", "cctc_summary_report", "customer_donation_report",
+      "customer_receiving_trips_in_range", "customers_report", "daily_manifest", "daily_manifest_by_half_hour",
+      "daily_manifest_by_half_hour_with_cab", "daily_manifest_with_cab", "daily_trips", "donations",
+      "driver_compliances_report", "driver_manifest", "driver_monthly_service_report", "driver_report",
+      "export_trips_in_range",  "inactive_driver_status_report", "ineligible_customer_status_report", "manifest",
+      "missing_data_report", "monthlies", "ntd", "provider_common_location_report", "provider_service_productivity_report",
+      "service_summary", "show_runs_for_verification", "show_trips_for_verification", "update_runs_for_verification",
+      "update_trips_for_verification", "vehicle_monthly_service_report", "vehicle_report", "vehicles_monthly"].each do |action|
+        #get action, action: action
+        get "#{action}/:id", action: action
+      end
     end
 
-    get "custom_reports/:id", :controller=>:reports, :action=>:show, as: :custom_report
-    get "saved_reports/:id", :controller=>:reports, :action=>:saved_report, as: :saved_report
-    get "show_saved_reports/:id", :controller=>:reports, :action=>:show_saved_report, as: :show_saved_report
-    delete "delete_saved_reports/:id", :controller=>:reports, :action=>:delete_saved_report, as: :delete_saved_report
-    get "reports/:action", :controller=>:reports
-    get "reports/:action/:id", :controller=>:reports
-    resources :reports, only: [] do 
-      collection do 
+    resources :reports, only: [] do
+      collection do
         get :get_run_list
         get :show_save_form
         post :save_as
@@ -336,9 +348,6 @@ Rails.application.routes.draw do
     end
     # reporting engine
     mount Reporting::Engine, at: "/reporting"
-
-
-    get "test_exception_notification" => "application#test_exception_notification"
 
     resources :lookup_tables, :only => [:index, :show] do
       member do
@@ -361,12 +370,19 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      match "authenticate_customer", :controller => :customers, :action => :show, :via => [:get, :options]
-      match "authenticate_provider", :controller => :providers, :action => :show, :via => [:get, :options]
-      match "trip_purposes", :controller => :trip_purposes, :action => :index, :via => [:get, :options]
-      match "create_trip", :controller => :trips, :action => :create, :via => [:post, :options]
-      match "cancel_trip", :controller => :trips, :action => :destroy, :via => [:delete, :options]
-      match "trip_status", :controller => :trips, :action => :show, :via => [:get, :options]
+      match "authenticate_customer", to: "customers#show", :via => [:get, :options]
+      match "authenticate_provider", to: "providers#show", :via => [:get, :options]
+      match "trip_purposes", to: "trip_purposes#index", :via => [:get, :options]
+      match "create_trip", to: "trips#create", :via => [:post, :options]
+      match "cancel_trip", to: "trips#destroy", :via => [:delete, :options]
+      match "trip_status", to: "trips#show", :via => [:get, :options]
+    end
+
+    namespace :v2 do
+      get 'touch_session' => 'base#touch_session'
+      post 'sign_in' => 'sessions#create'
+      delete 'sign_out' => 'sessions#destroy'
+      post 'reset_password' => 'passwords#reset'
     end
   end
 end

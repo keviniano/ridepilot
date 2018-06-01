@@ -1,4 +1,4 @@
-class BookingUser < ActiveRecord::Base
+class BookingUser < ApplicationRecord
 
   belongs_to :user, -> { with_deleted }
   validates :user, presence: true

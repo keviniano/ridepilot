@@ -1,7 +1,7 @@
 # This is a 'dumb' model. It is managed by a Run instance, which creates a 
 # repeating instance of itself when instructed to. Validation is nonexistent 
 # since all data should already have been vetted by the Run instance.
-class RepeatingRun < ActiveRecord::Base
+class RepeatingRun < ApplicationRecord
   include RunCore
   include RequiredFieldValidatorModule
   include RecurringRideCoordinator
@@ -230,6 +230,7 @@ class RepeatingRun < ActiveRecord::Base
     itins = itins.revenue if revenue_only
 
     if itins.empty?
+      itins = []
       # build itineraries from trips
       #from_garage_address = self.from_garage_address || self.vehicle.try(:garage_address)
       #to_garage_address = self.to_garage_address || self.vehicle.try(:garage_address)

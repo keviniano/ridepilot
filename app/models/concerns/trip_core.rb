@@ -85,7 +85,7 @@ module TripCore
     self.attendant_count = 0 if self.respond_to?(:attendant_count) && self.attendant_count.nil?
     self.service_animal_space_count = 0 if self.respond_to?(:service_animal_space_count) && self.service_animal_space_count.nil?
     
-    if self.passenger_load_min.nil?
+    if self.respond_to?(:passenger_load_min) && self.passenger_load_min.nil?
       if self.customer
         self.passenger_load_min = self.customer.passenger_load_min
       elsif self.provider
@@ -95,7 +95,7 @@ module TripCore
       end
     end
     
-    if self.passenger_unload_min.nil?
+    if self.respond_to?(:passenger_unload_min) && self.passenger_unload_min.nil?
       if self.customer
         self.passenger_unload_min = self.customer.passenger_unload_min
       elsif self.provider
@@ -105,7 +105,7 @@ module TripCore
       end
     end
 
-    if self.early_pickup_allowed.nil?
+    if self.respond_to?(:early_pickup_allowed) && self.early_pickup_allowed.nil?
       self.early_pickup_allowed = self.is_outbound? 
     end
   end

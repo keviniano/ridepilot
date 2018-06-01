@@ -2,7 +2,11 @@ require "rails_helper"
 
 RSpec.describe ApplicationSetting do
   after do
-    ApplicationSetting.update_settings ApplicationSetting.defaults
+    default_settings = {}
+    default_settings['devise.expire_password_after'] = false
+    default_settings['devise.password_archiving_count'] = 4
+
+    ApplicationSetting.update_settings default_settings
     ApplicationSetting.apply!
   end
   

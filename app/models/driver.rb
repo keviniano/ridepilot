@@ -1,4 +1,4 @@
-class Driver < ActiveRecord::Base
+class Driver < ApplicationRecord
   include RequiredFieldValidatorModule
   include Available
   include Inactivateable

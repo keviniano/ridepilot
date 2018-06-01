@@ -1,4 +1,4 @@
-class Run < ActiveRecord::Base
+class Run < ApplicationRecord
   include RequiredFieldValidatorModule
   include RunCore
   include PublicActivity::Common
@@ -21,9 +21,14 @@ class Run < ActiveRecord::Base
 
   has_many :trips, -> { order(:pickup_time) }, :dependent => :nullify
   has_many :itineraries, :dependent => :destroy
+  has_many :public_itineraries, -> { order(:sequence) }, :dependent => :destroy
+
   belongs_to :repeating_run
 
   has_one :run_distance
+
+  has_many :run_vehicle_inspections, dependent: :destroy
+  has_many :vehicle_inspections, through: :run_vehicle_inspections
 
   belongs_to :from_garage_address, -> { with_deleted }, class_name: 'GarageAddress', foreign_key: 'from_garage_address_id'
   accepts_nested_attributes_for :from_garage_address, update_only: true
@@ -35,6 +40,7 @@ class Run < ActiveRecord::Base
   before_validation :fix_dates
   before_update :check_vehicle_change
   before_update :check_manifest_change
+  after_create :add_init_run_itineraries
   after_update :apply_manifest_changes
 
   validate                  :name_uniqueness
@@ -91,16 +97,16 @@ class Run < ActiveRecord::Base
   
   # based on recurring dispatching, batch assign recurring trip instances to recurring run instances
   def self.batch_update_recurring_trip_assignment!
-    recurring.each do |r|
-      next unless r && r.manifest_order.empty?
-      
-      r.update_recurring_trip_assignment!
+    recurring.each do |r|      
+      r.update_recurring_trip_assignment! if r
     end
   end
 
   # based on recurring dispatching, assign recurring trip instances to recurring run instances
   def update_recurring_trip_assignment!
-    return unless self.date
+    return unless self.date && 
+      (self.manifest_order.blank? || (self.manifest_order - ["run_begin","run_end"]).empty?) && 
+      self.itineraries.revenue.empty?
 
     rr = self.repeating_run
     return unless rr.present? 
@@ -154,25 +160,105 @@ class Run < ActiveRecord::Base
             # assign trip to run
             trip.run = self
             trip.save(validate: false)
+
+            self.add_trip_manifest!(trip.id)
           end
         end
       end
     end
 
+    self.manifest_changed = true
+
     if run_manifest_order.any?
       self.manifest_order = run_manifest_order 
-      self.save(validate: false)
     end
 
+    self.save(validate: false) if self.changed?
+
     # create itineraries
-    Itinerary.transaction do
-      build_begin_run_itinerary.save
-      self.trips.each do |trip|
-        build_itinerary(trip.pickup_time, trip.pickup_address, trip.id, 1).save
-        build_itinerary(trip.appointment_time, trip.dropoff_address, trip.id, 2).save
-      end
-      build_end_run_itinerary.save
+    reset_itineraries
+
+    # publish manifest
+    if self.manifest_publishable?
+      RunStatsCalculator.new(self.id).process_eta
+      self.publish_manifest!
     end
+  end
+
+  # make manifest public
+  def publish_manifest!
+    old_public_itins = self.public_itineraries
+    finished_itins = old_public_itins.finished
+    non_finished_itins = old_public_itins.non_finished
+
+    last_finished_itin = finished_itins.last.try(:itinerary)
+    new_itins = self.sorted_itineraries
+    last_finished_itin_idx = new_itins.index(last_finished_itin) || -1
+
+    first_non_finished_public_itin = non_finished_itins.first
+    first_non_finished_itin = first_non_finished_public_itin.try(:itinerary)
+    first_non_finished_itin_eta = first_non_finished_public_itin.try(:eta)
+
+    # keep finished ones
+    self.public_itineraries = finished_itins
+    public_itin_count = finished_itins.size
+
+    # process non-finished ones
+    first_non_finished_internal_itin = nil
+    self.sorted_itineraries[last_finished_itin_idx+1..-1].each do |itin|
+      next if itin.finish_time
+      itin_eta = itin.eta 
+
+      # check if active itin has changed, e.g., dispatcher moved a new trip before current active itin
+      # if not changed, need to copy departure_time etc to new itin
+      if !first_non_finished_internal_itin
+        first_non_finished_internal_itin = itin
+        # check if first_non_finished_itin departed or not
+        if first_non_finished_itin && first_non_finished_itin.departure_time
+          if itin.itin_id == first_non_finished_itin.itin_id
+            itin.copyAvlDataFrom!(first_non_finished_itin)
+            itin_eta = first_non_finished_itin_eta
+          else
+            # means previous active itin is not active, new itin is inserted before it
+            # therefore, need to clear previous active itin's departure_time 
+            first_non_finished_itin.reset!
+          end
+        end
+      end
+
+      self.public_itineraries.new(run: self, itinerary: itin, sequence: public_itin_count, eta: itin_eta).save
+      public_itin_count += 1
+    end
+
+    # update publish time
+    self.manifest_published_at = DateTime.now
+    self.manifest_changed = false
+    self.save(validate: false)
+  end
+
+  def manifest_publishable?
+    self.driver && # has driver
+      self.vehicle &&  # has vehicle
+      (
+        (self.from_garage_address && self.to_garage_address) || # has start & end locations
+        self.vehicle.garage_address # or vehicle has garage address
+      )  
+  end
+
+  def manifest_unpublishable_reasons
+    reasons = []
+    unless self.driver 
+      reasons << "no driver"
+    end
+    unless self.vehicle 
+      reasons << "no vehicle"
+    end
+
+    unless ((self.from_garage_address && self.to_garage_address) || self.vehicle.garage_address )
+      reasons << "no run start/end location(s)"
+    end
+
+    reasons
   end
 
   # "Cancels" a run: mark as cancelled and unschedule everything
@@ -187,16 +273,17 @@ class Run < ActiveRecord::Base
     self.save(validate: false) if auto_save
     
     trips.clear # Doesn't actually destroy the records, just removes the association
-    itineraries.delete_all
+    itineraries.destroy_all
   end
   
   # Cancels all runs in the collection, returning the count of trips removed from runs
   def self.cancel_all
-    self.update_all(manifest_order: nil)
+    cancelable_runs = self.where(actual_start_time: nil)
+    cancelable_runs.update_all(manifest_order: nil)
 
-    run_ids = self.all.pluck(:id)
+    run_ids = cancelable_runs.pluck(:id)
     Trip.where(run_id: run_ids).update_all(run_id: nil)
-    Itinerary.where(run_id: run_ids).delete_all
+    Itinerary.where(run_id: run_ids).destroy_all
   end
 
   def add_trip_manifest!(trip_id)
@@ -211,14 +298,21 @@ class Run < ActiveRecord::Base
       pickup_index = nil 
       appt_index = nil
 
+      finished_itin_data = self.itineraries.revenue.finished.pluck(:trip_id, :leg_flag)
       manifest_order_array = self.manifest_order
       manifest_order_array.each_with_index do |leg_name, index|
         leg_name_parts = leg_name.split('_')
         leg_trip_id = leg_name_parts[1]
-        is_pickup = leg_name_parts[3] == '1'
+        leg_flag = leg_name_parts[3].to_i
+        is_pickup = leg_flag == 1
+
+        # move to next if current itin is finished
+        next if  finished_itin_data.include?([leg_trip_id, leg_flag])
+
         a_trip = Trip.find_by_id leg_trip_id
         if a_trip 
           action_time = is_pickup ? a_trip.pickup_time : a_trip.appointment_time
+          
           next unless action_time
 
           pickup_index = index if !pickup_index && action_time.to_s(:time_utc) > trip_pickup_time.to_s(:time_utc)
@@ -260,34 +354,44 @@ class Run < ActiveRecord::Base
 
   def delete_trip_manifest!(trip_id)
     unless self.manifest_order.blank? 
-      self.manifest_order.delete "trip_#{trip_id}_leg_1"
-      self.manifest_order.delete "trip_#{trip_id}_leg_2"
-      self.save(validate: false)
+      unfinished_trip_itin_flags = self.itineraries.where(trip_id: trip_id).where(finish_time: nil).pluck(:leg_flag)
+      if unfinished_trip_itin_flags.include?(1)
+        self.manifest_order.delete "trip_#{trip_id}_leg_1"
+      end
+
+      if unfinished_trip_itin_flags.include?(2)
+        self.manifest_order.delete "trip_#{trip_id}_leg_2"
+      end
+
+      self.save(validate: false) if self.changed?
     end
 
     remove_trip_itineraries!(trip_id)
   end
 
+  # given assigned trips, re-create all itineraries
+  def reset_itineraries
+    self.itineraries.destroy_all
+
+    Itinerary.transaction do
+      build_begin_run_itinerary.save
+      self.trips.each do |trip|
+        build_itinerary(trip.pickup_time, trip.pickup_address, trip.id, 1).save
+        build_itinerary(trip.appointment_time, trip.dropoff_address, trip.id, 2).save
+      end
+      build_end_run_itinerary.save
+    end
+  end
+
   def sorted_itineraries(revenue_only = false)
+    reset_itineraries if self.itineraries.empty?
+
     itins = itineraries
     itins = itins.revenue if revenue_only
 
-    if itins.empty?
-      # begin run
-      itins << build_begin_run_itinerary unless revenue_only
-
-      # trip related revenue itineraries
-      self.trips.each do |trip|
-        itins << build_itinerary(trip.pickup_time, trip.pickup_address, trip.id, 1)
-
-        if !TripResult::CANCEL_CODES_BUT_KEEP_RUN.include?(trip.trip_result.try(:code))
-          itins << build_itinerary(trip.appointment_time, trip.dropoff_address, trip.id, 2)
-        end
-      end
-
-      # end run
-      itins << build_end_run_itinerary unless revenue_only
-    end
+    # exclude non_dispatchable legs
+    exclude_leg_ids = itins.dropoff.joins(trip: :trip_result).where(trip_results: {code: TripResult::NON_DISPATCHABLE_CODES}).pluck(:id).uniq
+    itins = itins.where.not(id: exclude_leg_ids) if exclude_leg_ids.any?
 
     if manifest_order.blank?
       itins = itins.sort_by { |itin| [itin.time_diff, itin.leg_flag] }
@@ -328,9 +432,9 @@ class Run < ActiveRecord::Base
   end
 
   def remove_trip_itineraries!(trip_id)
-    trip_itins = self.itineraries.where(trip_id: trip_id)
+    trip_itins = self.itineraries.where(finish_time: nil).where(trip_id: trip_id)
     if trip_itins.any?
-      self.itineraries.where(trip_id: trip_id).delete_all
+      trip_itins.destroy_all
       self.itineraries.clear_times! #clear other itins times
     end
   end
@@ -380,7 +484,6 @@ class Run < ActiveRecord::Base
   end
 
   def self.update_prior_run_complete_status!
-    
     Run.prior_to(Date.today).where(provider: Provider.active.pluck(:id)).incomplete.each do |r|
       if r.completable?
         r.set_complete!
@@ -390,7 +493,7 @@ class Run < ActiveRecord::Base
 
   def completable?
     start_odometer.present? && end_odometer.present? && start_odometer < end_odometer &&
-    vehicle_id.present?  && driver_id.present?
+    vehicle_id.present?  && driver_id.present? &&
     (from_garage_address || vehicle.try(:garage_address)) &&
     (to_garage_address || vehicle.try(:garage_address)) &&
     trips.incomplete.empty?  &&
@@ -516,6 +619,20 @@ class Run < ActiveRecord::Base
     r = self.clone
     r.repeating_run = nil
     r.valid?
+  end
+
+  def vehicle_inspections_as_json
+    run_inspection_data = self.run_vehicle_inspections.pluck(:vehicle_inspection_id, :checked).to_h
+    inspection_as_json = []
+    VehicleInspection.by_provider(self.provider).pluck(:id, :description).each do |v|
+      inspection_as_json << {
+        id: v[0],
+        description: v[1],
+        checked: run_inspection_data[v[0]]
+      }
+    end
+
+    inspection_as_json
   end
 
   private
@@ -673,12 +790,13 @@ class Run < ActiveRecord::Base
       end
     end
 
+    self.manifest_changed = true if @unschedule_trips || @clear_manifest_times || self.changes.include?('manifest_order')
+
     true
   end  
 
   def apply_manifest_changes
     if @unschedule_trips
-      # TODO
       self.unschedule!(false)
     elsif @clear_manifest_times
       self.itineraries.clear_times!
@@ -687,6 +805,13 @@ class Run < ActiveRecord::Base
     end
 
     true
+  end
+
+  def add_init_run_itineraries
+    Itinerary.transaction do
+      build_begin_run_itinerary.save
+      build_end_run_itinerary.save
+    end
   end
   
 end

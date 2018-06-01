@@ -1,4 +1,4 @@
-class Address < ActiveRecord::Base
+class Address < ApplicationRecord
   acts_as_paranoid # soft delete
   
   belongs_to :provider, -> { with_deleted }
@@ -65,9 +65,10 @@ class Address < ActiveRecord::Base
     self.class.find address_id
   end
   
+  # deprecated
   def compute_in_district
     if the_geom and in_district.nil?
-      in_district = Region.count(:conditions => ["is_primary = 't' and st_contains(the_geom, ?)", the_geom]) > 0
+      #in_district = Region.count(:conditions => ["is_primary = 't' and st_contains(the_geom, ?)", the_geom]) > 0
       true # avoid returning false while doing before_validation
     end 
     

@@ -1,4 +1,4 @@
-class VerificationQuestion < ActiveRecord::Base
+class VerificationQuestion < ApplicationRecord
   
   belongs_to :user
   

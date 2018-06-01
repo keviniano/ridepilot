@@ -1,4 +1,4 @@
-class Role < ActiveRecord::Base
+class Role < ApplicationRecord
   acts_as_paranoid # soft delete
   
   belongs_to :user

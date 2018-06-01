@@ -1,3 +1,3 @@
-class RunDistance < ActiveRecord::Base
+class RunDistance < ApplicationRecord
   belongs_to :run
 end

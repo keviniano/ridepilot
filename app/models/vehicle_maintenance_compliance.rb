@@ -1,4 +1,4 @@
-class VehicleMaintenanceCompliance < ActiveRecord::Base
+class VehicleMaintenanceCompliance < ApplicationRecord
   include DocumentAssociable
   include ComplianceEvent
   include RecurringComplianceEvent
@@ -40,7 +40,8 @@ class VehicleMaintenanceCompliance < ActiveRecord::Base
       overdue_without_due_type?(as_of: as_of) && is_over_due_mileage?(mileage)
     end
   end
-  alias_method_chain :overdue?, :due_type
+  alias_method :overdue_without_due_type?, :overdue?
+  alias_method :overdue?, :overdue_with_due_type?
   
   def vehicle_odometer_reading
     vehicle.last_odometer_reading

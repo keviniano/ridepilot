@@ -1,4 +1,4 @@
-class RidershipMobilityMapping < ActiveRecord::Base
+class RidershipMobilityMapping < ApplicationRecord
   after_initialize :set_defaults
   belongs_to :mobility
 

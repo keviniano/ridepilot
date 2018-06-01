@@ -25,7 +25,7 @@ RSpec.describe Driver, type: :model do
   end
 
   it "must have a valid email when specified" do
-    driver = build :driver, email: "m@m"
+    driver = build :driver, email: "m@"
     expect(driver.valid?).to be_falsey
     expect(driver.errors.keys).to include :email
 

@@ -1,5 +1,6 @@
 class RunDistanceCalculationWorker
   include Sidekiq::Worker
+  sidekiq_options queue: 'critical'
 
   def perform(run_id)
     Rails.logger.info "RunDistanceCalculationWorker#perform, Run ID = #{run_id}"

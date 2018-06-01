@@ -1,4 +1,4 @@
-class CustomerAddressType < ActiveRecord::Base
+class CustomerAddressType < ApplicationRecord
   acts_as_paranoid # soft delete
   
   validates :name, presence: true, uniqueness: {case_sensitive: false, conditions: -> { where(deleted_at: nil) } }

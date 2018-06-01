@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :vehicle_maintenance_compliance do
     vehicle
     event { Faker::Lorem.words(2).join(' ') }

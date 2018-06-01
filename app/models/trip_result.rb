@@ -1,4 +1,4 @@
-class TripResult < ActiveRecord::Base
+class TripResult < ApplicationRecord
   acts_as_paranoid # soft delete
   has_paper_trail
 
