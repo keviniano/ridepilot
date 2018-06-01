@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
   enable_extension "fuzzystrmatch"
   enable_extension "uuid-ossp"
 
-  create_table "activities", id: :serial, force: :cascade do |t|
+  create_table "activities", force: :cascade do |t|
     t.integer "trackable_id"
     t.string "trackable_type", limit: 255
     t.integer "owner_id"
@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["trackable_id", "trackable_type"], name: "index_activities_on_trackable_id_and_trackable_type"
   end
 
-  create_table "ada_questions", id: :serial, force: :cascade do |t|
+  create_table "ada_questions", force: :cascade do |t|
     t.integer "provider_id"
     t.string "name", limit: 255
     t.datetime "created_at"
@@ -43,13 +43,13 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_ada_questions_on_provider_id"
   end
 
-  create_table "address_groups", id: :serial, force: :cascade do |t|
+  create_table "address_groups", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "address_upload_flags", id: :serial, force: :cascade do |t|
+  create_table "address_upload_flags", force: :cascade do |t|
     t.boolean "is_loading", default: false
     t.integer "provider_id"
     t.datetime "created_at"
@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_address_upload_flags_on_provider_id"
   end
 
-  create_table "addresses", id: :serial, force: :cascade do |t|
+  create_table "addresses", force: :cascade do |t|
     t.string "name", limit: 255
     t.string "building_name", limit: 255
     t.string "address", limit: 255
@@ -90,7 +90,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["trip_purpose_id"], name: "index_addresses_on_trip_purpose_id"
   end
 
-  create_table "addresses_customers_old", id: :serial, force: :cascade do |t|
+  create_table "addresses_customers_old", force: :cascade do |t|
     t.integer "customer_id"
     t.integer "address_id"
     t.datetime "created_at"
@@ -99,7 +99,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["customer_id"], name: "index_addresses_customers_old_on_customer_id"
   end
 
-  create_table "booking_users", id: :serial, force: :cascade do |t|
+  create_table "booking_users", force: :cascade do |t|
     t.integer "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -109,12 +109,12 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["user_id"], name: "index_booking_users_on_user_id"
   end
 
-  create_table "boolean_lookup", id: :serial, force: :cascade do |t|
+  create_table "boolean_lookup", force: :cascade do |t|
     t.string "name", limit: 16
     t.string "note", limit: 16
   end
 
-  create_table "capacities", id: :serial, force: :cascade do |t|
+  create_table "capacities", force: :cascade do |t|
     t.integer "capacity_type_id"
     t.integer "capacity"
     t.integer "host_id"
@@ -125,7 +125,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["host_id"], name: "index_capacities_on_host_id"
   end
 
-  create_table "capacity_types", id: :serial, force: :cascade do |t|
+  create_table "capacity_types", force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "provider_id"
     t.datetime "deleted_at"
@@ -134,7 +134,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_capacity_types_on_provider_id"
   end
 
-  create_table "custom_reports", id: :serial, force: :cascade do |t|
+  create_table "custom_reports", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -143,7 +143,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.string "version", limit: 255
   end
 
-  create_table "customer_ada_questions", id: :serial, force: :cascade do |t|
+  create_table "customer_ada_questions", force: :cascade do |t|
     t.integer "customer_id"
     t.integer "ada_question_id"
     t.boolean "answer"
@@ -153,13 +153,13 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["customer_id"], name: "index_customer_ada_questions_on_customer_id"
   end
 
-  create_table "customer_address_types", id: :serial, force: :cascade do |t|
+  create_table "customer_address_types", force: :cascade do |t|
     t.string "name", limit: 255
     t.string "code", limit: 255
     t.datetime "deleted_at"
   end
 
-  create_table "customer_eligibilities", id: :serial, force: :cascade do |t|
+  create_table "customer_eligibilities", force: :cascade do |t|
     t.integer "customer_id"
     t.integer "eligibility_id"
     t.text "ineligible_reason"
@@ -170,7 +170,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["eligibility_id"], name: "index_customer_eligibilities_on_eligibility_id"
   end
 
-  create_table "customers", id: :serial, force: :cascade do |t|
+  create_table "customers", force: :cascade do |t|
     t.string "first_name", limit: 255
     t.string "middle_initial", limit: 255
     t.string "last_name", limit: 255
@@ -229,7 +229,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_customers_providers_on_provider_id"
   end
 
-  create_table "daily_operating_hours", id: :serial, force: :cascade do |t|
+  create_table "daily_operating_hours", force: :cascade do |t|
     t.date "date"
     t.time "start_time"
     t.time "end_time"
@@ -241,12 +241,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.boolean "is_unavailable", default: false
   end
 
-  create_table "data_migrations", id: false, force: :cascade do |t|
-    t.string "version", null: false
-    t.index ["version"], name: "unique_data_migrations", unique: true
-  end
-
-  create_table "device_pool_drivers", id: :serial, force: :cascade do |t|
+  create_table "device_pool_drivers", force: :cascade do |t|
     t.string "status", limit: 255
     t.float "lat"
     t.float "lng"
@@ -261,7 +256,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_id"], name: "index_device_pool_drivers_on_vehicle_id"
   end
 
-  create_table "device_pools", id: :serial, force: :cascade do |t|
+  create_table "device_pools", force: :cascade do |t|
     t.integer "provider_id"
     t.string "name", limit: 255
     t.string "color", limit: 255
@@ -272,7 +267,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_device_pools_on_provider_id"
   end
 
-  create_table "document_associations", id: :serial, force: :cascade do |t|
+  create_table "document_associations", force: :cascade do |t|
     t.integer "document_id"
     t.integer "associable_id"
     t.string "associable_type", limit: 255
@@ -283,7 +278,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["document_id"], name: "index_document_associations_on_document_id"
   end
 
-  create_table "documents", id: :serial, force: :cascade do |t|
+  create_table "documents", force: :cascade do |t|
     t.integer "documentable_id"
     t.string "documentable_type", limit: 255
     t.string "description", limit: 255
@@ -296,7 +291,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["documentable_id", "documentable_type"], name: "index_documents_on_documentable_id_and_documentable_type"
   end
 
-  create_table "donations", id: :serial, force: :cascade do |t|
+  create_table "donations", force: :cascade do |t|
     t.datetime "date"
     t.float "amount"
     t.text "notes"
@@ -311,7 +306,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["user_id"], name: "index_donations_on_user_id"
   end
 
-  create_table "driver_compliances", id: :serial, force: :cascade do |t|
+  create_table "driver_compliances", force: :cascade do |t|
     t.integer "driver_id"
     t.string "event", limit: 255
     t.text "notes"
@@ -327,7 +322,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["recurring_driver_compliance_id"], name: "index_driver_compliances_on_recurring_driver_compliance_id"
   end
 
-  create_table "driver_histories", id: :serial, force: :cascade do |t|
+  create_table "driver_histories", force: :cascade do |t|
     t.integer "driver_id"
     t.string "event", limit: 255
     t.text "notes"
@@ -337,7 +332,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["driver_id"], name: "index_driver_histories_on_driver_id"
   end
 
-  create_table "driver_requirement_templates", id: :serial, force: :cascade do |t|
+  create_table "driver_requirement_templates", force: :cascade do |t|
     t.integer "provider_id"
     t.string "name", limit: 255
     t.boolean "legal"
@@ -348,7 +343,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_driver_requirement_templates_on_provider_id"
   end
 
-  create_table "drivers", id: :serial, force: :cascade do |t|
+  create_table "drivers", force: :cascade do |t|
     t.boolean "active"
     t.boolean "paid"
     t.integer "provider_id"
@@ -373,14 +368,14 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["user_id"], name: "index_drivers_on_user_id"
   end
 
-  create_table "eligibilities", id: :serial, force: :cascade do |t|
+  create_table "eligibilities", force: :cascade do |t|
     t.string "code", limit: 255, null: false
     t.string "description", limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "emergency_contacts", id: :serial, force: :cascade do |t|
+  create_table "emergency_contacts", force: :cascade do |t|
     t.integer "geocoded_address_id"
     t.integer "driver_id"
     t.string "name", limit: 255
@@ -391,7 +386,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.datetime "deleted_at"
   end
 
-  create_table "ethnicities", id: :serial, force: :cascade do |t|
+  create_table "ethnicities", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -406,7 +401,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "field_configs", id: :serial, force: :cascade do |t|
+  create_table "field_configs", force: :cascade do |t|
     t.integer "provider_id", null: false
     t.string "table_name", limit: 255, null: false
     t.string "field_name", limit: 255, null: false
@@ -417,7 +412,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_field_configs_on_provider_id"
   end
 
-  create_table "funding_authorization_numbers", id: :serial, force: :cascade do |t|
+  create_table "funding_authorization_numbers", force: :cascade do |t|
     t.integer "funding_source_id"
     t.integer "customer_id"
     t.string "number", limit: 255
@@ -428,14 +423,14 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["funding_source_id"], name: "index_funding_authorization_numbers_on_funding_source_id"
   end
 
-  create_table "funding_source_visibilities", id: :serial, force: :cascade do |t|
+  create_table "funding_source_visibilities", force: :cascade do |t|
     t.integer "funding_source_id"
     t.integer "provider_id"
     t.index ["funding_source_id"], name: "index_funding_source_visibilities_on_funding_source_id"
     t.index ["provider_id"], name: "index_funding_source_visibilities_on_provider_id"
   end
 
-  create_table "funding_sources", id: :serial, force: :cascade do |t|
+  create_table "funding_sources", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "deleted_at"
     t.integer "provider_id"
@@ -466,7 +461,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["run_id"], name: "index_gps_locations_on_run_id"
   end
 
-  create_table "hidden_lookup_table_values", id: :serial, force: :cascade do |t|
+  create_table "hidden_lookup_table_values", force: :cascade do |t|
     t.integer "provider_id"
     t.string "table_name", limit: 255
     t.integer "value_id"
@@ -475,7 +470,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_hidden_lookup_table_values_on_provider_id"
   end
 
-  create_table "images", id: :serial, force: :cascade do |t|
+  create_table "images", force: :cascade do |t|
     t.integer "imageable_id"
     t.string "imageable_type", limit: 255
     t.string "image_file_name", limit: 255
@@ -485,7 +480,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["imageable_id", "imageable_type"], name: "index_images_on_imageable_id_and_imageable_type"
   end
 
-  create_table "itineraries", id: :serial, force: :cascade do |t|
+  create_table "itineraries", force: :cascade do |t|
     t.datetime "time"
     t.datetime "eta"
     t.integer "travel_time"
@@ -506,13 +501,13 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["trip_id"], name: "index_itineraries_on_trip_id"
   end
 
-  create_table "locales", id: :serial, force: :cascade do |t|
+  create_table "locales", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "lookup_tables", id: :serial, force: :cascade do |t|
+  create_table "lookup_tables", force: :cascade do |t|
     t.string "caption", limit: 255
     t.string "name", limit: 255
     t.string "value_column_name", limit: 255
@@ -551,13 +546,13 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["sender_id"], name: "index_messages_on_sender_id"
   end
 
-  create_table "mobilities", id: :serial, force: :cascade do |t|
+  create_table "mobilities", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "deleted_at"
     t.index ["deleted_at"], name: "index_mobilities_on_deleted_at"
   end
 
-  create_table "monthlies", id: :serial, force: :cascade do |t|
+  create_table "monthlies", force: :cascade do |t|
     t.date "start_date"
     t.integer "volunteer_escort_hours"
     t.integer "volunteer_admin_hours"
@@ -570,7 +565,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_monthlies_on_provider_id"
   end
 
-  create_table "old_passwords", id: :serial, force: :cascade do |t|
+  create_table "old_passwords", force: :cascade do |t|
     t.string "encrypted_password", limit: 255, null: false
     t.string "password_archivable_type", limit: 255, null: false
     t.integer "password_archivable_id", null: false
@@ -578,7 +573,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["password_archivable_type", "password_archivable_id"], name: "index_password_archivable"
   end
 
-  create_table "operating_hours", id: :serial, force: :cascade do |t|
+  create_table "operating_hours", force: :cascade do |t|
     t.integer "operatable_id"
     t.integer "day_of_week"
     t.time "start_time"
@@ -592,7 +587,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["operatable_id"], name: "index_operating_hours_on_operatable_id"
   end
 
-  create_table "planned_leaves", id: :serial, force: :cascade do |t|
+  create_table "planned_leaves", force: :cascade do |t|
     t.date "start_date"
     t.date "end_date"
     t.text "reason"
@@ -603,7 +598,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["leavable_id", "leavable_type"], name: "index_planned_leaves_on_leavable_id_and_leavable_type"
   end
 
-  create_table "provider_lookup_tables", id: :serial, force: :cascade do |t|
+  create_table "provider_lookup_tables", force: :cascade do |t|
     t.string "caption", limit: 255
     t.string "name", limit: 255
     t.string "value_column_name", limit: 255
@@ -614,7 +609,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.datetime "updated_at"
   end
 
-  create_table "provider_reports", id: :serial, force: :cascade do |t|
+  create_table "provider_reports", force: :cascade do |t|
     t.integer "provider_id"
     t.integer "custom_report_id"
     t.boolean "inactive"
@@ -624,7 +619,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_provider_reports_on_provider_id"
   end
 
-  create_table "providers", id: :serial, force: :cascade do |t|
+  create_table "providers", force: :cascade do |t|
     t.string "name", limit: 255
     t.string "logo_file_name", limit: 255
     t.string "logo_content_type", limit: 255
@@ -693,7 +688,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["run_id"], name: "index_public_itineraries_on_run_id"
   end
 
-  create_table "recurring_driver_compliances", id: :serial, force: :cascade do |t|
+  create_table "recurring_driver_compliances", force: :cascade do |t|
     t.integer "provider_id"
     t.string "event_name", limit: 255
     t.text "event_notes"
@@ -710,7 +705,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_recurring_driver_compliances_on_provider_id"
   end
 
-  create_table "recurring_vehicle_maintenance_compliances", id: :serial, force: :cascade do |t|
+  create_table "recurring_vehicle_maintenance_compliances", force: :cascade do |t|
     t.integer "provider_id"
     t.string "event_name", limit: 255
     t.text "event_notes"
@@ -729,7 +724,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_recurring_vehicle_maintenance_compliances_on_provider_id"
   end
 
-  create_table "regions", id: :serial, force: :cascade do |t|
+  create_table "regions", force: :cascade do |t|
     t.string "name", limit: 255
     t.geography "the_geom", limit: {:srid=>4326, :type=>"st_polygon", :geographic=>true}
     t.datetime "deleted_at"
@@ -738,7 +733,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["the_geom"], name: "index_regions_on_the_geom", using: :gist
   end
 
-  create_table "repeating_itineraries", id: :serial, force: :cascade do |t|
+  create_table "repeating_itineraries", force: :cascade do |t|
     t.datetime "time"
     t.datetime "eta"
     t.integer "travel_time"
@@ -755,7 +750,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["repeating_trip_id"], name: "index_repeating_itineraries_on_repeating_trip_id"
   end
 
-  create_table "repeating_run_manifest_orders", id: :serial, force: :cascade do |t|
+  create_table "repeating_run_manifest_orders", force: :cascade do |t|
     t.integer "repeating_run_id"
     t.integer "wday"
     t.text "manifest_order"
@@ -764,7 +759,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["repeating_run_id"], name: "index_repeating_run_manifest_orders_on_repeating_run_id"
   end
 
-  create_table "repeating_runs", id: :serial, force: :cascade do |t|
+  create_table "repeating_runs", force: :cascade do |t|
     t.text "schedule_yaml"
     t.string "name", limit: 255
     t.date "date"
@@ -790,7 +785,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_id"], name: "index_repeating_runs_on_vehicle_id"
   end
 
-  create_table "repeating_trips", id: :serial, force: :cascade do |t|
+  create_table "repeating_trips", force: :cascade do |t|
     t.text "schedule_yaml"
     t.integer "provider_id"
     t.integer "customer_id"
@@ -843,7 +838,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_id"], name: "index_repeating_trips_on_vehicle_id"
   end
 
-  create_table "reporting_filter_fields", id: :serial, force: :cascade do |t|
+  create_table "reporting_filter_fields", force: :cascade do |t|
     t.integer "filter_group_id", null: false
     t.integer "filter_type_id", null: false
     t.integer "lookup_table_id"
@@ -858,19 +853,19 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["lookup_table_id"], name: "index_reporting_filter_fields_on_lookup_table_id"
   end
 
-  create_table "reporting_filter_groups", id: :serial, force: :cascade do |t|
+  create_table "reporting_filter_groups", force: :cascade do |t|
     t.string "name", limit: 255, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "reporting_filter_types", id: :serial, force: :cascade do |t|
+  create_table "reporting_filter_types", force: :cascade do |t|
     t.string "name", limit: 255, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "reporting_lookup_tables", id: :serial, force: :cascade do |t|
+  create_table "reporting_lookup_tables", force: :cascade do |t|
     t.string "name", limit: 255, null: false
     t.string "display_field_name", limit: 255, null: false
     t.datetime "created_at", null: false
@@ -879,7 +874,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.string "data_access_type", limit: 255
   end
 
-  create_table "reporting_output_fields", id: :serial, force: :cascade do |t|
+  create_table "reporting_output_fields", force: :cascade do |t|
     t.string "name", limit: 255, null: false
     t.string "title", limit: 255
     t.integer "report_id", null: false
@@ -893,7 +888,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["report_id"], name: "index_reporting_output_fields_on_report_id"
   end
 
-  create_table "reporting_reports", id: :serial, force: :cascade do |t|
+  create_table "reporting_reports", force: :cascade do |t|
     t.string "name", limit: 255, null: false
     t.string "description", limit: 255
     t.string "data_source", limit: 255, null: false
@@ -902,7 +897,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.string "primary_key", limit: 255, default: "id", null: false
   end
 
-  create_table "reporting_specific_filter_groups", id: :serial, force: :cascade do |t|
+  create_table "reporting_specific_filter_groups", force: :cascade do |t|
     t.integer "report_id"
     t.integer "filter_group_id"
     t.integer "sort_order", default: 1, null: false
@@ -912,7 +907,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["report_id"], name: "index_of_report_on_specific_filter_group"
   end
 
-  create_table "ridership_mobility_mappings", id: :serial, force: :cascade do |t|
+  create_table "ridership_mobility_mappings", force: :cascade do |t|
     t.integer "ridership_id"
     t.integer "mobility_id"
     t.integer "capacity"
@@ -923,7 +918,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["mobility_id"], name: "index_ridership_mobility_mappings_on_mobility_id"
   end
 
-  create_table "roles", id: :serial, force: :cascade do |t|
+  create_table "roles", force: :cascade do |t|
     t.integer "user_id"
     t.integer "provider_id"
     t.integer "level"
@@ -933,7 +928,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["user_id"], name: "index_roles_on_user_id"
   end
 
-  create_table "run_distances", id: :serial, force: :cascade do |t|
+  create_table "run_distances", force: :cascade do |t|
     t.float "total_dist"
     t.float "revenue_miles"
     t.float "non_revenue_miles"
@@ -960,7 +955,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_inspection_id"], name: "index_run_vehicle_inspections_on_vehicle_inspection_id"
   end
 
-  create_table "runs", id: :serial, force: :cascade do |t|
+  create_table "runs", force: :cascade do |t|
     t.string "name", limit: 255
     t.date "date"
     t.integer "start_odometer"
@@ -1000,7 +995,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_id"], name: "index_runs_on_vehicle_id"
   end
 
-  create_table "saved_custom_reports", id: :serial, force: :cascade do |t|
+  create_table "saved_custom_reports", force: :cascade do |t|
     t.integer "custom_report_id"
     t.integer "provider_id"
     t.string "name", limit: 255
@@ -1012,7 +1007,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_saved_custom_reports_on_provider_id"
   end
 
-  create_table "service_levels", id: :serial, force: :cascade do |t|
+  create_table "service_levels", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -1020,7 +1015,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["deleted_at"], name: "index_service_levels_on_deleted_at"
   end
 
-  create_table "settings", id: :serial, force: :cascade do |t|
+  create_table "settings", force: :cascade do |t|
     t.string "var", limit: 255, null: false
     t.text "value"
     t.integer "thing_id"
@@ -1030,13 +1025,13 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["thing_type", "thing_id", "var"], name: "index_settings_on_thing_type_and_thing_id_and_var", unique: true
   end
 
-  create_table "translation_keys", id: :serial, force: :cascade do |t|
+  create_table "translation_keys", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  create_table "translations", id: :serial, force: :cascade do |t|
+  create_table "translations", force: :cascade do |t|
     t.integer "locale_id"
     t.integer "translation_key_id"
     t.text "value"
@@ -1050,7 +1045,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.integer "seconds"
   end
 
-  create_table "travel_trainings", id: :serial, force: :cascade do |t|
+  create_table "travel_trainings", force: :cascade do |t|
     t.integer "customer_id"
     t.datetime "date"
     t.text "comment"
@@ -1059,7 +1054,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["customer_id"], name: "index_travel_trainings_on_customer_id"
   end
 
-  create_table "trip_purposes", id: :serial, force: :cascade do |t|
+  create_table "trip_purposes", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -1067,7 +1062,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["deleted_at"], name: "index_trip_purposes_on_deleted_at"
   end
 
-  create_table "trip_results", id: :serial, force: :cascade do |t|
+  create_table "trip_results", force: :cascade do |t|
     t.string "code", limit: 255
     t.string "name", limit: 255
     t.datetime "created_at"
@@ -1077,7 +1072,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["deleted_at"], name: "index_trip_results_on_deleted_at"
   end
 
-  create_table "trips", id: :serial, force: :cascade do |t|
+  create_table "trips", force: :cascade do |t|
     t.integer "run_id"
     t.integer "customer_id"
     t.datetime "pickup_time"
@@ -1149,7 +1144,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["trip_result_id"], name: "index_trips_on_trip_result_id"
   end
 
-  create_table "users", id: :serial, force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email", limit: 255, default: "", null: false
     t.string "encrypted_password", limit: 255, default: "", null: false
     t.string "reset_password_token", limit: 255
@@ -1183,14 +1178,14 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "vehicle_capacity_configurations", id: :serial, force: :cascade do |t|
+  create_table "vehicle_capacity_configurations", force: :cascade do |t|
     t.integer "vehicle_type_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["vehicle_type_id"], name: "index_vehicle_capacity_configurations_on_vehicle_type_id"
   end
 
-  create_table "vehicle_compliances", id: :serial, force: :cascade do |t|
+  create_table "vehicle_compliances", force: :cascade do |t|
     t.integer "vehicle_id"
     t.string "event", limit: 255
     t.text "notes"
@@ -1213,12 +1208,12 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_vehicle_inspections_on_provider_id"
   end
 
-  create_table "vehicle_maintenance_compliance_due_types", id: :serial, force: :cascade do |t|
+  create_table "vehicle_maintenance_compliance_due_types", force: :cascade do |t|
     t.string "name", limit: 16
     t.string "note", limit: 16
   end
 
-  create_table "vehicle_maintenance_compliances", id: :serial, force: :cascade do |t|
+  create_table "vehicle_maintenance_compliances", force: :cascade do |t|
     t.integer "vehicle_id"
     t.string "event", limit: 255
     t.text "notes"
@@ -1236,7 +1231,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_maintenance_schedule_id"], name: "index_compl_veh_maint_sched_id"
   end
 
-  create_table "vehicle_maintenance_events", id: :serial, force: :cascade do |t|
+  create_table "vehicle_maintenance_events", force: :cascade do |t|
     t.integer "vehicle_id"
     t.boolean "reimbursable"
     t.date "service_date"
@@ -1252,7 +1247,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_id"], name: "index_vehicle_maintenance_events_on_vehicle_id"
   end
 
-  create_table "vehicle_maintenance_schedule_types", id: :serial, force: :cascade do |t|
+  create_table "vehicle_maintenance_schedule_types", force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -1260,7 +1255,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_veh_maint_sched_type_provider_id"
   end
 
-  create_table "vehicle_maintenance_schedules", id: :serial, force: :cascade do |t|
+  create_table "vehicle_maintenance_schedules", force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "mileage"
     t.integer "vehicle_maintenance_schedule_type_id"
@@ -1269,7 +1264,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_maintenance_schedule_type_id"], name: "index_vehicle_maintenance_schedule_type_id"
   end
 
-  create_table "vehicle_monthly_trackings", id: :serial, force: :cascade do |t|
+  create_table "vehicle_monthly_trackings", force: :cascade do |t|
     t.integer "provider_id"
     t.integer "year"
     t.integer "month"
@@ -1279,7 +1274,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_vehicle_monthly_trackings_on_provider_id"
   end
 
-  create_table "vehicle_requirement_templates", id: :serial, force: :cascade do |t|
+  create_table "vehicle_requirement_templates", force: :cascade do |t|
     t.integer "provider_id"
     t.string "name", limit: 255
     t.boolean "legal"
@@ -1290,7 +1285,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_vehicle_requirement_templates_on_provider_id"
   end
 
-  create_table "vehicle_types", id: :serial, force: :cascade do |t|
+  create_table "vehicle_types", force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "provider_id"
     t.datetime "created_at"
@@ -1298,7 +1293,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_vehicle_types_on_provider_id"
   end
 
-  create_table "vehicle_warranties", id: :serial, force: :cascade do |t|
+  create_table "vehicle_warranties", force: :cascade do |t|
     t.integer "vehicle_id"
     t.string "description", limit: 255
     t.text "notes"
@@ -1308,7 +1303,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_id"], name: "index_vehicle_warranties_on_vehicle_id"
   end
 
-  create_table "vehicle_warranty_templates", id: :serial, force: :cascade do |t|
+  create_table "vehicle_warranty_templates", force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "provider_id"
     t.datetime "created_at"
@@ -1316,7 +1311,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_vehicle_warranty_templates_on_provider_id"
   end
 
-  create_table "vehicles", id: :serial, force: :cascade do |t|
+  create_table "vehicles", force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "year"
     t.string "make", limit: 255
@@ -1356,7 +1351,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["vehicle_type_id"], name: "index_vehicles_on_vehicle_type_id"
   end
 
-  create_table "verification_questions", id: :serial, force: :cascade do |t|
+  create_table "verification_questions", force: :cascade do |t|
     t.integer "user_id"
     t.text "question"
     t.text "answer"
@@ -1365,7 +1360,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["user_id"], name: "index_verification_questions_on_user_id"
   end
 
-  create_table "versions", id: :serial, force: :cascade do |t|
+  create_table "versions", force: :cascade do |t|
     t.string "item_type", limit: 255, null: false
     t.integer "item_id", null: false
     t.string "event", limit: 255, null: false
@@ -1376,7 +1371,7 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
-  create_table "weekday_assignments", id: :serial, force: :cascade do |t|
+  create_table "weekday_assignments", force: :cascade do |t|
     t.integer "repeating_trip_id"
     t.integer "repeating_run_id"
     t.integer "wday"
