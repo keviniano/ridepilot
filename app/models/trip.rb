@@ -408,6 +408,37 @@ class Trip < ApplicationRecord
     funding_source.try(:ntd_reportable?)
   end
 
+  # get total occupancy info for each capacity type
+  def mobility_notes
+    note_parts = []
+
+    ridership = self.ridership_mobilities.has_capacity
+    if ridership.any?
+      trip_capacity = {}
+
+      capacity_types = CapacityType.by_provider(self.provider_id).order(:name).pluck(:id,:name).to_h
+      mobility_capacities = MobilityCapacity.has_capacity.group(:host_id, :capacity_type_id).sum(:capacity)
+
+      ridership.group(:mobility_id).sum(:capacity).each do |mobility_id, capacity|
+        capacity_types.each do |c_id, c_name|
+          val = trip_capacity[c_id] || 0
+          val += capacity * mobility_capacities[[mobility_id, c_id]].to_i
+
+          trip_capacity[c_id] = val
+        end
+      end
+
+      capacity_types.each do |c_id, c_name|
+        val = trip_capacity[c_id].to_i
+        if val && val > 0
+          note_parts << "#{c_name}: #{val}"
+        end
+      end
+    end
+    
+    note_parts.join(", ")
+  end
+
   private
 
   def driver_is_valid_for_vehicle

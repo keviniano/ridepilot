@@ -108,10 +108,9 @@ class Run < ApplicationRecord
       (self.manifest_order.blank? || (self.manifest_order - ["run_begin","run_end"]).empty?) && 
       self.itineraries.revenue.empty?
 
-    rr = self.repeating_run
-    return unless rr.present? 
-
     day_of_week = self.date.wday
+    rr = self.repeating_run
+    return if !rr.present? || rr.weekday_assignments.for_wday(day_of_week).empty?
 
     rr_manifest_order = rr.repeating_run_manifest_orders.for_wday(day_of_week).first.try(:manifest_order) || []
   
@@ -168,7 +167,7 @@ class Run < ApplicationRecord
     end
 
     self.manifest_changed = true
-
+    run_manifest_order = add_run_begin_end_order(run_manifest_order)
     if run_manifest_order.any?
       self.manifest_order = run_manifest_order 
     end
@@ -177,7 +176,6 @@ class Run < ApplicationRecord
 
     # create itineraries
     reset_itineraries
-
     # publish manifest
     if self.manifest_publishable?
       RunStatsCalculator.new(self.id).process_eta
@@ -186,7 +184,7 @@ class Run < ApplicationRecord
   end
 
   # make manifest public
-  def publish_manifest!
+  def publish_manifest!(notify_driver = false)
     old_public_itins = self.public_itineraries
     finished_itins = old_public_itins.finished
     non_finished_itins = old_public_itins.non_finished
@@ -229,20 +227,23 @@ class Run < ApplicationRecord
       self.public_itineraries.new(run: self, itinerary: itin, sequence: public_itin_count, eta: itin_eta).save
       public_itin_count += 1
     end
-
     # update publish time
     self.manifest_published_at = DateTime.now
     self.manifest_changed = false
     self.save(validate: false)
+
+    if notify_driver
+      ManifestNotificationWorker.perform_async(self.id)
+    end
   end
 
   def manifest_publishable?
-    self.driver && # has driver
-      self.vehicle &&  # has vehicle
+    self.driver.present? && # has driver
+      self.vehicle.present? &&  # has vehicle
       (
         (self.from_garage_address && self.to_garage_address) || # has start & end locations
         self.vehicle.garage_address # or vehicle has garage address
-      )  
+      ).present?  
   end
 
   def manifest_unpublishable_reasons
@@ -374,12 +375,12 @@ class Run < ApplicationRecord
     self.itineraries.destroy_all
 
     Itinerary.transaction do
-      build_begin_run_itinerary.save
+      self.itineraries << build_begin_run_itinerary
       self.trips.each do |trip|
-        build_itinerary(trip.pickup_time, trip.pickup_address, trip.id, 1).save
-        build_itinerary(trip.appointment_time, trip.dropoff_address, trip.id, 2).save
+        self.itineraries << build_itinerary(trip.pickup_time, trip.pickup_address, trip.id, 1)
+        self.itineraries << build_itinerary(trip.appointment_time, trip.dropoff_address, trip.id, 2)
       end
-      build_end_run_itinerary.save
+      self.itineraries << build_end_run_itinerary
     end
   end
 
@@ -393,16 +394,27 @@ class Run < ApplicationRecord
     exclude_leg_ids = itins.dropoff.joins(trip: :trip_result).where(trip_results: {code: TripResult::NON_DISPATCHABLE_CODES}).pluck(:id).uniq
     itins = itins.where.not(id: exclude_leg_ids) if exclude_leg_ids.any?
 
-    if manifest_order.blank?
+    run_manifest_order = manifest_order
+    if run_manifest_order.blank?
       itins = itins.sort_by { |itin| [itin.time_diff, itin.leg_flag] }
     else
-      manifest_order.insert(0, "run_begin") if manifest_order.first != 'run_begin'
-      manifest_order << "run_end" if manifest_order.last != 'run_end'
+      run_manifest_order = add_run_begin_end_order(run_manifest_order)
 
-      itins = itins.sort_by{|itin| manifest_order.index(itin.itin_id).to_i}
+      itins = itins.sort_by{|itin| 
+        idx = run_manifest_order.index(itin.itin_id)
+        [idx ? 0: 1, idx]
+      }
     end
 
     itins
+  end
+
+  def add_run_begin_end_order(manifest_order = [])
+    manifest_order ||= []
+    manifest_order.insert(0, "run_begin") if manifest_order.first != 'run_begin'
+    manifest_order << "run_end" if manifest_order.last != 'run_end'
+
+    manifest_order
   end
 
   def build_begin_run_itinerary
@@ -790,7 +802,9 @@ class Run < ApplicationRecord
       end
     end
 
-    self.manifest_changed = true if @unschedule_trips || @clear_manifest_times || self.changes.include?('manifest_order')
+    if @unschedule_trips || @clear_manifest_times || self.changes.include?('manifest_order')
+      self.manifest_changed = true 
+    end
 
     true
   end  

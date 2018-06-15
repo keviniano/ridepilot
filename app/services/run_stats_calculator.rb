@@ -103,14 +103,13 @@ class RunStatsCalculator
     return if itins.empty?
 
     unless itins.first.is_begin_run?
-      puts "adding run begin itin"
-      run_begin_itin = @run.build_begin_run_itinerary.save
+      run_begin_itin = @run.build_begin_run_itinerary
       run_begin_itin.save
       itins.insert(0, run_begin_itin)
     end
     unless itins.last.is_end_run?
       puts "adding end begin itin"
-      run_end_itin = @run.build_end_run_itinerary.save
+      run_end_itin = @run.build_end_run_itinerary
       run_end_itin.save
       itins << run_end_itin
     end

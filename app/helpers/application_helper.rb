@@ -305,4 +305,8 @@ module ApplicationHelper
     parts.join("\n")
   end
 
+  def run_cancel_warning(run)
+    "Are you sure you want to cancel #{run.name}? Doing this will move any scheduled trips to the Unscheduled queue and cannot be undone."
+  end
+
 end

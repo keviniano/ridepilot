@@ -177,5 +177,7 @@ class RepeatingTrip < ApplicationRecord
       rr = assignment.repeating_run
       rr.delete_trip_manifest!(self.id, assignment.wday) if rr
     end
+
+    weekday_assignments.delete_all
   end
 end

@@ -9,8 +9,12 @@ class ChatWorker
       ActionCable.server.broadcast "chat_channel_#{message.provider_id}_#{message.driver_id}", {
         sender_id: message.sender_id, 
         sender_name: message.sender.try(:display_name),
-        message: message.body, 
-        action: 'CreateMessage'
+        body: message.body, 
+        driver_id: message.driver_id,
+        provider_id: message.provider_id,
+        action: 'CreateMessage',
+        created_at: message.created_at,
+        id: message.id
       }
     end
   end

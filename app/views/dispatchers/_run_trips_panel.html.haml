@@ -20,7 +20,7 @@
               %i.fa.fa-clock-o.eta_icon
         - if can?(:cancel, run)  
           %span.dispatch-action
-            = link_to cancel_run_dispatchers_path(run_id: run.id), title: 'Cancel run', style: 'color: white;', remote: true, data: {confirm: 'Are you sure to cancel this run?'} do 
+            = link_to cancel_run_dispatchers_path(run_id: run.id), title: 'Cancel run', style: 'color: white;', remote: true, data: {confirm: run_cancel_warning(run)} do 
               %i.fa.fa-power-off
         - if can?(:edit, run)
           %span.dispatch-action

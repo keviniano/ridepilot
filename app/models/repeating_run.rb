@@ -160,6 +160,13 @@ class RepeatingRun < ApplicationRecord
     active
   end
 
+  def reset_itineraries!(wday)
+    self.repeating_itineraries.for_wday(wday).delete_all
+    self.weekday_assignments.for_wday(wday).pluck(:repeating_trip_id).each do|trip_id|
+      self.add_trip_manifest! trip_id, wday
+    end
+  end
+
   def add_trip_manifest!(trip_id, wday)
     # remove it first in case same trip was left over
     delete_trip_manifest!(trip_id, wday)
@@ -228,7 +235,7 @@ class RepeatingRun < ApplicationRecord
   def sorted_itineraries(revenue_only = false, wday)
     itins = repeating_itineraries.for_wday(wday)
     itins = itins.revenue if revenue_only
-
+    
     if itins.empty?
       itins = []
       # build itineraries from trips
@@ -255,7 +262,10 @@ class RepeatingRun < ApplicationRecord
     if manifest_order.blank?
       itins = itins.sort_by { |itin| [itin.time_diff, itin.leg_flag] }
     else
-      itins = itins.sort_by{|itin| manifest_order.index(itin.itin_id)}
+      itins = itins.sort_by{|itin| 
+        idx = manifest_order.index(itin.itin_id)
+        [idx ? 0 : 1, idx]
+      }
     end
 
     itins

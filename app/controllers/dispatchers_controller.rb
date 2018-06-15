@@ -134,7 +134,7 @@ class DispatchersController < ApplicationController
       calculate_eta
     end
 
-    @run.publish_manifest!
+    @run.publish_manifest!(@run.date == Date.today && !@run.complete? && @run.start_odometer && !@run.end_odometer)
   end
 
   def run_trips

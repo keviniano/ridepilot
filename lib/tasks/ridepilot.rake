@@ -405,4 +405,17 @@ namespace :ridepilot do
     # these runs has itineraries, but not published, so need to mark as manifest changed
     Run.where(id: (has_trip_itin_run_ids - published_run_ids)).update_all(manifest_changed: true)
   end
+
+  desc "re-create repeating run itineraries"
+  task :recreate_legacy_repeating_run_itins => :environment do
+    RepeatingRun.all.each do |r|
+      (0..6).each do |wday|
+        itins = r.repeating_itineraries.for_wday(wday)
+        # has trips assigned, but no itineraries created
+        if itins.empty? && r.weekday_assignments.for_wday(wday).any?
+          r.reset_itineraries!(wday)
+        end
+      end
+    end
+  end
 end

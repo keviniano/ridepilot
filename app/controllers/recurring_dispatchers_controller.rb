@@ -68,7 +68,12 @@ class RecurringDispatchersController < ApplicationController
       @new_status_id = params[:run_id].to_i if params[:run_id]
 
       if @prev_run
+
         @prev_run.weekday_assignments.for_wday(@day_of_week).where(repeating_trip_id: @target_trip_ids).delete_all
+        @target_trip_ids.uniq.each do |trip_id|
+          @prev_run.delete_trip_manifest!(trip_id, @day_of_week)
+        end
+
         #TrackerActionLog.trips_removed_from_run(@prev_run, RepeatingTrip.where(id: @target_trip_ids), current_user, RepeatingRun::DAYS_OF_WEEK[@day_of_week])
       end
 

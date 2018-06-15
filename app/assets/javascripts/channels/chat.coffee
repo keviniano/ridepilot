@@ -1,6 +1,6 @@
 App.chats ||= App.chats || {}
 
-@create_chat_channel = (provider_id, driver_id) ->
+@create_chat_channel = (provider_id, driver_id, new_message_callback) ->
   App.chats[[provider_id, driver_id]] = App.cable.subscriptions.create {
       channel: "ChatChannel",
       provider_id: provider_id,
@@ -13,8 +13,8 @@ App.chats ||= App.chats || {}
       # Called when the subscription has been terminated by the server
 
     received: (data) ->
-      # TODO: show new message
-      console.log(data.message);
+      if new_message_callback
+        new_message_callback(data.id)
 
     create: (message) ->
       @perform 'create', body: message, driver_id: driver_id

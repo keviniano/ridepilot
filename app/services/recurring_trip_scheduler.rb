@@ -84,6 +84,7 @@ class RecurringTripScheduler
 
   def remove_trip_manifest(run, trip_id)
     if run 
+      run.weekday_assignments.for_wday(@wday).where(repeating_trip_id: trip_id).delete_all
       run.delete_trip_manifest!(trip_id, @wday)
     end
   end

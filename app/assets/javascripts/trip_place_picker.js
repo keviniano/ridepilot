@@ -61,7 +61,11 @@ function init_place_picker(dom_selector, query_bounds, query_restrictions) {
     });
 }
 
-var google_place_service = new google.maps.places.PlacesService(document.createElement('div'));
+var google_place_service;
+if(window.google) {
+  google_place_service = new google.maps.places.PlacesService(document.createElement('div'));
+}
+
 function process_google_address(addr, type) {
   google_place_service.getDetails({
     placeId: addr.place_id
