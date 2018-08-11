@@ -8,7 +8,6 @@ class ChatChannel < ApplicationCable::Channel
   end
 
   def create(data)
-    puts data
     RoutineMessage.create(provider_id: params[:provider_id], sender: current_user, body: data["body"], driver_id: data["driver_id"])
   end
 end

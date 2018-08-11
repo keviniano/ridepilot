@@ -11,6 +11,9 @@
             %strong
               = translate_helper(:site_title)
         .modal-body.row{:style => "text-align:left; margin: 0px;"}
+          - if warning
+            %p.alert.alert-danger
+              = warning
           = translate_helper(:ask_for_creating_return_trip_message)
           .col-sm-12{style: 'padding: 5px;'}
             = f.label :pickup_time, translate_helper("pickup_time")

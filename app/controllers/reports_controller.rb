@@ -17,6 +17,7 @@ class Query
   attr_accessor :address_group_id
   attr_accessor :ntd_year
   attr_accessor :ntd_month
+  attr_accessor :run_inspection_type
   attr_accessor :report_format
   attr_accessor :report_type
 
@@ -79,6 +80,9 @@ class Query
       end
       if params["ntd_month"]
         @ntd_month = params["ntd_month"].to_i unless params["ntd_month"].blank?
+      end
+      if params["run_inspection_type"]
+        @run_inspection_type = params["run_inspection_type"]
       end
       if params["report_format"]
         @report_format = params["report_format"]
@@ -1206,6 +1210,54 @@ class ReportsController < ApplicationController
     if params[:query]
       @excel_file_name = "NTD_#{@query.ntd_year}_#{@query.ntd_month}"
       @workbook = NtdReport.new(current_provider, @query.ntd_year, @query.ntd_month).export!
+    end
+
+    apply_v2_response
+  end
+
+  def pre_run_inspections
+    query_params = params[:query] || {start_date: Date.today.prev_month + 1, end_date: Date.today + 1}
+    @query = Query.new(query_params)
+    @active_vehicles = Vehicle.for_provider(current_provider_id).active.default_order
+    
+    if params[:query]
+      @report_params = []
+      @report_params << ["Date Range", "#{@query.start_date.strftime('%m/%d/%Y')} - #{@query.before_end_date.strftime('%m/%d/%Y')}"]
+      @report_params << ["Inspection Type", @query.run_inspection_type.titleize] if @query.run_inspection_type
+
+      # get failed inspections
+      @inspections = RunVehicleInspection.joins(run: :vehicle).joins(:vehicle_inspection)
+                      .where("runs.provider_id": current_provider_id)
+                      .where("runs.date >= ? and runs.date < ?", @query.start_date, @query.end_date)
+                      .where(checked: false)
+                      .order("lower(vehicles.name)", "runs.date", "runs.scheduled_start_time_string", "vehicle_inspections.description")
+      
+      @inspections = @inspections.where("runs.vehicle_id": @query.vehicle_id) if @query.vehicle_id
+
+      # TODO: filter by inspection question type (flaggable or mechanical)
+      if @query.run_inspection_type == 'flagged'
+        @inspections = @inspections.where("vehicle_inspections.flagged": true) 
+      elsif @query.run_inspection_type == 'mechanical'
+        @inspections = @inspections.where("vehicle_inspections.mechanical": true) 
+      end
+
+      # get notes provided by driver
+      run_ids = @inspections.pluck(:run_id).uniq
+      runs = Run.where(id: run_ids)
+      run_data_array = runs.pluck(:id, :name, :date, :driver_notes)
+      @run_data = Hash[run_data_array.collect { |item| [item[0], item[1..-1]] } ]
+
+      # formulate report data
+      @report_data = {}
+      @inspections.pluck("runs.vehicle_id", "runs.id", "vehicle_inspections.description").each do |insp_data|
+        vehicle_id = insp_data[0]
+        run_id = insp_data[1]
+        @report_data[vehicle_id] = {} unless @report_data[vehicle_id]
+        vehicle_data = @report_data[vehicle_id]
+        vehicle_data[run_id] = [] unless vehicle_data[run_id]
+        vehicle_data[run_id] << insp_data[2]
+      end
+      @vehicle_names = Vehicle.where(id: @report_data.keys.uniq).pluck(:id, :name).to_h
     end
 
     apply_v2_response

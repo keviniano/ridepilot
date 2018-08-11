@@ -1,25 +1,22 @@
-development:
-  RIDEPILOT_HOST:
-  SYSTEM_ADMIN_EMAIL:
-  SYSTEM_ADMIN_PASSWORD:
-  SYSTEM_SEND_FROM_ADDRESS:
-  OPEN_TRIP_PLANNER_URL:
-  GOOGLE_API_KEY:
+# basic system config
+RIDEPILOT_HOST:
+SYSTEM_ADMIN_EMAIL:    
+SYSTEM_ADMIN_PASSWORD: 
 
-test:
-  RIDEPILOT_HOST:
-  SYSTEM_SEND_FROM_ADDRESS:
-  OPEN_TRIP_PLANNER_URL:
+# Mail server
+SMTP_MAIL_ADDR:                 
+SMTP_MAIL_DOMAIN:               
+SMTP_MAIL_PASSWORD:             
+SMTP_MAIL_PORT:                 
+SMTP_MAIL_USER_NAME:            
+SYSTEM_SEND_FROM_ADDRESS:   
 
-production:   
-  RIDEPILOT_HOST:     
-  SYSTEM_ADMIN_EMAIL:    
-  SYSTEM_ADMIN_PASSWORD: 
-  SMTP_MAIL_ADDR:                 
-  SMTP_MAIL_DOMAIN:               
-  SMTP_MAIL_PASSWORD:             
-  SMTP_MAIL_PORT:                 
-  SMTP_MAIL_USER_NAME:            
-  SYSTEM_SEND_FROM_ADDRESS:       
-  OPEN_TRIP_PLANNER_URL:            
-  GOOGLE_API_KEY:
+# Planner    
+TRIP_PLANNER_TYPE:   # GOOGLE or OTP
+OPEN_TRIP_PLANNER_URL:      
+GOOGLE_TRIP_PLANNER_URL: "https://maps.googleapis.com/maps/api/distancematrix/json?"  
+
+# Map display, CAD etc
+GOOGLE_API_KEY:               
+GOOGLE_ROAD_API_KEY:  # it's same as GOOGLE_API_KEY with new google API policy
+GOOGLE_ROAD_POINT_LIMIT: # default 100       

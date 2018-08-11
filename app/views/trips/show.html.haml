@@ -1,5 +1,5 @@
 - if @ask_for_return_trip && @trip
-  = render 'ask_for_return_trip_dialog'
+  = render 'ask_for_return_trip_dialog', warning: @trip_warning
   :javascript
     $('#askCreatingReturnTripDialog').modal('show');
 - else

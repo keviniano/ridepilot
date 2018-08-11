@@ -14,20 +14,6 @@ class HomeController < ApplicationController
     redirect_back(fallback_location: admin_path)
   end
 
-  def ntd_funding_sources
-    get_base_funding_sources
-  end
-
-  def update_ntd_funding_sources
-    get_base_funding_sources
-
-    unless params["ntd_funding_source_ids"].blank?
-      ntd_source_ids = params["ntd_funding_source_ids"].split(',') 
-      @funding_sources.where(id: ntd_source_ids).update_all(ntd_reportable: true)
-      @funding_sources.where.not(id: ntd_source_ids).update_all(ntd_reportable: false)
-    end
-  end
-
   private
 
   def get_base_funding_sources

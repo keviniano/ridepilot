@@ -16,6 +16,12 @@ class ChatWorker
         created_at: message.created_at,
         id: message.id
       }
+
+      ActionCable.server.broadcast "chat_alert_channel_#{message.run_id}", {
+        message_id: message.id,
+        sender_id: message.sender_id,
+        action: 'NewChat'
+      }
     end
   end
 end

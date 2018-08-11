@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180529214015) do
+ActiveRecord::Schema.define(version: 20180805183603) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -134,7 +134,17 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["provider_id"], name: "index_capacity_types_on_provider_id"
   end
 
-  create_table "custom_reports", force: :cascade do |t|
+  create_table "chat_read_receipts", force: :cascade do |t|
+    t.bigint "run_id"
+    t.bigint "message_id"
+    t.integer "read_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id"], name: "index_chat_read_receipts_on_message_id"
+    t.index ["run_id"], name: "index_chat_read_receipts_on_run_id"
+  end
+
+  create_table "custom_reports", id: :serial, force: :cascade do |t|
     t.string "name", limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -540,9 +550,11 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "driver_id"
+    t.bigint "run_id"
     t.index ["driver_id"], name: "index_messages_on_driver_id"
     t.index ["provider_id"], name: "index_messages_on_provider_id"
     t.index ["reader_id"], name: "index_messages_on_reader_id"
+    t.index ["run_id"], name: "index_messages_on_run_id"
     t.index ["sender_id"], name: "index_messages_on_sender_id"
   end
 
@@ -1205,6 +1217,8 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.bigint "provider_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "flagged"
+    t.boolean "mechnical"
     t.index ["provider_id"], name: "index_vehicle_inspections_on_provider_id"
   end
 
@@ -1381,10 +1395,13 @@ ActiveRecord::Schema.define(version: 20180529214015) do
     t.index ["repeating_trip_id"], name: "index_weekday_assignments_on_repeating_trip_id"
   end
 
+  add_foreign_key "chat_read_receipts", "messages"
+  add_foreign_key "chat_read_receipts", "runs"
   add_foreign_key "gps_locations", "providers"
   add_foreign_key "gps_locations", "runs"
   add_foreign_key "message_templates", "providers"
   add_foreign_key "messages", "drivers"
+  add_foreign_key "messages", "runs"
   add_foreign_key "run_vehicle_inspections", "runs"
   add_foreign_key "run_vehicle_inspections", "vehicle_inspections"
   add_foreign_key "vehicle_inspections", "providers"

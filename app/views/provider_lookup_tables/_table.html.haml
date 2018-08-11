@@ -15,6 +15,11 @@
     - if is_description_column_configured
       %th
         = table.description_column_name.titleize
+    - if table.name == 'vehicle_inspections'
+      %th Flagged?
+      %th Mechnical?
+    - if table.name == 'funding_sources'
+      %th NTD Reportable?
   %tbody
     - table.values(current_provider_id).each do |item|
       %tr{data: {"model-id": item.id}}
@@ -26,6 +31,17 @@
         - if is_description_column_configured
           %td
             = item[table.description_column_name]
+        - if table.name == 'vehicle_inspections'
+          %td
+            = form_for item, url: mark_flagged_vehicle_inspection_path(item), remote: true, method: :patch do |f|
+              = f.check_box :flagged, :onclick => "$(this).parents('form').submit()"
+          %td 
+            = form_for item, url: mark_mechnical_vehicle_inspection_path(item), remote: true, method: :patch do |f|
+              = f.check_box :mechnical, :onclick => "$(this).parents('form').submit()"
+        - if table.name == 'funding_sources'
+          %td
+            = form_for item, url: mark_ntd_reportable_funding_source_path(item), remote: true, method: :patch do |f|
+              = f.check_box :ntd_reportable, :onclick => "$(this).parents('form').submit()"
 
 :javascript
   $(document).ready(function(){

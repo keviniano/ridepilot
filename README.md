@@ -11,7 +11,9 @@ work in progress
 
 - latest stable: check [master](https://github.com/camsys/ridepilot/tree/master)
 
-- Ridepilot Version 2 branch: check [ridepilot\_v1](https://github.com/camsys/ridepilot/tree/ridepilot_v2)
+- RidePilot CAD/AVL engine: check [CAD/AVL](https://github.com/camsys/ridepilot_cad_avl)
+
+- RideAVL driver mobile app: check [RideAVL](https://github.com/camsys/rideavl)
 
 Dependencies
 -------------

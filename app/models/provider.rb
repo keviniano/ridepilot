@@ -24,6 +24,7 @@ class Provider < ApplicationRecord
   has_many :repeating_runs
   has_many :driver_requirement_templates, :dependent => :destroy
   has_many :documents, as: :documentable, dependent: :destroy, inverse_of: :documentable
+  has_many :vehicle_inspections, :dependent => :destroy
 
   has_one :address_upload_flag
 

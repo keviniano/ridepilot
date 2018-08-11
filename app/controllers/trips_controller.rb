@@ -331,7 +331,7 @@ class TripsController < ApplicationController
         @trip.cab = true
       else 
         if status_id != Run::UNSCHEDULED_RUN_ID
-          @trip.run_id = status_id 
+          run_id = status_id 
         end
       end
     end
@@ -342,7 +342,17 @@ class TripsController < ApplicationController
 
     respond_to do |format|
       if @trip.is_all_valid?(current_provider_id) && @trip.save
-        @trip.run.add_trip_manifest!(@trip.id) if @trip.run
+        if run_id
+          scheduler = TripScheduler.new(@trip.id, run_id)
+          scheduler.execute
+
+          if scheduler && scheduler.errors.any?
+            @trip_warning = "Trip was successfully created, but can not be assigned to run due to: #{scheduler.errors.join(',')}."
+          end
+
+          @trip.run.add_trip_manifest!(@trip.id) if @trip.run
+        end
+
         @trip.post_process_trip_result_changed!(current_user)
         @trip.update_donation current_user, params[:customer_donation].to_f if params[:customer_donation].present?
         TripDistanceCalculationWorker.perform_async(@trip.id) #sidekiq needs to run
@@ -356,10 +366,12 @@ class TripsController < ApplicationController
           if @ask_for_return_trip
             render action: :show
           else
+            trip_notice = @trip_warning || 'Trip was successfully created.'
+
             if from_dispatch
-              redirect_to dispatchers_path(run_id: params[:run_id]), :notice => 'Trip was successfully created.'
+              redirect_to dispatchers_path(run_id: params[:run_id]), :notice => trip_notice
             else
-              redirect_to(@trip, :notice => 'Trip was successfully created.')
+              redirect_to(@trip, :notice => trip_notice)
             end
           end
         }

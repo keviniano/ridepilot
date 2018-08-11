@@ -1,0 +1,19 @@
+- if @report_data.empty?
+  %h4 No record found
+- else
+  %h2 Below is the list of failed inspections:
+  - @report_data.each do |vehicle_id, vehicle_data|
+    %h4 
+      %u= "Vehicle: #{@vehicle_names[vehicle_id]}"
+    - vehicle_data.each do |run_id, inspections|
+      - run_data = @run_data[run_id]
+      %b= "#{run_data[0]}, #{format_date(run_data[1])}"
+      %ul
+        - inspections.each do |insp|
+          %li= insp
+        - driver_notes = run_data[2]
+        - if driver_notes
+          %li
+            %b Driver Notes: 
+            = "#{driver_notes}"
+
