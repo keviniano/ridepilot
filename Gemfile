@@ -149,6 +149,7 @@ group :test, :development do
   gem 'database_cleaner'
   gem 'faker'
   gem 'timecop'
+  gem 'coveralls', require: false
 end
 
 group :development do
