@@ -104,7 +104,7 @@ gem 'ridepilot_cad_avl', github: 'camsys/ridepilot_cad_avl'
 
 # Manage app-specific cron tasks using a Ruby DSL, see config/schedule.rb
 gem 'whenever', :require => false
-# RADAR current version is 0.13.0, but schedule_atts requires > 0.7.0 
+# RADAR current version is 0.13.0, but schedule_atts requires > 0.7.0
 gem 'ice_cube', '~> 0.6.8'
 # Date and time validation plugin for ActiveModel and Rails
 gem 'jc-validates_timeliness'
@@ -117,7 +117,7 @@ gem 'figaro'
 # soft-delete
 gem "paranoia"
 # logging activities for Tracker Action Log
-gem 'public_activity' 
+gem 'public_activity'
 # Manage application-level settings
 gem 'rails-settings-cached'
 # background workder
@@ -128,12 +128,14 @@ gem 'redis-rails'
 gem 'rubyXL'
 # Data migration
 gem 'data_migrate'
+# Trick for making precompile work without db
+gem 'activerecord-nulldb-adapter'
 
 group :production do
   gem 'exception_notification'
 end
 
-group :integration, :qa, :production do 
+group :integration, :qa, :production do
   gem 'rails_12factor'
   gem 'unicorn'
   gem 'rack-timeout'
